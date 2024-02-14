@@ -1,28 +1,31 @@
-public class piece
+public class Piece
 {
-    public piece(PieceType type, PieceColor color)
+    private PieceType type;
+    private PieceColor color;
+
+    public Piece(PieceType type, PieceColor color)
     {
         this.type = type;
         this.color = color;
     }
-
-    public toString()
+    public string toString()
     {
-        return " ";
+        return this.color.ToString() + " " + this.type.ToString();
     }
 }
 
-enum PieceType
+public enum PieceType
 {
     Pawn,
+    Rook,
     Knight,
     Bishop,
-    Rook,
     Queen,
     King
 }
-enum PieceColor
+
+public enum PieceColor
 {
-    White,
-    Black
+    Black,
+    White
 }
