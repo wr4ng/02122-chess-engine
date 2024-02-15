@@ -2,7 +2,10 @@ public class Board
 {
     private Piece[,] board = new Piece[8,8];
     private playerColor currentPlayer;
-
+    private string castlingRights; //TODO skal det være en string?
+    private string enPassantSquare; //same, string?
+    private int halfmoveClock; //fifty move rule
+    private int fullmoveNumber; //number of the full move
     public Board()
     {
         currentPlayer = playerColor.White;
@@ -34,6 +37,27 @@ public class Board
     public Piece getPiece(int rank, int file)
     {
         return board[rank,file];
+    }
+
+    public playerColor getCurrentPlayer()
+    {
+        return currentPlayer;
+    }
+    public string getCastlingRights()
+    {
+        return castlingRights;
+    }
+    public string getEnPassantSquare()
+    {
+        return enPassantSquare;
+    }
+    public int getHalfmoveClock()
+    {
+        return halfmoveClock;
+    }
+    public int getFullmoveNumber()
+    {
+        return fullmoveNumber;
     }
 
 }
