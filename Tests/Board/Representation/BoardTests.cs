@@ -53,41 +53,49 @@ public class BoardTests
         b.importFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 1");
         Assert.AreEqual("KQkq", b.getCastlingRights());
     }
+    [TestMethod]
     public void FENCastlingRightsWhiteLimited(){
         Board b = new Board();
         b.importFromFEN("k7/8/8/8/8/8/7q/K7 w Kkq - 0 1");
         Assert.AreEqual("Kkq", b.getCastlingRights());
     }
+    [TestMethod]
     public void FENCastlingRightsBlackLimited(){
         Board b = new Board();
         b.importFromFEN("k7/8/8/8/8/8/7q/K7 w KQ - 0 1");
         Assert.AreEqual("KQ", b.getCastlingRights());
     }
+    [TestMethod]
     public void FENCastlingRightsNone(){
         Board b = new Board();
         b.importFromFEN("k7/8/8/8/8/8/7q/K7 w - - 0 1");
         Assert.AreEqual("-", b.getCastlingRights());
     }
+    [TestMethod]
     public void FENEnPassantSquare(){
         Board b = new Board();
         b.importFromFEN("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
         Assert.AreEqual("e3", b.getEnPassantSquare());
     }
+    [TestMethod]
     public void FENNoEnPassantSquare(){
         Board b = new Board();
         b.importFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         Assert.AreEqual("-", b.getEnPassantSquare());
     }
+    [TestMethod]
     public void FENHalfmoveClock(){
         Board b = new Board();
         b.importFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 45 1");
         Assert.AreEqual(45, b.getHalfmoveClock());
     }
+    [TestMethod]
     public void FENHelfmoveClockZero(){
         Board b = new Board();
         b.importFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 1");
         Assert.AreEqual(0, b.getHalfmoveClock());
     }
+    [TestMethod]
     public void FENFullmoveNumber(){
         Board b = new Board();
         b.importFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 34");
