@@ -6,6 +6,7 @@ public class Board
 	private string enPassantSquare; //same, string?
 	private int halfmoveClock; //fifty move rule
 	private int fullmoveNumber; //number of the full move
+
 	public Board()
 	{
 		currentPlayer = playerColor.White;
@@ -23,6 +24,7 @@ public class Board
 	{
 
 	}
+
 	public string exportToFEN()
 	{
 		string fen = "";
@@ -44,23 +46,26 @@ public class Board
 	{
 		return currentPlayer;
 	}
+
 	public string getCastlingRights()
 	{
 		return castlingRights;
 	}
+
 	public string getEnPassantSquare()
 	{
 		return enPassantSquare;
 	}
+
 	public int getHalfmoveClock()
 	{
 		return halfmoveClock;
 	}
+
 	public int getFullmoveNumber()
 	{
 		return fullmoveNumber;
 	}
-
 }
 
 public enum playerColor //Technically exists in the piece class

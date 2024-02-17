@@ -14,6 +14,6 @@ public class Tile : MonoBehaviour
 	void OnMouseDown()
 	{
 		// TODO Handle tile click
-		Debug.Log( Util.CoordinateToString( rank, file ) );
+		Debug.Log(Util.CoordinateToString(rank, file));
 	}
 }
