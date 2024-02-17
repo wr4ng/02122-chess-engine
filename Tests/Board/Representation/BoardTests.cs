@@ -8,8 +8,8 @@ public class BoardTests
 	{
 		Board b = new Board();
 		b.ImportFromFEN("7K/8/8/7p/8/8/8/k7 w KQkq - 0 1"); // i added 2 kings in case we check for game over when importing FEN
-		Assert.AreEqual("Black Pawn", b.getPiece(7, 4).ToString());
-		Assert.AreEqual(null, b.getPiece(0, 0)); //kan man det?
+		Assert.AreEqual("Black Pawn", b.GetPiece(7, 4).ToString());
+		Assert.AreEqual(null, b.GetPiece(0, 0)); //kan man det?
 	}
 
 	[TestMethod]
@@ -17,8 +17,8 @@ public class BoardTests
 	{
 		Board b = new Board();
 		b.ImportFromFEN("k6K/8/8/7p/8/8/8/P7 w KQkq - 0 1");
-		Assert.AreEqual("Black Pawn", b.getPiece(7, 4).ToString());
-		Assert.AreEqual("White Pawn", b.getPiece(0, 0).ToString());
+		Assert.AreEqual("Black Pawn", b.GetPiece(7, 4).ToString());
+		Assert.AreEqual("White Pawn", b.GetPiece(0, 0).ToString());
 	}
 
 	[TestMethod]
@@ -26,14 +26,14 @@ public class BoardTests
 	{
 		Board b = new Board();
 		b.ImportFromFEN("k7/8/8/8/8/8/8/rnbqKBNR b KQkq - 0 1");
-		Assert.AreEqual("Black Rook", b.getPiece(0, 0).ToString());
-		Assert.AreEqual("Black Knight", b.getPiece(1, 0).ToString());
-		Assert.AreEqual("Black Bishop", b.getPiece(2, 0).ToString());
-		Assert.AreEqual("Black Queen", b.getPiece(3, 0).ToString());
-		Assert.AreEqual("White King", b.getPiece(4, 0).ToString());
-		Assert.AreEqual("White Bishop", b.getPiece(5, 0).ToString());
-		Assert.AreEqual("White Knight", b.getPiece(6, 0).ToString());
-		Assert.AreEqual("White Rook", b.getPiece(7, 0).ToString());
+		Assert.AreEqual("Black Rook", b.GetPiece(0, 0).ToString());
+		Assert.AreEqual("Black Knight", b.GetPiece(1, 0).ToString());
+		Assert.AreEqual("Black Bishop", b.GetPiece(2, 0).ToString());
+		Assert.AreEqual("Black Queen", b.GetPiece(3, 0).ToString());
+		Assert.AreEqual("White King", b.GetPiece(4, 0).ToString());
+		Assert.AreEqual("White Bishop", b.GetPiece(5, 0).ToString());
+		Assert.AreEqual("White Knight", b.GetPiece(6, 0).ToString());
+		Assert.AreEqual("White Rook", b.GetPiece(7, 0).ToString());
 	}
 
 	[TestMethod]
@@ -41,7 +41,7 @@ public class BoardTests
 	{
 		Board b = new Board();
 		b.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 1");
-		Assert.AreEqual(PlayerColor.White, b.getCurrentPlayer());
+		Assert.AreEqual(Color.White, b.GetCurrentPlayer());
 	}
 
 	[TestMethod]
@@ -49,7 +49,7 @@ public class BoardTests
 	{
 		Board b = new Board();
 		b.ImportFromFEN("k7/8/8/8/8/8/7q/K7 b KQkq - 0 1");
-		Assert.AreEqual(PlayerColor.Black, b.getCurrentPlayer());
+		Assert.AreEqual(Color.Black, b.GetCurrentPlayer());
 	}
 
 	[TestMethod]

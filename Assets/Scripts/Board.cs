@@ -3,15 +3,15 @@ using System;
 public class Board
 {
 	private Piece[,] board = new Piece[8, 8];
-	private PlayerColor currentPlayer;
-	private string castlingRights; //TODO skal det være en string?
+	private Color currentPlayer;
+	private CastlingRights castlingRights;
 	private string enPassantSquare; //same, string?
 	private int halfmoveClock; //fifty move rule
 	private int fullmoveNumber; //number of the full move
 
 	public Board()
 	{
-		currentPlayer = PlayerColor.White;
+		currentPlayer = Color.White;
 
 		for (int rank = 0; rank < 8; rank++) //TODO check that file and rank is correct, idk
 		{
@@ -38,19 +38,19 @@ public class Board
 		throw new NotImplementedException();
 	}
 
-	public Piece getPiece(int rank, int file)
+	public Piece GetPiece(int rank, int file)
 	{
 		return board[rank, file];
 	}
 
-	public PlayerColor getCurrentPlayer()
+	public Color GetCurrentPlayer()
 	{
 		return currentPlayer;
 	}
 
 	public string GetCastlingRights()
 	{
-		return castlingRights;
+		return castlingRights.ToFENString();
 	}
 
 	public string GetEnPassantSquare()
@@ -67,10 +67,4 @@ public class Board
 	{
 		return fullmoveNumber;
 	}
-}
-
-public enum PlayerColor //Technically exists in the piece class
-{
-	White,
-	Black
 }

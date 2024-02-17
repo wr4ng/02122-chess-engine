@@ -3,9 +3,9 @@ using System.ComponentModel;
 public class Piece
 {
 	private PieceType type;
-	private PieceColor color;
+	private Color color;
 
-	public Piece(PieceType type, PieceColor color)
+	public Piece(PieceType type, Color color)
 	{
 		this.type = type;
 		this.color = color;
@@ -28,7 +28,7 @@ public class Piece
 			PieceType.King => 'k',
 			_ => throw new InvalidEnumArgumentException()
 		};
-		return color == PieceColor.White ? char.ToUpper(FENchar) : FENchar;
+		return color == Color.White ? char.ToUpper(FENchar) : FENchar;
 	}
 }
 
@@ -42,8 +42,8 @@ public enum PieceType
 	King
 }
 
-public enum PieceColor
+public enum Color
 {
-	Black,
-	White
+	White,
+	Black
 }

@@ -3,9 +3,9 @@ using UnityEngine;
 public class BoardUI : MonoBehaviour
 {
 	[SerializeField]
-	private Color primaryColor;
+	private UnityEngine.Color primaryColor;
 	[SerializeField]
-	private Color secondaryColor;
+	private UnityEngine.Color secondaryColor;
 	[SerializeField]
 	private GameObject tilePrefab;
 
