@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 public class Piece
 {
 	private PieceType type;
@@ -9,15 +11,24 @@ public class Piece
 		this.color = color;
 	}
 
-	public string toString()
+	public override string ToString()
 	{
-		return this.color.ToString() + " " + this.type.ToString();
+		return color.ToString() + " " + type.ToString();
 	}
 
-	public char toFENchar()
+	public char ToFENchar()
 	{
-		char FENchar = (this.type == PieceType.Knight) ? 'N' : this.type.ToString().ToUpper()[0]; //exception for knight because K is already taken by king
-		return (this.color == PieceColor.White) ? FENchar : char.ToLower(FENchar); //Uppercase for white, lowercase for black
+		char FENchar = type switch
+		{
+			PieceType.Pawn => 'p',
+			PieceType.Rook => 'r',
+			PieceType.Knight => 'n',
+			PieceType.Bishop => 'b',
+			PieceType.Queen => 'q',
+			PieceType.King => 'k',
+			_ => throw new InvalidEnumArgumentException()
+		};
+		return color == PieceColor.White ? char.ToUpper(FENchar) : FENchar;
 	}
 }
 

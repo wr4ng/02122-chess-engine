@@ -7,83 +7,83 @@ public class PieceTests
 	public void CreateWhitePawn()
 	{
 		Piece p = new Piece(PieceType.Pawn, PieceColor.White);
-		Assert.AreEqual("White Pawn", p.toString());
+		Assert.AreEqual("White Pawn", p.ToString());
 	}
 
 	[TestMethod]
 	public void CreateBlackRook()
 	{
 		Piece p = new Piece(PieceType.Rook, PieceColor.Black);
-		Assert.AreEqual("Black Rook", p.toString());
+		Assert.AreEqual("Black Rook", p.ToString());
 	}
 
 	[TestMethod]
 	public void CreateWhiteKnight()
 	{
 		Piece p = new Piece(PieceType.Knight, PieceColor.White);
-		Assert.AreEqual("White Knight", p.toString());
+		Assert.AreEqual("White Knight", p.ToString());
 	}
 
 	[TestMethod]
 	public void CreateBlackBishop()
 	{
 		Piece p = new Piece(PieceType.Bishop, PieceColor.Black);
-		Assert.AreEqual("Black Bishop", p.toString());
+		Assert.AreEqual("Black Bishop", p.ToString());
 	}
 
 	[TestMethod]
 	public void CreateWhiteQueen()
 	{
 		Piece p = new Piece(PieceType.Queen, PieceColor.White);
-		Assert.AreEqual("White Queen", p.toString());
+		Assert.AreEqual("White Queen", p.ToString());
 	}
 
 	[TestMethod]
 	public void CreateBlackKing()
 	{
 		Piece p = new Piece(PieceType.King, PieceColor.Black);
-		Assert.AreEqual("Black King", p.toString());
+		Assert.AreEqual("Black King", p.ToString());
 	}
 
 	[TestMethod]
 	public void WhitePawnToFEN()
 	{
 		Piece p = new Piece(PieceType.Pawn, PieceColor.White);
-		Assert.AreEqual('P', p.toFENchar());
+		Assert.AreEqual('P', p.ToFENchar());
 	}
 
 	[TestMethod]
 	public void BlackRookToFEN()
 	{
 		Piece p = new Piece(PieceType.Rook, PieceColor.Black);
-		Assert.AreEqual('r', p.toFENchar());
+		Assert.AreEqual('r', p.ToFENchar());
 	}
 
 	[TestMethod]
 	public void WhiteKnightToFEN()
 	{
 		Piece p = new Piece(PieceType.Knight, PieceColor.White);
-		Assert.AreEqual('N', p.toFENchar());
+		Assert.AreEqual('N', p.ToFENchar());
 	}
 
 	[TestMethod]
 	public void BlackBishopToFEN()
 	{
 		Piece p = new Piece(PieceType.Bishop, PieceColor.Black);
-		Assert.AreEqual('b', p.toFENchar());
+		Assert.AreEqual('b', p.ToFENchar());
 	}
 
 	[TestMethod]
 	public void WhiteQueenToFEN()
 	{
 		Piece p = new Piece(PieceType.Queen, PieceColor.White);
-		Assert.AreEqual('Q', p.toFENchar());
+		Assert.AreEqual('Q', p.ToFENchar());
 	}
 
 	[TestMethod]
 	public void BlackKingToFEN()
 	{
 		Piece p = new Piece(PieceType.King, PieceColor.Black);
-		Assert.AreEqual('k', p.toFENchar());
+		Assert.AreEqual('k', p.ToFENchar());
 	}
 }
