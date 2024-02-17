@@ -40,22 +40,6 @@ csharp_new_line_before_members_in_object_initializers = true
 csharp_space_between_parentheses = false
 csharp_space_after_keywords_in_control_flow_statements = true
 
-# Naming conventions
-dotnet_naming_rule.interface_should_be_begins_with_i.severity = suggestion
-dotnet_naming_rule.interface_should_be_begins_with_i.symbols = interface
-dotnet_naming_rule.members_should_be_pascal_case.severity = suggestion
-dotnet_naming_rule.members_should_be_pascal_case.symbols = public|internal|protected
-dotnet_naming_rule.non_field_members_should_be_pascal_case.severity = suggestion
-dotnet_naming_rule.non_field_members_should_be_pascal_case.symbols = property|method|event|delegate
-dotnet_naming_rule.static_members_should_be_pascal_case.severity = suggestion
-dotnet_naming_rule.static_members_should_be_pascal_case.symbols = static_property|static_method|static_event|static_delegate
-dotnet_naming_rule.non_interface_members_should_be_pascal_case.severity = suggestion
-dotnet_naming_rule.non_interface_members_should_be_pascal_case.symbols = public|internal|protected
-dotnet_naming_rule.non_interface_members_should_be_pascal_case.style = pascal_case_style
-dotnet_naming_symbols.delegate.applicable_kinds = delegate
-dotnet_naming_symbols.event.applicable_kinds = event
-dotnet_naming_symbols.interface.applicable_kinds = interface
-dotnet_naming_symbols.method.applicable_kinds = method
-dotnet_naming_symbols.namespace.applicable_kinds = namespace
-dotnet_naming_symbols.property.applicable_kinds = property
-dotnet_naming_style.pascal_case_style.capitalization = pascal_case
+# Ignore some C# conventions
+dotnet_diagnostic.IDE1006.severity = none # PascalCase
+dotnet_diagnostic.IDE0044.severity = none # readonly
