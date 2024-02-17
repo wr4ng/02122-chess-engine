@@ -6,11 +6,17 @@ namespace Representation;
 public class BoardTests
 {
 	[TestMethod]
+	public void FENStartingPosition()
+	{
+		Board board = Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+		Assert.AreEqual("rnbqkbnr\npppppppp\n--------\n--------\n--------\n--------\nPPPPPPPP\nRNBQKBNR", board.ToString());
+	}
+
+	[TestMethod]
 	public void FENOnePiece()
 	{
-		Board b = Board.ImportFromFEN("7K/8/8/7p/8/8/8/k7 w KQkq - 0 1"); // i added 2 kings in case we check for game over when importing FEN
-		Assert.AreEqual("Black Pawn", b.GetPiece(7, 4).ToString());
-		Assert.AreEqual(null, b.GetPiece(0, 0)); //kan man det?
+		Board board = Board.ImportFromFEN("7K/8/8/7p/8/8/8/k7 w KQkq - 0 1");
+		Assert.AreEqual("-------K\n--------\n--------\n-------p\n--------\n--------\n--------\nk-------", board.ToString());
 	}
 
 	[TestMethod]
