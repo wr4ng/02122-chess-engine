@@ -2,18 +2,17 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-	int rank;
-	int file;
+	int file, rank;
 
-	public void SetCoordinate(int rank, int file)
+	public void SetCoordinate(int file, int rank)
 	{
-		this.rank = rank;
 		this.file = file;
+		this.rank = rank;
 	}
 
 	void OnMouseDown()
 	{
 		// TODO Handle tile click
-		Debug.Log(Util.CoordinateToString(rank, file));
+		Debug.Log(Util.CoordinateToString(file, rank));
 	}
 }

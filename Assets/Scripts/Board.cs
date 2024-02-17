@@ -1,70 +1,64 @@
 using System;
 
-public class Board
+namespace Chess
 {
-	private Piece[,] board = new Piece[8, 8];
-	private Color currentPlayer;
-	private CastlingRights castlingRights;
-	private string enPassantSquare; //same, string?
-	private int halfmoveClock; //fifty move rule
-	private int fullmoveNumber; //number of the full move
-
-	public Board()
+	public class Board
 	{
-		currentPlayer = Color.White;
+		public const int BOARD_SIZE = 8;
 
-		for (int rank = 0; rank < 8; rank++) //TODO check that file and rank is correct, idk
+		private Piece[,] board = new Piece[BOARD_SIZE, BOARD_SIZE];
+		private Color currentPlayer;
+		private CastlingRights castlingRights;
+		(int, int) enPassantSquare; // (file, rank)
+		private int halfmoveClock; // Used to determine fifty move rule
+		private int fullmoveNumber; // The number of full moves made in the game
+
+		private Board() {}
+
+		public static Board ImportFromFEN(string fen)
 		{
-			for (int file = 0; file < 8; file++)
-			{
-				board[rank, file] = null;
-			}
+			throw new NotImplementedException();
 		}
-	}
 
-	public void ImportFromFEN(string fen)
-	{
-		throw new NotImplementedException();
-	}
+		public string ExportToFEN()
+		{
+			//add the board state "https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation"
+			//add the current player
+			//add the castling rights
+			//add the en passant square
+			//add the halfmove clock
+			//add the fullmove number
+			throw new NotImplementedException();
+		}
 
-	public string ExportToFEN()
-	{
-		//add the board state "https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation"
-		//add the current player
-		//add the castling rights
-		//add the en passant square
-		//add the halfmove clock
-		//add the fullmove number
-		throw new NotImplementedException();
-	}
+		public Piece GetPiece(int file, int rank)
+		{
+			return board[file, rank];
+		}
 
-	public Piece GetPiece(int rank, int file)
-	{
-		return board[rank, file];
-	}
+		public Color GetCurrentPlayer()
+		{
+			return currentPlayer;
+		}
 
-	public Color GetCurrentPlayer()
-	{
-		return currentPlayer;
-	}
+		public string GetCastlingRights()
+		{
+			return castlingRights.ToFENString();
+		}
 
-	public string GetCastlingRights()
-	{
-		return castlingRights.ToFENString();
-	}
+		public string GetEnPassantSquare()
+		{
+			return Util.CoordinateToString(enPassantSquare.Item1, enPassantSquare.Item2);
+		}
 
-	public string GetEnPassantSquare()
-	{
-		return enPassantSquare;
-	}
+		public int GetHalfmoveClock()
+		{
+			return halfmoveClock;
+		}
 
-	public int GetHalfmoveClock()
-	{
-		return halfmoveClock;
-	}
-
-	public int GetFullmoveNumber()
-	{
-		return fullmoveNumber;
+		public int GetFullmoveNumber()
+		{
+			return fullmoveNumber;
+		}
 	}
 }

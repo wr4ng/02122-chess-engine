@@ -1,18 +1,19 @@
 using System;
+using Chess;
 
 public class Util
 {
-	public static string CoordinateToString(int rank, int file)
+	public static string CoordinateToString(int file, int rank)
 	{
-		if (!IsValidCoordinate(rank, file))
+		if (!IsValidCoordinate(file, rank))
 		{
-			throw new ArgumentException($"Invalid rank and file: rank {rank}, file {file}");
+			throw new ArgumentException($"Invalid rank and file: file {file}, rank {rank}");
 		}
 		return $"{(char)('a' + file)}{rank + 1}";
 	}
 
-	public static bool IsValidCoordinate(int rank, int file)
+	public static bool IsValidCoordinate(int file, int rank)
 	{
-		return 0 <= rank || rank < 8 || 0 <= file || file < 8;
+		return 0 <= file || file < Board.BOARD_SIZE || 0 <= rank || rank < Board.BOARD_SIZE;
 	}
 }

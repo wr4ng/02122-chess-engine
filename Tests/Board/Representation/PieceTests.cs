@@ -1,3 +1,5 @@
+using Chess;
+
 namespace Representation;
 
 [TestClass]
