@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Tile : MonoBehaviour
@@ -17,6 +14,6 @@ public class Tile : MonoBehaviour
 	void OnMouseDown()
 	{
 		// TODO Handle tile click
-		Debug.Log(Util.CoordinateToString(rank, file));
+		Debug.Log( Util.CoordinateToString( rank, file ) );
 	}
 }

@@ -1,0 +1,60 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# Top-most EditorConfig file.
+root = true
+
+# All files
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = false
+trim_trailing_whitespace = true
+
+# .cs files
+[*.cs]
+indent_style = tab
+indent_size = 4
+
+# Remove unused imports
+dotnet_diagnostic.IDE0005.severity = warning
+
+# C# formatting rules
+csharp_space_between_method_declaration_parameter_list_parentheses = false
+csharp_space_between_method_call_parameter_list_parentheses = true
+csharp_space_between_method_declaration_empty_parameter_list_parentheses = false
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_between_parentheses = control_flow_statements
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+
+# Braces style
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_members_in_object_initializers = false
+csharp_new_line_before_members_in_anonymous_types = falsesharp_new_line_before_open_b½½race = all
+
+# Naming conventions
+dotnet_naming_rule.interface_should_be_begins_with_i.severity = suggestion
+dotnet_naming_rule.interface_should_be_begins_with_i.symbols = interface
+dotnet_naming_rule.members_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.members_should_be_pascal_case.symbols = public|internal|protected
+dotnet_naming_rule.non_field_members_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.non_field_members_should_be_pascal_case.symbols = property|method|event|delegate
+dotnet_naming_rule.static_members_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.static_members_should_be_pascal_case.symbols = static_property|static_method|static_event|static_delegate
+dotnet_naming_rule.non_interface_members_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.non_interface_members_should_be_pascal_case.symbols = public|internal|protected
+dotnet_naming_rule.non_interface_members_should_be_pascal_case.style = pascal_case_style
+dotnet_naming_symbols.delegate.applicable_kinds = delegate
+dotnet_naming_symbols.event.applicable_kinds = event
+dotnet_naming_symbols.interface.applicable_kinds = interface
+dotnet_naming_symbols.method.applicable_kinds = method
+dotnet_naming_symbols.namespace.applicable_kinds = namespace
+dotnet_naming_symbols.property.applicable_kinds = property
+dotnet_naming_style.pascal_case_style.capitalization = pascal_case
+
+# Spacing for "for" loops
+csharp_space_between_parentheses = false
+csharp_space_after_keywords_in_control_flow_statements = true
