@@ -53,6 +53,10 @@ namespace Chess
 					}
 					file = 0;
 					rank--;
+					if(rank < 0)
+					{
+						throw new ArgumentException($"Invalid FEN string (too many ranks): {fen}");
+					}
 				}
 				else
 				{

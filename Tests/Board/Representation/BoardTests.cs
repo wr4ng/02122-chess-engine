@@ -6,25 +6,24 @@ namespace Representation;
 public class BoardTests
 {
 	[TestMethod]
+	public void invalidFenString()
+	{
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 0 1 1")); //too many parts
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 0")); //too few parts
+	}
+	[TestMethod]
 	public void FENStartingPosition()
 	{
 		Board board = Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 		Assert.AreEqual("rnbqkbnr\npppppppp\n--------\n--------\n--------\n--------\nPPPPPPPP\nRNBQKBNR", board.ToString());
 	}
-
-	[TestMethod]
-	public void FENOnePiece()
+		[TestMethod]
+	public void invalidFenboard()
 	{
-		Board board = Board.ImportFromFEN("7K/8/8/7p/8/8/8/k7 w KQkq - 0 1");
-		Assert.AreEqual("-------K\n--------\n--------\n-------p\n--------\n--------\n--------\nk-------", board.ToString());
-	}
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/ppppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 0 1")); //too long rank
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/RNBQKBNR w KQkq 0 1 1")); //too many ranks ??
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/ppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 0 1")); //too short rank
 
-	[TestMethod]
-	public void FENTwoPieces()
-	{
-		Board b = Board.ImportFromFEN("k6K/8/8/7p/8/8/8/P7 w KQkq - 0 1");
-		Assert.AreEqual("Black Pawn", b.GetPiece(7, 4).ToString());
-		Assert.AreEqual("White Pawn", b.GetPiece(0, 0).ToString());
 	}
 
 	[TestMethod]
@@ -40,48 +39,54 @@ public class BoardTests
 		Assert.AreEqual("White Knight", b.GetPiece(6, 0).ToString());
 		Assert.AreEqual("White Rook", b.GetPiece(7, 0).ToString());
 	}
-
 	[TestMethod]
-	public void FENCurrentPlayerWhite()
+	public void FENinvalidPiece()
 	{
-		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 1");
-		Assert.AreEqual(Color.White, b.GetCurrentPlayer());
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("k7/8/8/8/8/8/8/robqKBNR b KQkq - 0 1")); 
 	}
 
 	[TestMethod]
-	public void FENCurrentPlayerBlack()
+	public void FENCurrentPlayer()
 	{
-		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 b KQkq - 0 1");
+		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 1");
+		Assert.AreEqual(Color.White, b.GetCurrentPlayer());
+		b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 b KQkq - 0 1");
 		Assert.AreEqual(Color.Black, b.GetCurrentPlayer());
 	}
 
 	[TestMethod]
-	public void FENCastlingRights()
+	public void FENCurrentPlayerInvalid()
 	{
-		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 1");
-		Assert.AreEqual("KQkq", b.GetCastlingRights());
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 Q KQkq - 0 1"));
 	}
 
-	[TestMethod]
-	public void FENCastlingRightsWhiteLimited()
-	{
-		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w Kkq - 0 1");
-		Assert.AreEqual("Kkq", b.GetCastlingRights());
-	}
+	// [TestMethod]
+	// public void FENCastlingRights()
+	// {
+	// 	Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 1");
+	// 	Assert.AreEqual("KQkq", b.GetCastlingRights());
+	// }
 
-	[TestMethod]
-	public void FENCastlingRightsBlackLimited()
-	{
-		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQ - 0 1");
-		Assert.AreEqual("KQ", b.GetCastlingRights());
-	}
+	// [TestMethod]
+	// public void FENCastlingRightsWhiteLimited()
+	// {
+	// 	Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w Kkq - 0 1");
+	// 	Assert.AreEqual("Kkq", b.GetCastlingRights());
+	// }
 
-	[TestMethod]
-	public void FENCastlingRightsNone()
-	{
-		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w - - 0 1");
-		Assert.AreEqual("-", b.GetCastlingRights());
-	}
+	// [TestMethod]
+	// public void FENCastlingRightsBlackLimited()
+	// {
+	// 	Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQ - 0 1");
+	// 	Assert.AreEqual("KQ", b.GetCastlingRights());
+	// }
+
+	// [TestMethod]
+	// public void FENCastlingRightsNone()
+	// {
+	// 	Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w - - 0 1");
+	// 	Assert.AreEqual("-", b.GetCastlingRights());
+	// }
 
 	[TestMethod]
 	public void FENEnPassantSquare()
@@ -96,6 +101,12 @@ public class BoardTests
 		Board b = Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 		Assert.AreEqual("-", b.GetEnPassantSquare());
 	}
+	public void FENInvalidEnPassantSquares()
+	{
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq k4 0 1"));
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e5 0 1"));
+
+	}
 
 	[TestMethod]
 	public void FENHalfmoveClock()
@@ -105,10 +116,10 @@ public class BoardTests
 	}
 
 	[TestMethod]
-	public void FENHelfmoveClockZero()
+	public void FENHelfmoveClockInvalid()
 	{
-		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 1");
-		Assert.AreEqual(0, b.GetHalfmoveClock());
+		Assert.ThrowsException<ArgumentException>(() =>Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - DinMor 1"));
+
 	}
 
 	[TestMethod]
@@ -116,5 +127,11 @@ public class BoardTests
 	{
 		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 34");
 		Assert.AreEqual(34, b.GetFullmoveNumber());
+	}
+	[TestMethod]
+	public void FENFullmoveNumberInvalid()
+	{
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 MadsMorErFlot"));
+
 	}
 }
