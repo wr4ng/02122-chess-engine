@@ -101,6 +101,7 @@ public class BoardTests
 		Board b = Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 		Assert.AreEqual("-", b.GetEnPassantSquare());
 	}
+	[TestMethod]
 	public void FENInvalidEnPassantSquares()
 	{
 		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq k4 0 1"));
