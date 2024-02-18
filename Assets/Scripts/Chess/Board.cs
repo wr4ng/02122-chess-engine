@@ -18,32 +18,44 @@ namespace Chess
 
 		public static Board ImportFromFEN(string fen)
 		{
-			int fenIndex = 0;
-
-			// Parse board state
 			Board board = new Board();
+			String[] fenParts = fen.Split(' ');
+			if (fenParts.Length != 6)
+			{
+				throw new ArgumentException($"Invalid FEN string (wrong number of parts): {fen}");
+			}
+			parseBoard(fenParts[0], board);
+			parsePlayer(fenParts[1], board);
+			// Parse castling rights
+			parseEnPassant(fenParts[3], board);
+			parseHalfmoveClock(fenParts[4], board);
+			parseFullmoveNumber(fenParts[5], board);
+			return board;
+		}
+
+
+		private static void parseBoard(string fen, Board board)
+		{
 			int file = 0;
 			int rank = 7;
-			while (fen[fenIndex] != ' ')
+
+			for (int fenIndex = 0; fenIndex < fen.Length; fenIndex++)
 			{
-				// Parse empty squares
 				if (int.TryParse(fen[fenIndex].ToString(), out int skip))
 				{
 					file += skip;
 				}
-				// Parse rank skip
 				else if (fen[fenIndex] == '/')
 				{
 					if (file != 8)
 					{
-						throw new ArgumentException($"Invalid FEN string (board setup): {fen}");
+						throw new ArgumentException($"Invalid FEN string (invalid file length): {fen}");
 					}
 					file = 0;
 					rank--;
 				}
 				else
 				{
-					// Parse pieces
 					board.board[file, rank] = fen[fenIndex] switch
 					{
 						'P' => new Piece(PieceType.Pawn, Color.White),
@@ -62,15 +74,68 @@ namespace Chess
 					};
 					file++;
 				}
-				fenIndex++;
 			}
-			fenIndex++;
-			// Parse current player
-			// Parse castling rights
-			// Parse en passant square
-			// Parse halfmove clock and fullmove number
-			return board;
 		}
+		private static void parsePlayer(string fen, Board board)
+		{
+			board.currentPlayer = fen switch
+			{
+				"w" => Color.White,
+				"b" => Color.Black,
+				_ => throw new ArgumentException($"Invalid FEN string (invalid player character): {fen}")
+			};
+		}
+		private static void parseEnPassant(string fen, Board board)
+		{
+			int file, rank;
+			if (fen == "-")
+			{
+				board.enPassantSquare = (-1,-1);
+				return;
+			}
+			file = fen[0] switch
+			{
+				'a' => 0,
+				'b' => 1,
+				'c' => 2,
+				'd' => 3,
+				'e' => 4,
+				'f' => 5,
+				'g' => 6,
+				'h' => 7,
+				_ => throw new ArgumentException($"Invalid FEN string (invalid file): {fen}")
+			};
+			rank = fen[1] switch
+			{
+				'3' => 2,
+				'6' => 5,
+				_ => throw new ArgumentException($"Invalid FEN string (invalid rank for en passant): {fen}")
+			};
+			throw new NotImplementedException();
+		}
+		private static void parseHalfmoveClock(string fen, Board board)
+		{
+			if (int.TryParse(fen, out int halfmove))
+			{
+				board.halfmoveClock = halfmove;
+			}
+			else
+			{
+				throw new ArgumentException($"Invalid FEN string (invalid halfmove number): {fen}");
+			}
+		}
+		private static void parseFullmoveNumber(string fen, Board board)
+		{
+			if (int.TryParse(fen, out int fullmove))
+			{
+				board.fullmoveNumber = fullmove;
+			}
+			else
+			{
+				throw new ArgumentException($"Invalid FEN string (invalid fullmove number): {fen}");
+			}
+		}
+
 
 		public string ExportToFEN()
 		{
