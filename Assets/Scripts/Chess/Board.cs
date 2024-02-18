@@ -10,7 +10,7 @@ namespace Chess
 		private Piece[,] board = new Piece[BOARD_SIZE, BOARD_SIZE];
 		private Color currentPlayer;
 		private CastlingRights castlingRights;
-		(int, int) enPassantSquare; // (file, rank)
+		private (int, int) enPassantSquare; // (file, rank), holds possible en Passant square
 		private int halfmoveClock; // Used to determine fifty move rule
 		private int fullmoveNumber; // The number of full moves made in the game
 
@@ -19,20 +19,20 @@ namespace Chess
 		public static Board ImportFromFEN(string fen)
 		{
 			Board board = new Board();
-			String[] fenParts = fen.Split(' ');
+
+			string[] fenParts = fen.Split(' ');
 			if (fenParts.Length != 6)
 			{
 				throw new ArgumentException($"Invalid FEN string (wrong number of parts): {fen}");
 			}
 			parseBoard(fenParts[0], board);
 			parsePlayer(fenParts[1], board);
-			// Parse castling rights
+			//TODO Parse castling rights
 			parseEnPassant(fenParts[3], board);
 			parseHalfmoveClock(fenParts[4], board);
 			parseFullmoveNumber(fenParts[5], board);
 			return board;
 		}
-
 
 		private static void parseBoard(string fen, Board board)
 		{
@@ -87,13 +87,12 @@ namespace Chess
 		}
 		private static void parseEnPassant(string fen, Board board)
 		{
-			int file, rank;
 			if (fen == "-")
 			{
 				board.enPassantSquare = (-1,-1);
 				return;
 			}
-			file = fen[0] switch
+			int file = fen[0] switch
 			{
 				'a' => 0,
 				'b' => 1,
@@ -105,13 +104,11 @@ namespace Chess
 				'h' => 7,
 				_ => throw new ArgumentException($"Invalid FEN string (invalid file): {fen}")
 			};
-			rank = fen[1] switch
+			if (!int.TryParse(fen[1].ToString(), out int rank))
 			{
-				'3' => 2,
-				'6' => 5,
-				_ => throw new ArgumentException($"Invalid FEN string (invalid rank for en passant): {fen}")
-			};
-			throw new NotImplementedException();
+				throw new ArgumentException($"Invalid FEN string (invalid rank): {fen}");
+			}
+			board.enPassantSquare = (file, rank-1);
 		}
 		private static void parseHalfmoveClock(string fen, Board board)
 		{
@@ -165,7 +162,7 @@ namespace Chess
 
 		public string GetEnPassantSquare()
 		{
-			return Util.CoordinateToString(enPassantSquare.Item1, enPassantSquare.Item2);
+			return enPassantSquare == (-1, -1) ? "-" : Util.CoordinateToString(enPassantSquare.Item1, enPassantSquare.Item2);
 		}
 
 		public int GetHalfmoveClock()
