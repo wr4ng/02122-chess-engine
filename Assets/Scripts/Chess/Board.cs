@@ -54,7 +54,7 @@ namespace Chess
 					}
 					file = 0;
 					rank--;
-					if(rank < 0)
+					if (rank < 0)
 					{
 						throw new ArgumentException($"Invalid FEN string (too many ranks): {fen}");
 					}
@@ -122,7 +122,7 @@ namespace Chess
 		{
 			if (fen == "-")
 			{
-				board.enPassantSquare = (-1,-1);
+				board.enPassantSquare = (-1, -1);
 				return;
 			}
 			int file = fen[0] switch
@@ -141,7 +141,11 @@ namespace Chess
 			{
 				throw new ArgumentException($"Invalid FEN string (invalid rank): {fen}");
 			}
-			board.enPassantSquare = (file, rank-1);
+			if (rank != 3 && rank != 6)
+			{
+				throw new ArgumentException($"Invalid FEN string (invalid rank): {fen}");
+			}
+			board.enPassantSquare = (file, rank - 1);
 		}
 		private static void parseHalfmoveClock(string fen, Board board)
 		{
