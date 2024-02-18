@@ -24,3 +24,8 @@ Install the [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-
 Open the project in **VSCode**. Press `Ctrl + Shift + P` to open the command palet. Select `.NET: Add existing project`. Navigate to and select [Tests/Tests.csproj](Tests/Tests.csproj).
 
 Now you should be able to view and run tests under *Testing* in **VSCode**.
+
+Can also run tests (from the root directory) using:
+```shell
+dotnet test .\Tests\Tests.csproj
+```
