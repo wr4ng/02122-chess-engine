@@ -3,31 +3,17 @@ using Chess;
 namespace Representation;
 
 [TestClass]
-public class BoardTests
+public class FENTests
 {
 	[TestMethod]
-	public void invalidFenString()
-	{
-		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 0 1 1")); //too many parts
-		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 0")); //too few parts
-	}
-	[TestMethod]
-	public void FENStartingPosition()
+	public void StartingPosition()
 	{
 		Board board = Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 		Assert.AreEqual("rnbqkbnr\npppppppp\n--------\n--------\n--------\n--------\nPPPPPPPP\nRNBQKBNR", board.ToString());
 	}
-		[TestMethod]
-	public void invalidFenboard()
-	{
-		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/ppppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 0 1")); //too long rank
-		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/RNBQKBNR w KQkq 0 1 1")); //too many ranks ??
-		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/ppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 0 1")); //too short rank
-
-	}
 
 	[TestMethod]
-	public void FENOneOfEachPiece()
+	public void OneOfEachPiece()
 	{
 		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/8/rnbqKBNR b KQkq - 0 1");
 		Assert.AreEqual("Black Rook", b.GetPiece(0, 0).ToString());
@@ -39,14 +25,31 @@ public class BoardTests
 		Assert.AreEqual("White Knight", b.GetPiece(6, 0).ToString());
 		Assert.AreEqual("White Rook", b.GetPiece(7, 0).ToString());
 	}
+
 	[TestMethod]
-	public void FENinvalidPiece()
+	public void InvalidParts()
 	{
-		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("k7/8/8/8/8/8/8/robqKBNR b KQkq - 0 1"));
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 0 1 1"));   // Too many parts
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 0"));       // Too few parts
 	}
 
 	[TestMethod]
-	public void FENCurrentPlayer()
+	public void InvalidBoardSetup()
+	{
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/ppppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 0 1"));            // Too long rank
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/RNBQKBNR w KQkq 0 1 1"));  // Too many ranks
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/ppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 0 1"));              // Too short rank
+
+	}
+
+	[TestMethod]
+	public void InvalidPiece()
+	{
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("k7/8/8/8/8/8/8/robqKBNR b KQkq - 0 1"));   // Invalid piece 'o'
+	}
+
+	[TestMethod]
+	public void CurrentPlayer()
 	{
 		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 1");
 		Assert.AreEqual(Color.White, b.GetCurrentPlayer());
@@ -55,54 +58,61 @@ public class BoardTests
 	}
 
 	[TestMethod]
-	public void FENCurrentPlayerInvalid()
+	public void CurrentPlayerInvalid()
 	{
 		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 Q KQkq - 0 1"));
 	}
 
 	[TestMethod]
-	public void FENCastlingRights()
+	public void CastlingRights()
 	{
 		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 1");
 		Assert.AreEqual("KQkq", b.GetCastlingRights());
 	}
 
 	[TestMethod]
-	public void FENCastlingRightsWhiteLimited()
+	public void CastlingRightsWhiteLimited()
 	{
 		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w Kkq - 0 1");
 		Assert.AreEqual("Kkq", b.GetCastlingRights());
 	}
 
 	[TestMethod]
-	public void FENCastlingRightsBlackLimited()
+	public void CastlingRightsBlackLimited()
 	{
 		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQ - 0 1");
 		Assert.AreEqual("KQ", b.GetCastlingRights());
 	}
 
 	[TestMethod]
-	public void FENCastlingRightsNone()
+	public void CastlingRightsNone()
 	{
 		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w - - 0 1");
 		Assert.AreEqual("-", b.GetCastlingRights());
 	}
 
 	[TestMethod]
-	public void FENEnPassantSquare()
+	public void CastlingRightsInvalid()
+	{
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w CASTLING - 0 1"));
+	}
+
+	[TestMethod]
+	public void EnPassantSquare()
 	{
 		Board b = Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
 		Assert.AreEqual("e3", b.GetEnPassantSquare());
 	}
 
 	[TestMethod]
-	public void FENNoEnPassantSquare()
+	public void NoEnPassantSquare()
 	{
 		Board b = Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 		Assert.AreEqual("-", b.GetEnPassantSquare());
 	}
+
 	[TestMethod]
-	public void FENInvalidEnPassantSquares()
+	public void InvalidEnPassantSquare()
 	{
 		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq k4 0 1"));
 		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e5 0 1"));
@@ -110,27 +120,28 @@ public class BoardTests
 	}
 
 	[TestMethod]
-	public void FENHalfmoveClock()
+	public void HalfmoveClock()
 	{
 		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 45 1");
 		Assert.AreEqual(45, b.GetHalfmoveClock());
 	}
 
 	[TestMethod]
-	public void FENHelfmoveClockInvalid()
+	public void HalfmoveClockInvalid()
 	{
-		Assert.ThrowsException<ArgumentException>(() =>Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - DinMor 1"));
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - DinMor 1"));
 
 	}
 
 	[TestMethod]
-	public void FENFullmoveNumber()
+	public void FullmoveNumber()
 	{
 		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 34");
 		Assert.AreEqual(34, b.GetFullmoveNumber());
 	}
+
 	[TestMethod]
-	public void FENFullmoveNumberInvalid()
+	public void FullmoveNumberInvalid()
 	{
 		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 MadsMorErFlot"));
 
