@@ -9,7 +9,7 @@ namespace Chess
 
 		private Piece[,] board = new Piece[BOARD_SIZE, BOARD_SIZE];
 		private Color currentPlayer;
-		private CastlingRights castlingRights;
+		private CastlingRights castlingRights = new CastlingRights();
 		(int, int) enPassantSquare; // (file, rank)
 		private int halfmoveClock; // Used to determine fifty move rule
 		private int fullmoveNumber; // The number of full moves made in the game
@@ -53,6 +53,10 @@ namespace Chess
 					}
 					file = 0;
 					rank--;
+					if(rank < 0)
+					{
+						throw new ArgumentException($"Invalid FEN string (too many ranks): {fen}");
+					}
 				}
 				else
 				{
@@ -111,7 +115,7 @@ namespace Chess
 				'6' => 5,
 				_ => throw new ArgumentException($"Invalid FEN string (invalid rank for en passant): {fen}")
 			};
-			throw new NotImplementedException();
+			board.enPassantSquare = (file, rank);
 		}
 		private static void parseHalfmoveClock(string fen, Board board)
 		{
@@ -165,6 +169,10 @@ namespace Chess
 
 		public string GetEnPassantSquare()
 		{
+			if (enPassantSquare.Item1 == -1)
+			{
+				return "-";
+			}
 			return Util.CoordinateToString(enPassantSquare.Item1, enPassantSquare.Item2);
 		}
 

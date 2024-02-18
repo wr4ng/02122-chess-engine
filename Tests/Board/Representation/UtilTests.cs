@@ -8,7 +8,7 @@ public class UtilTests
 	{
 		Assert.AreEqual("a1", Util.CoordinateToString(0, 0));
 		Assert.AreEqual("h8", Util.CoordinateToString(7, 7));
-		Assert.AreEqual("c5", Util.CoordinateToString(4, 2));
-		Assert.AreEqual("f7", Util.CoordinateToString(6, 5));
+		Assert.AreEqual("e3", Util.CoordinateToString(4, 2));
+		Assert.AreEqual("g6", Util.CoordinateToString(6, 5));
 	}
 }
