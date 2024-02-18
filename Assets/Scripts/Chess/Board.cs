@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace Chess
 {
@@ -27,7 +28,7 @@ namespace Chess
 			}
 			parseBoard(fenParts[0], board);
 			parsePlayer(fenParts[1], board);
-			//TODO Parse castling rights
+			parseCastlingRights(fenParts[2], board);
 			parseEnPassant(fenParts[3], board);
 			parseHalfmoveClock(fenParts[4], board);
 			parseFullmoveNumber(fenParts[5], board);
@@ -89,6 +90,34 @@ namespace Chess
 				_ => throw new ArgumentException($"Invalid FEN string (invalid player character): {fen}")
 			};
 		}
+
+		private static void parseCastlingRights(string fen, Board board)
+		{
+			CastlingRights castlingRights = CastlingRights.None;
+			// Validate input
+			// TODO Validate order of castling rights?
+			bool validLength = 0 <= fen.Length && fen.Length <= 4;
+			bool uniqueCharacters = fen == new String(fen.Distinct().ToArray());
+			if (!validLength || !uniqueCharacters)
+			{
+				throw new ArgumentException($"Invalid FEN string (invalid castling rights): {fen}");
+			}
+			// Parse characters
+			foreach (char c in fen)
+			{
+				castlingRights |= c switch
+				{
+					'K' => CastlingRights.WhiteKingside,
+					'Q' => CastlingRights.WhiteQueenside,
+					'k' => CastlingRights.BlackKingside,
+					'q' => CastlingRights.BlackQueenside,
+					'-' => CastlingRights.None,
+					_ => throw new ArgumentException($"Invalid FEN string (invalid castling rights): {fen}")
+				};
+			}
+			board.castlingRights = castlingRights;
+		}
+
 		private static void parseEnPassant(string fen, Board board)
 		{
 			if (fen == "-")

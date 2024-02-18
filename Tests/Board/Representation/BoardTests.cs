@@ -42,7 +42,7 @@ public class BoardTests
 	[TestMethod]
 	public void FENinvalidPiece()
 	{
-		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("k7/8/8/8/8/8/8/robqKBNR b KQkq - 0 1")); 
+		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("k7/8/8/8/8/8/8/robqKBNR b KQkq - 0 1"));
 	}
 
 	[TestMethod]
@@ -60,33 +60,33 @@ public class BoardTests
 		Assert.ThrowsException<ArgumentException>(() => Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 Q KQkq - 0 1"));
 	}
 
-	// [TestMethod]
-	// public void FENCastlingRights()
-	// {
-	// 	Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 1");
-	// 	Assert.AreEqual("KQkq", b.GetCastlingRights());
-	// }
+	[TestMethod]
+	public void FENCastlingRights()
+	{
+		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 1");
+		Assert.AreEqual("KQkq", b.GetCastlingRights());
+	}
 
-	// [TestMethod]
-	// public void FENCastlingRightsWhiteLimited()
-	// {
-	// 	Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w Kkq - 0 1");
-	// 	Assert.AreEqual("Kkq", b.GetCastlingRights());
-	// }
+	[TestMethod]
+	public void FENCastlingRightsWhiteLimited()
+	{
+		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w Kkq - 0 1");
+		Assert.AreEqual("Kkq", b.GetCastlingRights());
+	}
 
-	// [TestMethod]
-	// public void FENCastlingRightsBlackLimited()
-	// {
-	// 	Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQ - 0 1");
-	// 	Assert.AreEqual("KQ", b.GetCastlingRights());
-	// }
+	[TestMethod]
+	public void FENCastlingRightsBlackLimited()
+	{
+		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQ - 0 1");
+		Assert.AreEqual("KQ", b.GetCastlingRights());
+	}
 
-	// [TestMethod]
-	// public void FENCastlingRightsNone()
-	// {
-	// 	Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w - - 0 1");
-	// 	Assert.AreEqual("-", b.GetCastlingRights());
-	// }
+	[TestMethod]
+	public void FENCastlingRightsNone()
+	{
+		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w - - 0 1");
+		Assert.AreEqual("-", b.GetCastlingRights());
+	}
 
 	[TestMethod]
 	public void FENEnPassantSquare()
