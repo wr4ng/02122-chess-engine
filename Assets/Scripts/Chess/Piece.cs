@@ -13,6 +13,16 @@ namespace Chess
 			this.color = color;
 		}
 
+		public PieceType GetPieceType()
+		{
+			return type;
+		}
+
+		public Color GetColor()
+		{
+			return color;
+		}
+
 		public override string ToString()
 		{
 			return color.ToString() + " " + type.ToString();

@@ -200,7 +200,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -386,7 +386,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   primaryColor: {r: 1, g: 0.90588236, b: 0.90588236, a: 1}
   secondaryColor: {r: 0.9433962, g: 0.65563065, b: 0.65563065, a: 1}
+  whiteColor: {r: 1, g: 1, b: 1, a: 1}
+  blackColor: {r: 0, g: 0, b: 0, a: 1}
   tilePrefab: {fileID: 2142086515369553848, guid: a6a8d6410cffc6f45b8a36018ad2f09f, type: 3}
+  pieceTilePrefab: {fileID: 2142086515369553848, guid: 51bd0b30e93f1774eab5ea6bb71ef0ca, type: 3}
+  pawnSprite: {fileID: 21300000, guid: 5a0e012dafd416f41a28f07abb5ea0a2, type: 3}
+  knighSprite: {fileID: 21300000, guid: e4a0a993b029daa488137c60f68a96e4, type: 3}
+  bishopSprite: {fileID: 21300000, guid: 7121c9b3c9b2c5c46b60494721e90fdf, type: 3}
+  rookSprite: {fileID: 21300000, guid: d54472e79d86cf74a973fc1124566253, type: 3}
+  queenSprite: {fileID: 21300000, guid: 25c0ffcff551c5a49abdf3b567ffd836, type: 3}
+  kingSprite: {fileID: 21300000, guid: 35bf06a4402d60440b80023e66a0ec28, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
