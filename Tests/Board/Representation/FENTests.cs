@@ -6,6 +6,15 @@ namespace Representation;
 public class FENTests
 {
 	[TestMethod]
+	public void CoordinateToStringTest()
+	{
+		Assert.AreEqual("a1", FEN.CoordinateToFEN(0, 0));
+		Assert.AreEqual("h8", FEN.CoordinateToFEN(7, 7));
+		Assert.AreEqual("c5", FEN.CoordinateToFEN(2, 4));
+		Assert.AreEqual("f7", FEN.CoordinateToFEN(5, 6));
+	}
+
+	[TestMethod]
 	public void StartingPosition()
 	{
 		Board board = Board.ImportFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");

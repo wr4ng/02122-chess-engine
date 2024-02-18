@@ -1,3 +1,4 @@
+using Chess;
 using UnityEngine;
 
 public class Tile : MonoBehaviour
@@ -13,6 +14,6 @@ public class Tile : MonoBehaviour
 	void OnMouseDown()
 	{
 		// TODO Handle tile click
-		Debug.Log(Util.CoordinateToString(file, rank));
+		Debug.Log(FEN.CoordinateToFEN(file, rank));
 	}
 }

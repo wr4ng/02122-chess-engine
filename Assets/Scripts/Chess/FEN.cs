@@ -3,9 +3,28 @@ using System.Linq;
 
 namespace Chess
 {
-	class FEN
+	public class FEN
 	{
 		public const string STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+		public static string CoordinateToFEN(int file, int rank)
+		{
+			if (!IsValidCoordinate(file, rank))
+			{
+				throw new ArgumentException($"Invalid rank and file: file {file}, rank {rank}");
+			}
+			return $"{(char)('a' + file)}{rank + 1}";
+		}
+
+		public static string CoordinateToFEN((int, int) coordinate)
+		{
+			return CoordinateToFEN(coordinate.Item1, coordinate.Item2);
+		}
+
+		public static bool IsValidCoordinate(int file, int rank)
+		{
+			return 0 <= file || file < Board.BOARD_SIZE || 0 <= rank || rank < Board.BOARD_SIZE;
+		}
 
 		public static Piece[,] ParseBoard(string fen)
 		{

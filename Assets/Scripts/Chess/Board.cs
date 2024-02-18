@@ -63,7 +63,7 @@ namespace Chess
 
 		public string GetEnPassantSquare()
 		{
-			return enPassantSquare == (-1, -1) ? "-" : Util.CoordinateToString(enPassantSquare.Item1, enPassantSquare.Item2);
+			return enPassantSquare == (-1, -1) ? "-" : FEN.CoordinateToFEN(enPassantSquare);
 		}
 
 		public int GetHalfmoveClock()
