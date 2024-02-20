@@ -5,9 +5,9 @@ namespace Chess
 {
 	public class FEN
 	{
-		public const string STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+		public const string STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; //TODO ret sikker på at det sidste skal være 0
 
-		public static string CoordinateToFEN(int file, int rank)
+		public static string CoordinateToFEN(int file, int rank) //TODO thats no FEN is it er det ikke bare til string?
 		{
 			if (!IsValidCoordinate(file, rank))
 			{
@@ -164,6 +164,38 @@ namespace Chess
 			{
 				throw new ArgumentException($"Invalid FEN string (invalid fullmove number): {fen}");
 			}
+		}
+	
+		public static string BoardToFEN(Piece[,] board){
+			string fen = "";
+			for (int rank = 7; rank >= 0; rank--)
+			{
+				int emptyTiles = 0;
+				for (int file = 0; file < Board.BOARD_SIZE; file++)
+				{
+					if (board[file, rank] == null)
+					{
+						emptyTiles++;
+					}
+					else
+					{
+						if (emptyTiles > 0)
+						{
+							fen += emptyTiles;
+							emptyTiles = 0;
+						}
+						fen += board[file, rank].ToFENchar();
+					}
+				}
+				if(emptyTiles != 0){	//TODO føler de her to sidste if's er grimme
+					fen += emptyTiles;
+				}
+				if (rank != 0)
+				{
+					fen += "/";
+				}
+			}
+			return fen;
 		}
 	}
 }
