@@ -197,5 +197,25 @@ namespace Chess
 			}
 			return fen;
 		}
+
+		public static string CurrentPlayerToFEN(Color currentPlayer)
+		{
+			return currentPlayer == Color.White ? " w" : " b";
+		}
+
+		public static string CastlingRightsToFEN(CastlingRights castlingRights){
+			string fen = " ";
+			fen += CastlingRightsExtensions.ToFENString(castlingRights); //TODO skal vi rykke metoden her ind?
+			return fen;
+		}
+		public static string EnPassantToFEN((int, int) enPassantSquare){
+			return enPassantSquare == (-1, -1) ? " -" : " " + CoordinateToFEN(enPassantSquare);
+		}
+		public static string HalfmoveClockToFEN(int halfmoveClock){
+			return " " + halfmoveClock;
+		}
+		public static string FullmoveNumberToFEN(int fullmoveNumber){
+			return " " + fullmoveNumber;
+		}
 	}
 }

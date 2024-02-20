@@ -40,11 +40,11 @@ namespace Chess
 			string fen = "";
 			//add the board state "https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation"
 			fen += FEN.BoardToFEN(this.board);
-			//add the current player
-			//add the castling rights
-			//add the en passant square
-			//add the halfmove clock
-			//add the fullmove number
+			fen += FEN.CurrentPlayerToFEN(this.currentPlayer);
+			fen += FEN.CastlingRightsToFEN(this.castlingRights);
+			fen += FEN.EnPassantToFEN(this.enPassantSquare);
+			fen += FEN.HalfmoveClockToFEN(this.halfmoveClock);
+			fen += FEN.FullmoveNumberToFEN(this.fullmoveNumber);
 			return fen;
 		}
 
