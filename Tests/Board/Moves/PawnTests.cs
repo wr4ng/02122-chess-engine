@@ -57,9 +57,9 @@ namespace Moves
             Assert.AreEqual((6, 1), (moves[1].start));
             Assert.AreEqual((6, 3), (moves[1].end));
             Assert.AreEqual((6, 1), (moves[2].start));
-            Assert.AreEqual((5, 2), (moves[2].end));
+            Assert.AreEqual((7, 2), (moves[2].end));
             Assert.AreEqual((6, 1), (moves[3].start));
-            Assert.AreEqual((7, 2), (moves[3].end));
+            Assert.AreEqual((5, 2), (moves[3].end));
         }
 
         [TestMethod]

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine.UIElements;
 
 namespace Chess
@@ -9,11 +10,18 @@ namespace Chess
         public (int, int) start, end;
         bool isCapture;
         bool isCastle;
+        public bool isEnPassant;
+        bool isPromotion;
         public Move((int, int) start, (int, int) end, bool isCapture)
         {
             this.start = start;
             this.end = end;
             this.isCapture = isCapture;
+        }
+
+        public void SetEnpassant(bool isEnPassant)
+        {
+            this.isEnPassant = isEnPassant;
         }
     }
     public class MoveGenerator
@@ -21,36 +29,41 @@ namespace Chess
         public static List<Move> GeneratePawnMove((int, int) start, Board board)
         {
             List<Move> moves = new List<Move>();
-            Piece[,] pieces = board.GetBoard();
-            Color color = pieces[start.Item1, start.Item2].GetColor();
-            int direction = (color == Color.White) ? 1 : -1;
+            Color color = board.GetPiece(start).GetColor();
+            (int, int) direction = (color == Color.White) ? (0, 1) : (0, -1);
             //Foward Moves
-            bool isBlocked = pieces[start.Item1, start.Item2 + direction] != null;
+            (int, int) position = AddTuples(start, direction);
+            bool isBlocked = board.GetPiece(position) != null;
             if (!isBlocked)
             {
-                moves.Add(new Move(start, (start.Item1, start.Item2 + direction), false));
-                bool atStartPosition = ((color == Color.White && start.Item2 == 1) || (color == Color.Black && start.Item2 == 6));
-                isBlocked = pieces[start.Item1, start.Item2 + direction * 2] != null;
+                moves.Add(new Move(start, position, false));
+                bool atStartPosition = (color == Color.White && start.Item2 == 1) || (color == Color.Black && start.Item2 == 6);
+                position = AddTuples(position, direction);
+                isBlocked = board.GetPiece(position) != null;
                 if (atStartPosition && !isBlocked)
                 {
-                    moves.Add(new Move(start, (start.Item1, start.Item2 + direction * 2), false));
+                    moves.Add(new Move(start, position, false));
                 }
             }
             //Attack moves
-            if (start.Item1 != 0)
+            (int, int)[] attackPositions = { AddTuples(direction, (1, 0)), AddTuples(direction, (-1, 0)) };
+            foreach ((int, int) attackPosition in attackPositions)
             {
-                Piece attackedPiece = pieces[start.Item1 - 1, start.Item2 + direction];
-                if ((start.Item1 - 1, start.Item2 + direction) == board.GetEnPassantCoords() || (attackedPiece != null && attackedPiece.GetColor() != color))
+                position = AddTuples(start, attackPosition);
+                if (InBoard(position))
                 {
-                    moves.Add(new Move(start, (start.Item1 - 1, start.Item2 + direction), true));
-                }
-            }
-            if (start.Item1 != 7)
-            {
-                Piece attackedPiece = pieces[start.Item1 + 1, start.Item2 + direction];
-                if ((start.Item1 + 1, start.Item2 + direction) == board.GetEnPassantCoords() || (attackedPiece != null && attackedPiece.GetColor() != color))
-                {
-                    moves.Add(new Move(start, (start.Item1 + 1, start.Item2 + direction), true));
+                    Piece attackedPiece = board.GetPiece(position);
+                    if (attackedPiece != null && attackedPiece.GetColor() != color)
+                    {
+                        moves.Add(new Move(start, position, true));
+                    }
+                    if (position == board.GetEnPassantCoords())
+                    {
+                        Move move = new Move(start, position, true);
+                        move.SetEnpassant(true);
+                        moves.Add(move); //TODO den her er en lidt underlig en fordi vi rykker jo ikke hen på den position hvor dimsen dør
+                        //Har bare tilføjet en bool, gad ikke have den i constructor
+                    }
                 }
             }
             return moves;
@@ -137,6 +150,10 @@ namespace Chess
         public static (int, int) AddTuples((int, int) a, (int, int) b)
         {
             return (a.Item1 + b.Item1, a.Item2 + b.Item2);
+        }
+        public static (int, int) MultiplyTuple((int, int) a, int factor)
+        {
+            return (a.Item1 * factor, a.Item2 * factor);
         }
     }
 }
