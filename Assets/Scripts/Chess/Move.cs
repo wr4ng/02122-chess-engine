@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor;
 
 namespace Chess
 {
@@ -26,25 +25,31 @@ namespace Chess
             int direction = (color == Color.White) ? 1 : -1;
             //Foward Moves
             bool isBlocked = pieces[start.Item1, start.Item2 + direction] != null;
-            if(!isBlocked){
-                moves.Add(new Move(start, (start.Item1, start.Item2 + direction),false));
+            if (!isBlocked)
+            {
+                moves.Add(new Move(start, (start.Item1, start.Item2 + direction), false));
                 bool atStartPosition = ((color == Color.White && start.Item2 == 1) || (color == Color.Black && start.Item2 == 6));
                 isBlocked = pieces[start.Item1, start.Item2 + direction * 2] != null;
-                if(atStartPosition && !isBlocked){
-                    moves.Add(new Move(start, (start.Item1, start.Item2 + direction*2),false));
+                if (atStartPosition && !isBlocked)
+                {
+                    moves.Add(new Move(start, (start.Item1, start.Item2 + direction * 2), false));
                 }
             }
             //Attack moves
-            if(start.Item1 != 0){
+            if (start.Item1 != 0)
+            {
                 Piece attackedPiece = pieces[start.Item1 - 1, start.Item2 + direction];
-                if((start.Item1 - 1, start.Item2 + direction) == board.GetEnPassantCoords() || (attackedPiece != null && attackedPiece.GetColor() != color)){
-                    moves.Add(new Move(start, (start.Item1 - 1, start.Item2 + direction),true));
+                if ((start.Item1 - 1, start.Item2 + direction) == board.GetEnPassantCoords() || (attackedPiece != null && attackedPiece.GetColor() != color))
+                {
+                    moves.Add(new Move(start, (start.Item1 - 1, start.Item2 + direction), true));
                 }
             }
-            if(start.Item1 != 7){
+            if (start.Item1 != 7)
+            {
                 Piece attackedPiece = pieces[start.Item1 + 1, start.Item2 + direction];
-                if((start.Item1 + 1, start.Item2 + direction) == board.GetEnPassantCoords() || (attackedPiece != null && attackedPiece.GetColor() != color)){
-                    moves.Add(new Move(start, (start.Item1 + 1, start.Item2 + direction),true));
+                if ((start.Item1 + 1, start.Item2 + direction) == board.GetEnPassantCoords() || (attackedPiece != null && attackedPiece.GetColor() != color))
+                {
+                    moves.Add(new Move(start, (start.Item1 + 1, start.Item2 + direction), true));
                 }
             }
             return moves;
@@ -55,14 +60,17 @@ namespace Chess
             List<Move> moves = new List<Move>();
             Piece[,] pieces = board.GetBoard();
             Color color = pieces[start.Item1, start.Item2].GetColor();
-            int[,] offsets = new int[,]{{-2,-1},{-2,1},{-1,-2},{-1,2},{1,-2},{1,2},{2,-1},{2,1}};
-            for(int i = 0; i < 8; i++){
-                int x = start.Item1 + offsets[i,0];
-                int y = start.Item2 + offsets[i,1];
-                if(x >= 0 && x < 8 && y >= 0 && y < 8){
-                    Piece attackedPiece = pieces[x,y];
-                    if(attackedPiece == null || attackedPiece.GetColor() != color){
-                        moves.Add(new Move(start, (x,y),attackedPiece != null));
+            int[,] offsets = new int[,] { { -2, -1 }, { -2, 1 }, { -1, -2 }, { -1, 2 }, { 1, -2 }, { 1, 2 }, { 2, -1 }, { 2, 1 } };
+            for (int i = 0; i < 8; i++)
+            {
+                int x = start.Item1 + offsets[i, 0];
+                int y = start.Item2 + offsets[i, 1];
+                if (x >= 0 && x < 8 && y >= 0 && y < 8)
+                {
+                    Piece attackedPiece = pieces[x, y];
+                    if (attackedPiece == null || attackedPiece.GetColor() != color)
+                    {
+                        moves.Add(new Move(start, (x, y), attackedPiece != null));
                     }
                 }
             }
@@ -71,28 +79,49 @@ namespace Chess
 
         public static List<Move> GenerateBishopMove((int, int) start, Board board)
         {
+            return MoveByDirection(start, board, new (int, int)[] { (-1, -1), (-1, 1), (1, -1), (1, 1) });
+        }
+        public static List<Move> MoveByDirection((int, int) start, Board board, (int, int)[] directions)
+        {
             List<Move> moves = new List<Move>();
             Piece[,] pieces = board.GetBoard();
             Color color = pieces[start.Item1, start.Item2].GetColor();
-            int[,] directions = new int[,]{{-1,-1},{-1,1},{1,-1},{1,1}};
-            for (int direction = 0; direction < 4; direction++){
-                int x = start.Item1;
-                int y = start.Item2;
-                while(true){
-                    x += directions[direction,0];
-                    y += directions[direction,1];
-                    if(x < 0 || x >= 8 || y < 0 || y >= 8){
-                        break;
+            foreach ((int, int) direction in directions)
+            {
+                (int, int) position = AddTuples(start, direction);
+                while (InBoard(position))
+                {
+                    Piece attackedPiece = pieces[position.Item1, position.Item2];
+                    if (attackedPiece == null || attackedPiece.GetColor() != color)
+                    {
+                        moves.Add(new Move(start, position, attackedPiece != null));
                     }
-                    Piece attackedPiece = pieces[x,y];
-                    if(attackedPiece == null || attackedPiece.GetColor() != color){
-                        moves.Add(new Move(start, (x,y),attackedPiece != null));
-                    }else{
-                        break;
+                    else
+                    {
+                        break; //because it would be a piece of same colour
                     }
+                    position = AddTuples(position, direction);
                 }
             }
             return moves;
+        }
+        public static List<Move> MoveByOffset((int, int) start, Board board, (int, int)[] positions)
+        {
+            List<Move> moves = new List<Move>();
+            Piece[,] pieces = board.GetBoard();
+            Color color = pieces[start.Item1, start.Item2].GetColor();
+
+            return moves;
+        }
+
+        private static bool InBoard((int, int) position)
+        {
+            return position.Item1 >= 0 && position.Item1 < 8 && position.Item2 >= 0 && position.Item2 < 8;
+        }
+
+        public static (int, int) AddTuples((int, int) a, (int, int) b)
+        {
+            return (a.Item1 + b.Item1, a.Item2 + b.Item2);
         }
     }
 }
