@@ -110,5 +110,17 @@ namespace Chess
 			}
 			return result.Trim();
 		}
+
+		public void MakeMove(Move move)
+		{
+			move.SetRemovedPiece(board[move.end.Item1, move.end.Item2]);
+			board[move.end.Item1, move.end.Item2] = board[move.start.Item1, move.start.Item2];
+			board[move.start.Item1, move.start.Item2] = null;
+		}
+		public void UnmakeMove(Move move)
+		{
+			board[move.start.Item1, move.start.Item2] = board[move.end.Item1, move.end.Item2];
+			board[move.end.Item1, move.end.Item2] = move.GetRemovedPiece();
+		}
 	}
 }

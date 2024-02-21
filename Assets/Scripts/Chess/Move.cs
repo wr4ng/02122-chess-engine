@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEngine.UIElements;
 
 namespace Chess
 {
@@ -12,6 +9,7 @@ namespace Chess
         bool isCastle;
         public bool isEnPassant;
         bool isPromotion;
+        private Piece removedPiece;
         public Move((int, int) start, (int, int) end, bool isCapture)
         {
             this.start = start;
@@ -22,6 +20,14 @@ namespace Chess
         public void SetEnpassant(bool isEnPassant)
         {
             this.isEnPassant = isEnPassant;
+        }
+        public void SetRemovedPiece(Piece piece)
+        {
+            removedPiece = piece;
+        }
+        public Piece GetRemovedPiece()
+        {
+            return removedPiece;
         }
     }
     public class MoveGenerator
@@ -113,7 +119,7 @@ namespace Chess
                     }
                     else
                     {
-                        break; //because it would be a piece of same colour
+                        break; //because it would be a piece of same color
                     }
                     position = AddTuples(position, direction);
                 }
@@ -140,6 +146,12 @@ namespace Chess
                 }
             }
             return moves;
+        }
+
+        private static bool isInCheck()
+        {
+
+            return false;
         }
 
         private static bool InBoard((int, int) position)
