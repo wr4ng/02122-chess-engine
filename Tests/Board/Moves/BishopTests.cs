@@ -17,23 +17,23 @@ namespace Moves
         [TestMethod]
         public void GenerateBishopMoveBlocked()
         {
-            Board board = Board.ImportFromFEN("8/8/1Q6/4R3/3B4/8/1R6/8 w - - 0 1");
+            Board board = Board.ImportFromFEN("k7/8/8/8/3B4/2R1R3/8/7K w - - 0 1");
             List<Move> moves = MoveGenerator.GenerateBishopMove((3, 3), board);
-            Assert.AreEqual(5, moves.Count);
+            Assert.AreEqual(7, moves.Count);
         }
         [TestMethod]
         public void GenerateBishopMoveAttack()
         {
-            Board board = Board.ImportFromFEN("k7/8/8/2b5/3B4/2n5/8/K7 w - - 0 1");
+            Board board = Board.ImportFromFEN("k7/8/8/8/3B4/2r1r3/8/7K w - - 0 1");
             List<Move> moves = MoveGenerator.GenerateBishopMove((3, 3), board);
             Assert.AreEqual(9, moves.Count);
         }
         [TestMethod]
         public void GenerateBishopMoveAtCorner()
         {
-            Board board = Board.ImportFromFEN("k6B/8/8/2b5/8/2n5/8/K7 w - - 0 1");
-            List<Move> moves = MoveGenerator.GenerateBishopMove((7, 7), board);
-            Assert.AreEqual(5, moves.Count);
+            Board board = Board.ImportFromFEN("k7/8/8/8/8/8/8/B6K w - - 0 1");
+            List<Move> moves = MoveGenerator.GenerateBishopMove((0, 0), board);
+            Assert.AreEqual(7, moves.Count);
         }
 
     }

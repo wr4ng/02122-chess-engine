@@ -52,6 +52,10 @@ namespace Chess
 		{
 			return board[file, rank];
 		}
+		public Piece GetPiece((int, int) coords)
+		{
+			return board[coords.Item1, coords.Item2];
+		}
 
 		public Color GetCurrentPlayer()
 		{
@@ -67,10 +71,12 @@ namespace Chess
 		{
 			return enPassantSquare == (-1, -1) ? "-" : FEN.CoordinateToFEN(enPassantSquare);
 		}
-		public (int,int) GetEnPassantCoords(){
+		public (int, int) GetEnPassantCoords()
+		{
 			return enPassantSquare;
 		}
-		public Piece[,] GetBoard(){
+		public Piece[,] GetBoard()
+		{
 			return board;
 		}
 

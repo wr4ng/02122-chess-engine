@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine.UIElements;
 
 namespace Chess
 {
@@ -55,28 +56,6 @@ namespace Chess
             return moves;
         }
 
-        public static List<Move> GenerateKnightMove((int, int) start, Board board)
-        {
-            List<Move> moves = new List<Move>();
-            Piece[,] pieces = board.GetBoard();
-            Color color = pieces[start.Item1, start.Item2].GetColor();
-            int[,] offsets = new int[,] { { -2, -1 }, { -2, 1 }, { -1, -2 }, { -1, 2 }, { 1, -2 }, { 1, 2 }, { 2, -1 }, { 2, 1 } };
-            for (int i = 0; i < 8; i++)
-            {
-                int x = start.Item1 + offsets[i, 0];
-                int y = start.Item2 + offsets[i, 1];
-                if (x >= 0 && x < 8 && y >= 0 && y < 8)
-                {
-                    Piece attackedPiece = pieces[x, y];
-                    if (attackedPiece == null || attackedPiece.GetColor() != color)
-                    {
-                        moves.Add(new Move(start, (x, y), attackedPiece != null));
-                    }
-                }
-            }
-            return moves;
-        }
-
         public static List<Move> GenerateBishopMove((int, int) start, Board board)
         {
             return MoveByDirection(start, board, new (int, int)[] { (-1, -1), (-1, 1), (1, -1), (1, 1) }); //TODO vi kunne lave directions til enums maybe?
@@ -90,17 +69,26 @@ namespace Chess
             return MoveByDirection(start, board, new (int, int)[] { (-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1) });
         }
 
+        public static List<Move> GenerateKnightMove((int, int) start, Board board)
+        {
+            return MoveByOffset(start, board, new (int, int)[] { (1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1), (-2, 1), (-1, 2) });
+        }
+
+        public static List<Move> GenerateKingMove((int, int) start, Board board)
+        {
+            return MoveByOffset(start, board, new (int, int)[] { (1, 1), (1, 0), (1, -1), (0, 1), (0, -1), (-1, 1), (-1, 0), (-1, -1) });
+        }
         public static List<Move> MoveByDirection((int, int) start, Board board, (int, int)[] directions)
         {
             List<Move> moves = new List<Move>();
-            Piece[,] pieces = board.GetBoard();
-            Color color = pieces[start.Item1, start.Item2].GetColor();
+            Color color = board.GetPiece(start).GetColor();
+            Piece attackedPiece;
             foreach ((int, int) direction in directions)
             {
                 (int, int) position = AddTuples(start, direction);
                 while (InBoard(position))
                 {
-                    Piece attackedPiece = pieces[position.Item1, position.Item2];
+                    attackedPiece = board.GetPiece(position);
                     if (attackedPiece == null)
                     {
                         moves.Add(new Move(start, position, false));
@@ -119,12 +107,25 @@ namespace Chess
             }
             return moves;
         }
-        public static List<Move> MoveByOffset((int, int) start, Board board, (int, int)[] positions)
+        public static List<Move> MoveByOffset((int, int) start, Board board, (int, int)[] offsets)
         {
             List<Move> moves = new List<Move>();
-            Piece[,] pieces = board.GetBoard();
-            Color color = pieces[start.Item1, start.Item2].GetColor();
-
+            Color color = board.GetPiece(start).GetColor();
+            Piece attackedPiece;
+            foreach ((int, int) offset in offsets)
+            {
+                if (!InBoard(AddTuples(start, offset))) continue;
+                (int, int) position = AddTuples(start, offset);
+                attackedPiece = board.GetPiece(position);
+                if (attackedPiece == null)
+                {
+                    moves.Add(new Move(start, position, false));
+                }
+                else if (attackedPiece.GetColor() != color)
+                {
+                    moves.Add(new Move(start, position, true));
+                }
+            }
             return moves;
         }
 
