@@ -1,9 +1,48 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Chess
 {
     public class MoveGenerator
     {
+        public static List<Move> GenerateMoves(Board board)
+        {
+            List<Move> moves = new List<Move>();
+            for (int file = 0; file < 8; file++)
+            {
+                for (int rank = 0; rank < 8; rank++)
+                {
+                    Piece piece = board.GetPiece((file, rank));
+                    if (piece != null && piece.GetColor() == board.GetCurrentPlayer())
+                    {
+                        (int, int) coords = (file, rank);
+                        switch (piece.GetPieceType())
+                        {
+                            case PieceType.Pawn:
+                                moves.Concat(GeneratePawnMove(coords, board));
+                                break;
+                            case PieceType.Bishop:
+                                moves.Concat(GenerateBishopMove(coords, board));
+                                break;
+                            case PieceType.Rook:
+                                moves.Concat(GenerateRookMove(coords, board));
+                                break;
+                            case PieceType.Queen:
+                                moves.Concat(GenerateQueenMove(coords, board));
+                                break;
+                            case PieceType.Knight:
+                                moves.Concat(GenerateKnightMove(coords, board));
+                                break;
+                            case PieceType.King:
+                                moves.Concat(GenerateKingMove(coords, board));
+                                break;
+                        }
+                    }
+                }
+            }
+
+            return moves;
+        }
         public static List<Move> GeneratePawnMove((int, int) start, Board board)
         {
             List<Move> moves = new List<Move>();
