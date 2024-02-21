@@ -30,7 +30,7 @@ namespace Moves
         public void GenerateQueenMoveAtCorner()
         {
             Board board = Board.ImportFromFEN("k7/r7/8/8/8/8/8/Q6K w - - 0 1");
-            List<Move> moves = MoveGenerator.GenerateQueenMove((7, 0), board);
+            List<Move> moves = MoveGenerator.GenerateQueenMove((0, 0), board);
             Assert.AreEqual(19, moves.Count);
         }
     }
