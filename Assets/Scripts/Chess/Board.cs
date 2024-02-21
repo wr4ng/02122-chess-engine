@@ -67,6 +67,12 @@ namespace Chess
 		{
 			return enPassantSquare == (-1, -1) ? "-" : FEN.CoordinateToFEN(enPassantSquare);
 		}
+		public (int,int) GetEnPassantCoords(){
+			return enPassantSquare;
+		}
+		public Piece[,] GetBoard(){
+			return board;
+		}
 
 		public int GetHalfmoveClock()
 		{
