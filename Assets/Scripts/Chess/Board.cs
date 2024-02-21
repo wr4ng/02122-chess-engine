@@ -116,11 +116,28 @@ namespace Chess
 			move.SetRemovedPiece(board[move.end.Item1, move.end.Item2]);
 			board[move.end.Item1, move.end.Item2] = board[move.start.Item1, move.start.Item2];
 			board[move.start.Item1, move.start.Item2] = null;
+			currentPlayer = (currentPlayer == Color.White) ? Color.Black : Color.White;
 		}
 		public void UnmakeMove(Move move)
 		{
 			board[move.start.Item1, move.start.Item2] = board[move.end.Item1, move.end.Item2];
 			board[move.end.Item1, move.end.Item2] = move.GetRemovedPiece();
+			currentPlayer = (currentPlayer == Color.White) ? Color.Black : Color.White;
+		}
+
+		internal (int, int) GetKingPosition(Color color)
+		{
+			for (int file = 0; file < BOARD_SIZE; file++)
+			{
+				for (int rank = 0; rank < BOARD_SIZE; rank++)
+				{
+					if (board[file, rank] != null && board[file, rank].GetColor() == color && board[file, rank].GetPieceType() == PieceType.King)
+					{
+						return (file, rank);
+					}
+				}
+			}
+			return (-1, -1);
 		}
 	}
 }
