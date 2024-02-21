@@ -15,8 +15,8 @@ public class ToFENTests
     [TestMethod]
 	public void DifferentBoardToFEN()
 	{
-        Board board = Board.ImportFromFEN("rn1qkbnr/2ppppp/8/8/8/8/PPPPPP2/RNBQKBN1 b KQkq - 0 1");
-		Assert.AreEqual("rn1qkbnr/2ppppp/8/8/8/8/PPPPPP2/RNBQKBN1", board.ExportToFEN().Split(" ")[0]);
+        Board board = Board.ImportFromFEN("rn1qkbnr/2pppppp/8/8/8/8/PPPPPP2/RNBQKBN1 b KQkq - 0 1");
+		Assert.AreEqual("rn1qkbnr/2pppppp/8/8/8/8/PPPPPP2/RNBQKBN1", board.ExportToFEN().Split(" ")[0]);
 	}
     [TestMethod]
     public void CurrentPlayerToFEN(){
