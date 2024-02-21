@@ -67,14 +67,11 @@ public class BoardUI : MonoBehaviour
 				GameObject tileObject = Instantiate(tilePrefab, tilePosition, Quaternion.identity, transform);
 				GameObject pieceTileObject = Instantiate(pieceTilePrefab, tilePosition, Quaternion.identity, transform);
 
-				// Set tile coordinates
+				// Set tile coordinates and color
 				Tile tile = tileObject.GetComponent<Tile>();
 				tile.SetCoordinate(file, rank);
+				tile.SetColor(GetBaseColor(file, rank));
 				tiles[file, rank] = tile;
-
-				// Set tile color
-				var tileColor = (file + rank) % 2 != 0 ? primaryColor : secondaryColor;
-				tile.SetColor(tileColor);
 
 				SpriteRenderer pieceTileRenderer = pieceTileObject.GetComponent<SpriteRenderer>();
 				pieceTiles[file, rank] = pieceTileRenderer;
@@ -108,21 +105,17 @@ public class BoardUI : MonoBehaviour
 
 	public void HandleTileClick(int file, int rank)
 	{
-		// Highlighting tile when no tile is highlighted
+		// Highlight tile when no tile is highlighted
 		if (highlightedCoordinates == (-1, -1))
 		{
-			//TODO SetHighlight(file, rank, true)
-			var highlightColor = (file + rank) % 2 != 0 ? primaryHighlightColor : secondaryHighlightColor;
-			highlightedCoordinates = (file, rank);
 			highlightedTile = tiles[file, rank];
-			highlightedTile.SetColor(highlightColor);
+			highlightedTile.SetColor(GetHighlightColor(file, rank));
+			highlightedCoordinates = (file, rank);
 		}
-		// Removing highlighted square
+		// Removing highlighted tile when repressing tile
 		else if ((file, rank) == highlightedCoordinates)
 		{
-			//TODO SetHighlight(file, rank, false)
-			var baseColor = (file + rank) % 2 != 0 ? primaryColor : secondaryColor;
-			highlightedTile.SetColor(baseColor);
+			highlightedTile.SetColor(GetBaseColor(file, rank));
 			highlightedTile = null;
 			highlightedCoordinates = (-1, -1);
 		}
@@ -131,10 +124,8 @@ public class BoardUI : MonoBehaviour
 		{
 			// TODO try to complete move
 			Debug.Log($"{FEN.CoordinateToFEN(highlightedCoordinates)} - {FEN.CoordinateToFEN(file, rank)}");
-			// Reset highlight
-			//TODO SetHighlight(..., ..., false)
-			var baseColor = (highlightedCoordinates.Item1 + highlightedCoordinates.Item2) % 2 != 0 ? primaryColor : secondaryColor;
-			highlightedTile.SetColor(baseColor);
+			// Reset previously highlighted square
+			highlightedTile.SetColor(GetBaseColor(highlightedCoordinates.Item1, highlightedCoordinates.Item2));
 			highlightedTile = null;
 			highlightedCoordinates = (-1, -1);
 		}
@@ -152,5 +143,15 @@ public class BoardUI : MonoBehaviour
 			PieceType.King => kingSprite,
 			_ => throw new ArgumentException($"Invalid PieceType: {type}")
 		};
+	}
+
+	private UnityEngine.Color GetBaseColor(int rank, int file)
+	{
+		return (file + rank) % 2 != 0 ? primaryColor : secondaryColor;
+	}
+
+	private UnityEngine.Color GetHighlightColor(int rank, int file)
+	{
+		return (file + rank) % 2 != 0 ? primaryHighlightColor : secondaryHighlightColor;
 	}
 }
