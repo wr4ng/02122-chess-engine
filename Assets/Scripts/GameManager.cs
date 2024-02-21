@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-	public static string IMPORT_FEN = "rnbqkb213123/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2";
+	public static string IMPORT_FEN = string.Empty;
 	public static GameManager Instance { get; private set; }
 
 	private Board board;

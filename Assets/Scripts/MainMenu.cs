@@ -13,7 +13,7 @@ enum SceneIndex
 public class MainMenu : MonoBehaviour
 {
 	[SerializeField, Tooltip("Input field to pass on FEN or PGN notation")]
-	private TMP_Text inputFieldCo;
+	private TMP_InputField fenInputField;
 
 	public void PlayGame()
 	{
@@ -29,12 +29,10 @@ public class MainMenu : MonoBehaviour
 	}
 
 	// Takes the imput from the text field and sets the position
-	public void playWithInput()
+	public void PlayWithInput()
 	{
-		string input = inputFieldCo.text;
-		Debug.Log(input);
-
-		// TODO : Add the logic to set the position from the input and check if it is valid FEN or PGN notation
+		GameManager.IMPORT_FEN = fenInputField.text.Trim();
+		//TODO Validate FEN before loading main scene, and show error if it is invalid
 		SceneManager.LoadScene((int)SceneIndex.Main);
 	}
 }
