@@ -151,9 +151,5 @@ namespace Chess
         {
             return (a.Item1 + b.Item1, a.Item2 + b.Item2);
         }
-        public static (int, int) MultiplyTuple((int, int) a, int factor)
-        {
-            return (a.Item1 * factor, a.Item2 * factor);
-        }
     }
 }
