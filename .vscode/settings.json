@@ -56,5 +56,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "02122-chess-engine.sln"
+    "dotnet.defaultSolution": "02122-chess-engine.sln",
+    "FSharp.suggestGitignore": false
 }
