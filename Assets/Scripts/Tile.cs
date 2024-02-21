@@ -15,7 +15,7 @@ public class Tile : MonoBehaviour
 
 	void OnMouseDown()
 	{
-		BoardUI.instance.HandleTileClick(file, rank);
+		BoardUI.Instance.HandleTileClick(file, rank);
 	}
 
 	public void SetColor(Color color)

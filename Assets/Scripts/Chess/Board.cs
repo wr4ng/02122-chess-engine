@@ -35,6 +35,11 @@ namespace Chess
 			return board;
 		}
 
+		public static Board DefaultBoard()
+		{
+			return ImportFromFEN(FEN.STARTING_POSITION_FEN);
+		}
+
 		public string ExportToFEN()
 		{
 			string fen = "";

@@ -22,7 +22,7 @@ public class BoardUI : MonoBehaviour
 	[SerializeField] private Sprite kingSprite;
 
 	// Singleton
-	public static BoardUI instance { get; private set; }
+	public static BoardUI Instance { get; private set; }
 
 	// UI Board
 	private Tile[,] tiles;
@@ -33,21 +33,16 @@ public class BoardUI : MonoBehaviour
 	private void Awake()
 	{
 		// Singleton setup
-		if (instance != null)
+		if (Instance != null)
 		{
 			Destroy(this);
 		}
 		else
 		{
-			instance = this;
+			Instance = this;
 		}
-	}
-
-	private void Start()
-	{
+		// Generate board tiles. In Awake since GameManager calls UpdateBoard() in Start()
 		GenerateBoard();
-		Board b = Board.ImportFromFEN(FEN.STARTING_POSITION_FEN);
-		UpdateBoard(b);
 	}
 
 	private void GenerateBoard()
