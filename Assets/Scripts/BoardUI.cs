@@ -13,7 +13,6 @@ public class BoardUI : MonoBehaviour
 	[SerializeField] private UnityEngine.Color blackColor;
 	[Header("Prefabs")]
 	[SerializeField] private GameObject tilePrefab;
-	[SerializeField] private GameObject pieceTilePrefab;
 	[Header("Sprites")]
 	[SerializeField] private Sprite pawnSprite;
 	[SerializeField] private Sprite knighSprite;
@@ -27,7 +26,6 @@ public class BoardUI : MonoBehaviour
 
 	// UI Board
 	private Tile[,] tiles;
-	private SpriteRenderer[,] pieceTiles;
 
 	private (int, int) highlightedCoordinates;
 	private Tile highlightedTile;
@@ -55,7 +53,6 @@ public class BoardUI : MonoBehaviour
 	private void GenerateBoard()
 	{
 		tiles = new Tile[Board.BOARD_SIZE, Board.BOARD_SIZE];
-		pieceTiles = new SpriteRenderer[Board.BOARD_SIZE, Board.BOARD_SIZE];
 		Vector3 offset = new Vector3(-3.5f, -3.5f, 0);
 
 		for (int file = 0; file < 8; file++)
@@ -64,17 +61,14 @@ public class BoardUI : MonoBehaviour
 			{
 				// Instantiate tile and pieceTile
 				Vector3 tilePosition = new Vector3(file, rank, 0) + offset;
-				GameObject tileObject = Instantiate(tilePrefab, tilePosition, Quaternion.identity, transform);
-				GameObject pieceTileObject = Instantiate(pieceTilePrefab, tilePosition, Quaternion.identity, transform);
+				GameObject tileGameObject = Instantiate(tilePrefab, tilePosition, Quaternion.identity, transform);
 
-				// Set tile coordinates and color
-				Tile tile = tileObject.GetComponent<Tile>();
+				// Set tile coordinates, color and piece
+				Tile tile = tileGameObject.GetComponent<Tile>();
 				tile.SetCoordinate(file, rank);
 				tile.SetColor(GetBaseColor(file, rank));
+				tile.SetPieceSprite(null);
 				tiles[file, rank] = tile;
-
-				SpriteRenderer pieceTileRenderer = pieceTileObject.GetComponent<SpriteRenderer>();
-				pieceTiles[file, rank] = pieceTileRenderer;
 			}
 		}
 	}
@@ -90,14 +84,16 @@ public class BoardUI : MonoBehaviour
 			for (int rank = 0; rank < Board.BOARD_SIZE; rank++)
 			{
 				Piece piece = board.GetPiece(file, rank);
+				Tile tile = tiles[file, rank];
 				if (piece == null)
 				{
-					pieceTiles[file, rank].sprite = null;
+					tile.SetPieceSprite(null);
 				}
 				else
 				{
-					pieceTiles[file, rank].sprite = PieceToSprite(piece.GetPieceType());
-					pieceTiles[file, rank].color = piece.GetColor() == Chess.Color.White ? whiteColor : blackColor;
+					Sprite pieceSprite = PieceToSprite(piece.GetPieceType());
+					var pieceColor = piece.GetColor() == Chess.Color.White ? whiteColor : blackColor;
+					tile.SetPieceSprite(pieceSprite, pieceColor);
 				}
 			}
 		}

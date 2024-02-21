@@ -3,6 +3,8 @@ using UnityEngine;
 public class Tile : MonoBehaviour
 {
 	[SerializeField] private SpriteRenderer tileSpriteRenderer;
+	[SerializeField] private SpriteRenderer pieceSpriteRenderer;
+
 	private int file, rank;
 
 	public void SetCoordinate(int file, int rank)
@@ -11,13 +13,24 @@ public class Tile : MonoBehaviour
 		this.rank = rank;
 	}
 
-	public void SetColor(UnityEngine.Color color)
+	void OnMouseDown()
+	{
+		BoardUI.instance.HandleTileClick(file, rank);
+	}
+
+	public void SetColor(Color color)
 	{
 		tileSpriteRenderer.color = color;
 	}
 
-	void OnMouseDown()
+	public void SetPieceSprite(Sprite pieceSprite)
 	{
-		BoardUI.instance.HandleTileClick(file, rank);
+		pieceSpriteRenderer.sprite = pieceSprite;
+	}
+
+	public void SetPieceSprite(Sprite pieceSprite, Color pieceColor)
+	{
+		pieceSpriteRenderer.sprite = pieceSprite;
+		pieceSpriteRenderer.color = pieceColor;
 	}
 }
