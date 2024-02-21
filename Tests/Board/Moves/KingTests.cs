@@ -23,8 +23,8 @@ namespace Moves
         [TestMethod]
         public void GenerateKingMoveAttack()
         {
-            Board board = Board.ImportFromFEN("k7/8/8/8/3Kn3/3p4/8/8 w - - 0 1");
-            List<Move> moves = MoveGenerator.GenerateKingMove((3, 3), board);
+            Board board = Board.ImportFromFEN("k7/8/8/8/4K3/4pp2/8/8 w - - 0 1");
+            List<Move> moves = MoveGenerator.GenerateKingMove((4, 3), board);
             Assert.AreEqual(8, moves.Count);
         }
         [TestMethod]
