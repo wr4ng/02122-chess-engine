@@ -79,8 +79,17 @@ namespace Chess
 
         public static List<Move> GenerateBishopMove((int, int) start, Board board)
         {
-            return MoveByDirection(start, board, new (int, int)[] { (-1, -1), (-1, 1), (1, -1), (1, 1) });
+            return MoveByDirection(start, board, new (int, int)[] { (-1, -1), (-1, 1), (1, -1), (1, 1) }); //TODO vi kunne lave directions til enums maybe?
         }
+        public static List<Move> GenerateRookMove((int, int) start, Board board)
+        {
+            return MoveByDirection(start, board, new (int, int)[] { (-1, 0), (1, 0), (0, -1), (0, 1) });
+        }
+        public static List<Move> GenerateQueenMove((int, int) start, Board board)
+        {
+            return MoveByDirection(start, board, new (int, int)[] { (-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1) });
+        }
+
         public static List<Move> MoveByDirection((int, int) start, Board board, (int, int)[] directions)
         {
             List<Move> moves = new List<Move>();
@@ -92,9 +101,14 @@ namespace Chess
                 while (InBoard(position))
                 {
                     Piece attackedPiece = pieces[position.Item1, position.Item2];
-                    if (attackedPiece == null || attackedPiece.GetColor() != color)
+                    if (attackedPiece == null)
                     {
-                        moves.Add(new Move(start, position, attackedPiece != null));
+                        moves.Add(new Move(start, position, false));
+                    }
+                    else if (attackedPiece.GetColor() != color)
+                    {
+                        moves.Add(new Move(start, position, true));
+                        break;
                     }
                     else
                     {
