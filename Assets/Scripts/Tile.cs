@@ -1,9 +1,9 @@
-using Chess;
 using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-	int file, rank;
+	[SerializeField] private SpriteRenderer tileSpriteRenderer;
+	private int file, rank;
 
 	public void SetCoordinate(int file, int rank)
 	{
@@ -11,9 +11,13 @@ public class Tile : MonoBehaviour
 		this.rank = rank;
 	}
 
+	public void SetColor(UnityEngine.Color color)
+	{
+		tileSpriteRenderer.color = color;
+	}
+
 	void OnMouseDown()
 	{
-		// TODO Handle tile click
-		Debug.Log(FEN.CoordinateToFEN(file, rank));
+		BoardUI.instance.HandleTileClick(file, rank);
 	}
 }

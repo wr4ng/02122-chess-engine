@@ -7,6 +7,8 @@ public class BoardUI : MonoBehaviour
 	[Header("Colors")]
 	[SerializeField] private UnityEngine.Color primaryColor;
 	[SerializeField] private UnityEngine.Color secondaryColor;
+	[SerializeField] private UnityEngine.Color primaryHighlightColor;
+	[SerializeField] private UnityEngine.Color secondaryHighlightColor;
 	[SerializeField] private UnityEngine.Color whiteColor;
 	[SerializeField] private UnityEngine.Color blackColor;
 	[Header("Prefabs")]
@@ -20,17 +22,37 @@ public class BoardUI : MonoBehaviour
 	[SerializeField] private Sprite queenSprite;
 	[SerializeField] private Sprite kingSprite;
 
+	// Singleton
+	public static BoardUI instance { get; private set; }
+
+	// UI Board
 	private Tile[,] tiles;
 	private SpriteRenderer[,] pieceTiles;
 
-	void Start()
+	private (int, int) highlightedCoordinates;
+	private Tile highlightedTile;
+
+	private void Awake()
+	{
+		// Singleton setup
+		if (instance != null)
+		{
+			Destroy(this);
+		}
+		else
+		{
+			instance = this;
+		}
+	}
+
+	private void Start()
 	{
 		GenerateBoard();
 		Board b = Board.ImportFromFEN(FEN.STARTING_POSITION_FEN);
 		UpdateBoard(b);
 	}
 
-	void GenerateBoard()
+	private void GenerateBoard()
 	{
 		tiles = new Tile[Board.BOARD_SIZE, Board.BOARD_SIZE];
 		pieceTiles = new SpriteRenderer[Board.BOARD_SIZE, Board.BOARD_SIZE];
@@ -45,14 +67,14 @@ public class BoardUI : MonoBehaviour
 				GameObject tileObject = Instantiate(tilePrefab, tilePosition, Quaternion.identity, transform);
 				GameObject pieceTileObject = Instantiate(pieceTilePrefab, tilePosition, Quaternion.identity, transform);
 
-				// Set tile color
-				SpriteRenderer spriteRenderer = tileObject.GetComponent<SpriteRenderer>();
-				spriteRenderer.color = (file + rank) % 2 != 0 ? primaryColor : secondaryColor;
-
 				// Set tile coordinates
 				Tile tile = tileObject.GetComponent<Tile>();
 				tile.SetCoordinate(file, rank);
 				tiles[file, rank] = tile;
+
+				// Set tile color
+				var tileColor = (file + rank) % 2 != 0 ? primaryColor : secondaryColor;
+				tile.SetColor(tileColor);
 
 				SpriteRenderer pieceTileRenderer = pieceTileObject.GetComponent<SpriteRenderer>();
 				pieceTiles[file, rank] = pieceTileRenderer;
@@ -62,6 +84,10 @@ public class BoardUI : MonoBehaviour
 
 	public void UpdateBoard(Board board)
 	{
+		// Reset highlighted tile on board update
+		highlightedTile = null;
+		highlightedCoordinates = (-1, -1);
+
 		for (int file = 0; file < Board.BOARD_SIZE; file++)
 		{
 			for (int rank = 0; rank < Board.BOARD_SIZE; rank++)
@@ -77,6 +103,40 @@ public class BoardUI : MonoBehaviour
 					pieceTiles[file, rank].color = piece.GetColor() == Chess.Color.White ? whiteColor : blackColor;
 				}
 			}
+		}
+	}
+
+	public void HandleTileClick(int file, int rank)
+	{
+		// Highlighting tile when no tile is highlighted
+		if (highlightedCoordinates == (-1, -1))
+		{
+			//TODO SetHighlight(file, rank, true)
+			var highlightColor = (file + rank) % 2 != 0 ? primaryHighlightColor : secondaryHighlightColor;
+			highlightedCoordinates = (file, rank);
+			highlightedTile = tiles[file, rank];
+			highlightedTile.SetColor(highlightColor);
+		}
+		// Removing highlighted square
+		else if ((file, rank) == highlightedCoordinates)
+		{
+			//TODO SetHighlight(file, rank, false)
+			var baseColor = (file + rank) % 2 != 0 ? primaryColor : secondaryColor;
+			highlightedTile.SetColor(baseColor);
+			highlightedTile = null;
+			highlightedCoordinates = (-1, -1);
+		}
+		// Another tile was already selected
+		else
+		{
+			// TODO try to complete move
+			Debug.Log($"{FEN.CoordinateToFEN(highlightedCoordinates)} - {FEN.CoordinateToFEN(file, rank)}");
+			// Reset highlight
+			//TODO SetHighlight(..., ..., false)
+			var baseColor = (highlightedCoordinates.Item1 + highlightedCoordinates.Item2) % 2 != 0 ? primaryColor : secondaryColor;
+			highlightedTile.SetColor(baseColor);
+			highlightedTile = null;
+			highlightedCoordinates = (-1, -1);
 		}
 	}
 
