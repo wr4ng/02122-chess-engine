@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 
 namespace Chess
 {
@@ -44,6 +45,25 @@ namespace Chess
                 Piece attackedPiece = pieces[start.Item1 + 1, start.Item2 + direction];
                 if((start.Item1 + 1, start.Item2 + direction) == board.GetEnPassantCoords() || (attackedPiece != null && attackedPiece.GetColor() != color)){
                     moves.Add(new Move(start, (start.Item1 + 1, start.Item2 + direction),true));
+                }
+            }
+            return moves;
+        }
+
+        public static List<Move> GenerateKnightMove((int, int) start, Board board)
+        {
+            List<Move> moves = new List<Move>();
+            Piece[,] pieces = board.GetBoard();
+            Color color = pieces[start.Item1, start.Item2].GetColor();
+            int[,] offsets = new int[,]{{-2,-1},{-2,1},{-1,-2},{-1,2},{1,-2},{1,2},{2,-1},{2,1}};
+            for(int i = 0; i < 8; i++){
+                int x = start.Item1 + offsets[i,0];
+                int y = start.Item2 + offsets[i,1];
+                if(x >= 0 && x < 8 && y >= 0 && y < 8){
+                    Piece attackedPiece = pieces[x,y];
+                    if(attackedPiece == null || attackedPiece.GetColor() != color){
+                        moves.Add(new Move(start, (x,y),attackedPiece != null));
+                    }
                 }
             }
             return moves;
