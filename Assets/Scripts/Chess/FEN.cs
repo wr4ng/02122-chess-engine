@@ -165,8 +165,9 @@ namespace Chess
 				throw new ArgumentException($"Invalid FEN string (invalid fullmove number): {fen}");
 			}
 		}
-	
-		public static string BoardToFEN(Piece[,] board){
+
+		public static string BoardToFEN(Piece[,] board)
+		{
 			string fen = "";
 			for (int rank = 7; rank >= 0; rank--)
 			{
@@ -187,7 +188,8 @@ namespace Chess
 						fen += board[file, rank].ToFENchar();
 					}
 				}
-				if(emptyTiles != 0){	//TODO føler de her to sidste if's er grimme
+				if (emptyTiles != 0)
+				{   //TODO føler de her to sidste if's er grimme
 					fen += emptyTiles;
 				}
 				if (rank != 0)
@@ -203,18 +205,22 @@ namespace Chess
 			return currentPlayer == Color.White ? " w" : " b";
 		}
 
-		public static string CastlingRightsToFEN(CastlingRights castlingRights){
+		public static string CastlingRightsToFEN(CastlingRights castlingRights)
+		{
 			string fen = " ";
 			fen += CastlingRightsExtensions.ToFENString(castlingRights); //TODO skal vi rykke metoden her ind?
 			return fen;
 		}
-		public static string EnPassantToFEN((int, int) enPassantSquare){
+		public static string EnPassantToFEN((int, int) enPassantSquare)
+		{
 			return enPassantSquare == (-1, -1) ? " -" : " " + CoordinateToFEN(enPassantSquare);
 		}
-		public static string HalfmoveClockToFEN(int halfmoveClock){
+		public static string HalfmoveClockToFEN(int halfmoveClock)
+		{
 			return " " + halfmoveClock;
 		}
-		public static string FullmoveNumberToFEN(int fullmoveNumber){
+		public static string FullmoveNumberToFEN(int fullmoveNumber)
+		{
 			return " " + fullmoveNumber;
 		}
 	}

@@ -82,7 +82,8 @@ public class BoardUI : MonoBehaviour
 
 	private Sprite PieceToSprite(PieceType type)
 	{
-		return type switch {
+		return type switch
+		{
 			PieceType.Pawn => pawnSprite,
 			PieceType.Knight => knighSprite,
 			PieceType.Bishop => bishopSprite,
