@@ -27,7 +27,7 @@ public class BoardUI : MonoBehaviour
 	// UI Board
 	private Tile[,] tiles;
 
-	private (int, int) highlightedCoordinates;
+	private (int file, int rank) highlightedCoordinates;
 	private Tile highlightedTile;
 
 	private void Awake()
@@ -116,7 +116,7 @@ public class BoardUI : MonoBehaviour
 			// TODO try to complete move
 			Debug.Log($"{FEN.CoordinateToFEN(highlightedCoordinates)} - {FEN.CoordinateToFEN(file, rank)}");
 			// Reset previously highlighted square
-			highlightedTile.SetColor(GetBaseColor(highlightedCoordinates.Item1, highlightedCoordinates.Item2));
+			highlightedTile.SetColor(GetBaseColor(highlightedCoordinates.file, highlightedCoordinates.rank));
 			highlightedTile = null;
 			highlightedCoordinates = (-1, -1);
 		}

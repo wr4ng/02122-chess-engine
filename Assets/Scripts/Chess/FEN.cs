@@ -16,9 +16,9 @@ namespace Chess
 			return $"{(char)('a' + file)}{rank + 1}";
 		}
 
-		public static string CoordinateToFEN((int, int) coordinate)
+		public static string CoordinateToFEN((int file, int rank) coordinate)
 		{
-			return CoordinateToFEN(coordinate.Item1, coordinate.Item2);
+			return CoordinateToFEN(coordinate.file, coordinate.rank);
 		}
 
 		public static bool IsValidCoordinate(int file, int rank)
