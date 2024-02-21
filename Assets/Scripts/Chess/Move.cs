@@ -68,5 +68,31 @@ namespace Chess
             }
             return moves;
         }
+
+        public static List<Move> GenerateBishopMove((int, int) start, Board board)
+        {
+            List<Move> moves = new List<Move>();
+            Piece[,] pieces = board.GetBoard();
+            Color color = pieces[start.Item1, start.Item2].GetColor();
+            int[,] directions = new int[,]{{-1,-1},{-1,1},{1,-1},{1,1}};
+            for (int direction = 0; direction < 4; direction++){
+                int x = start.Item1;
+                int y = start.Item2;
+                while(true){
+                    x += directions[direction,0];
+                    y += directions[direction,1];
+                    if(x < 0 || x >= 8 || y < 0 || y >= 8){
+                        break;
+                    }
+                    Piece attackedPiece = pieces[x,y];
+                    if(attackedPiece == null || attackedPiece.GetColor() != color){
+                        moves.Add(new Move(start, (x,y),attackedPiece != null));
+                    }else{
+                        break;
+                    }
+                }
+            }
+            return moves;
+        }
     }
 }
