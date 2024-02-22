@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 
 namespace Chess
 {
@@ -40,6 +42,7 @@ namespace Chess
                     }
                 }
             }
+            AddCastlingMoves(board, moves);
 
             return moves;
         }
@@ -53,14 +56,14 @@ namespace Chess
             bool isBlocked = board.GetPiece(position) != null;
             if (!isBlocked)
             {
-                Move move = new Move(start, position, true);
+                Move move = new Move(start, position);
                 AddMove(move, board, moves);
                 bool atStartPosition = (color == Color.White && start.Item2 == 1) || (color == Color.Black && start.Item2 == 6);
                 position = Util.AddTuples(position, direction);
                 isBlocked = board.GetPiece(position) != null;
                 if (atStartPosition && !isBlocked)
                 {
-                    Move move2 = new Move(start, position, true);
+                    Move move2 = new Move(start, position);
                     AddMove(move2, board, moves);
                 }
             }
@@ -74,15 +77,16 @@ namespace Chess
                     Piece attackedPiece = board.GetPiece(position);
                     if (attackedPiece != null && attackedPiece.GetColor() != color)
                     {
-                        Move move = new Move(start, position, true);
+                        Move move = new Move(start, position);
                         AddMove(move, board, moves);
                     }
                     if (position == board.GetEnPassantCoords())
                     {
-                        Move move = new Move(start, position, true);
+                        (int, int)[] startMove = new (int, int)[] { position, start };
+                        (int, int)[] end = new (int, int)[] { Util.AddTuples(position, (color == Color.White) ? (0, -1) : (0, 1)), position };
+                        Move move = new Move(startMove, end);
                         move.SetEnpassant(true);
-                        AddMove(move, board, moves); //TODO den her er en lidt underlig en fordi vi rykker jo ikke hen på den position hvor dimsen dør
-                        //Har bare tilføjet en bool, gad ikke have den i constructor
+                        AddMove(move, board, moves);
                     }
                 }
             }
@@ -124,12 +128,12 @@ namespace Chess
                     attackedPiece = board.GetPiece(position);
                     if (attackedPiece == null)
                     {
-                        Move move = new Move(start, position, false);
+                        Move move = new Move(start, position);
                         AddMove(move, board, moves);
                     }
                     else if (attackedPiece.GetColor() != color)
                     {
-                        Move move = new Move(start, position, true);
+                        Move move = new Move(start, position);
                         AddMove(move, board, moves);
                         break;
                     }
@@ -154,12 +158,12 @@ namespace Chess
                 attackedPiece = board.GetPiece(position);
                 if (attackedPiece == null)
                 {
-                    Move move = new Move(start, position, false);
+                    Move move = new Move(start, position);
                     AddMove(move, board, moves);
                 }
                 else if (attackedPiece.GetColor() != color)
                 {
-                    Move move = new Move(start, position, true);
+                    Move move = new Move(start, position);
                     AddMove(move, board, moves);
                 }
             }
@@ -174,6 +178,46 @@ namespace Chess
                 moves.Add(move);
             }
             board.UnmakeMove(move);
+        }
+
+        public static void AddCastlingMoves(Board board, List<Move> moves)
+        {
+            int rank = (board.GetCurrentPlayer() == Color.White) ? 0 : 7;
+            CastlingRights castlingRights = board.GetCastlingRights();
+            if (Check.IsInCheck(board.GetKingPosition(board.GetCurrentPlayer()), board)) return;
+            if (CanCastleKingside(board, castlingRights, rank))
+            {
+                (int, int)[] start = new (int, int)[] { (4, rank), (7, rank) };
+                (int, int)[] end = new (int, int)[] { (6, rank), (5, rank) };
+            }
+            if (CanCastleQueenside(board, castlingRights, rank))
+            {
+                (int, int)[] start = new (int, int)[] { (4, rank), (0, rank) };
+                (int, int)[] end = new (int, int)[] { (2, rank), (3, rank) };
+            }
+        }
+
+        private static bool CanCastleKingside(Board board, CastlingRights castlingRights, int rank)
+        {
+            bool canCastleKingside = (rank == 0) ? castlingRights.HasFlag(CastlingRights.WhiteKingside) : castlingRights.HasFlag(CastlingRights.BlackKingside);
+            if (!canCastleKingside) return false;
+            return CanCastle(board, new (int, int)[] { (5, rank), (6, rank) });
+        }
+        private static bool CanCastleQueenside(Board board, CastlingRights castlingRights, int rank)
+        {
+            bool canCastleQueenside = (rank == 0) ? castlingRights.HasFlag(CastlingRights.WhiteKingside) : castlingRights.HasFlag(CastlingRights.BlackKingside);
+            if (!canCastleQueenside) return false;
+            return CanCastle(board, new (int, int)[] { (3, rank), (2, rank), (1, rank) });
+        }
+        private static bool CanCastle(Board board, (int, int)[] squaresToBeEmpty)
+        {
+            foreach ((int, int) square in squaresToBeEmpty)
+            {
+                Piece piece = board.GetPiece(square);
+                if (piece != null) return false;
+                if (square.Item1 != 1 && Check.IsInCheck(square, board)) return false;
+            }
+            return true;
         }
     }
 }

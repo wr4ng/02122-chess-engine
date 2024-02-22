@@ -76,28 +76,28 @@ public class FENTests
 	public void CastlingRights()
 	{
 		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 1");
-		Assert.AreEqual("KQkq", b.GetCastlingRights());
+		Assert.AreEqual("KQkq", b.GetCastlingRights().ToFENString());
 	}
 
 	[TestMethod]
 	public void CastlingRightsWhiteLimited()
 	{
 		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w Kkq - 0 1");
-		Assert.AreEqual("Kkq", b.GetCastlingRights());
+		Assert.AreEqual("Kkq", b.GetCastlingRights().ToFENString());
 	}
 
 	[TestMethod]
 	public void CastlingRightsBlackLimited()
 	{
 		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w KQ - 0 1");
-		Assert.AreEqual("KQ", b.GetCastlingRights());
+		Assert.AreEqual("KQ", b.GetCastlingRights().ToFENString());
 	}
 
 	[TestMethod]
 	public void CastlingRightsNone()
 	{
 		Board b = Board.ImportFromFEN("k7/8/8/8/8/8/7q/K7 w - - 0 1");
-		Assert.AreEqual("-", b.GetCastlingRights());
+		Assert.AreEqual("-", b.GetCastlingRights().ToFENString());
 	}
 
 	[TestMethod]

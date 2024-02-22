@@ -56,15 +56,23 @@ namespace Chess
 		{
 			return board[coords.Item1, coords.Item2];
 		}
+		public void SetPiece((int, int) coords, Piece piece)
+		{
+			board[coords.Item1, coords.Item2] = piece;
+		}
+		public void SwapPlayer()
+		{
+			currentPlayer = (currentPlayer == Color.White) ? Color.Black : Color.White;
+		}
 
 		public Color GetCurrentPlayer()
 		{
 			return currentPlayer;
 		}
 
-		public string GetCastlingRights()
+		public CastlingRights GetCastlingRights()
 		{
-			return castlingRights.ToFENString();
+			return castlingRights;
 		}
 
 		public string GetEnPassantSquare()
@@ -113,16 +121,11 @@ namespace Chess
 
 		public void MakeMove(Move move)
 		{
-			move.SetRemovedPiece(board[move.end.Item1, move.end.Item2]);
-			board[move.end.Item1, move.end.Item2] = board[move.start.Item1, move.start.Item2];
-			board[move.start.Item1, move.start.Item2] = null;
-			currentPlayer = (currentPlayer == Color.White) ? Color.Black : Color.White;
+			move.MakeMove(this);
 		}
 		public void UnmakeMove(Move move)
 		{
-			board[move.start.Item1, move.start.Item2] = board[move.end.Item1, move.end.Item2];
-			board[move.end.Item1, move.end.Item2] = move.GetRemovedPiece();
-			currentPlayer = (currentPlayer == Color.White) ? Color.Black : Color.White;
+			move.UnmakeMove(this);
 		}
 
 		internal (int, int) GetKingPosition(Color color)
