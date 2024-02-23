@@ -77,6 +77,6 @@ namespace Moves
             Assert.AreEqual((1, 2), (moves[0].end[0]));
         }
 
+		//TODO Promotion tests
     }
-
 }

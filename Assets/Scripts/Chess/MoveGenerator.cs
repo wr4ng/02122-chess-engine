@@ -54,15 +54,28 @@ namespace Chess
 			bool isBlocked = board.GetPiece(position) != null;
 			if (!isBlocked)
 			{
-				Move move = new Move(start, position);
-				AddMove(move, board, moves);
-				bool atStartPosition = (color == Color.White && start.Item2 == 1) || (color == Color.Black && start.Item2 == 6);
-				position = Util.AddTuples(position, direction);
-				isBlocked = board.GetPiece(position) != null;
-				if (atStartPosition && !isBlocked)
+				if (position.Item2 == 0 || position.Item2 == 7)
 				{
-					Move move2 = new Move(start, position);
-					AddMove(move2, board, moves);
+					// Promotion
+					foreach (PieceType promotionPieceType in PieceTypeHelper.PromotionPieces)
+					{
+						Move move = Move.Promotion(start, position, promotionPieceType);
+						AddMove(move, board, moves);
+					}
+				}
+				else
+				{
+					// Not promotion
+					Move move = new Move(start, position);
+					AddMove(move, board, moves);
+					bool atStartPosition = (color == Color.White && start.Item2 == 1) || (color == Color.Black && start.Item2 == 6);
+					position = Util.AddTuples(position, direction);
+					isBlocked = board.GetPiece(position) != null;
+					if (atStartPosition && !isBlocked)
+					{
+						Move move2 = new Move(start, position);
+						AddMove(move2, board, moves);
+					}
 				}
 			}
 			// Attack moves
