@@ -1,9 +1,9 @@
-using System;
-
 namespace Chess
 {
     public class Check
     {
+        // TODO Update to IsAttacked() taking a position, board and color.
+        // Make IsInCheck() a wrapper for IsAttacked() with the king's position and current player's color
         public static bool IsInCheck((int, int) kingPosition, Board board)
         {
             if (CheckForBishops(kingPosition, board)) return true;

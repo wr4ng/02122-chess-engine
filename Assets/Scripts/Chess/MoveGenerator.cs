@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 
 namespace Chess
 {
@@ -42,7 +40,7 @@ namespace Chess
                     }
                 }
             }
-            AddCastlingMoves(board, moves);
+            moves.Concat(GenerateCastlingMoves(board));
 
             return moves;
         }
@@ -180,21 +178,25 @@ namespace Chess
             board.UnmakeMove(move);
         }
 
-        public static void AddCastlingMoves(Board board, List<Move> moves)
+        public static List<Move> GenerateCastlingMoves(Board board)
         {
+            List<Move> moves = new List<Move>();
             int rank = (board.GetCurrentPlayer() == Color.White) ? 0 : 7;
             CastlingRights castlingRights = board.GetCastlingRights();
-            if (Check.IsInCheck(board.GetKingPosition(board.GetCurrentPlayer()), board)) return;
+            if (Check.IsInCheck(board.GetKingPosition(board.GetCurrentPlayer()), board)) return moves;
             if (CanCastleKingside(board, castlingRights, rank))
             {
                 (int, int)[] start = new (int, int)[] { (4, rank), (7, rank) };
                 (int, int)[] end = new (int, int)[] { (6, rank), (5, rank) };
+                moves.Add(new Move(start, end));
             }
             if (CanCastleQueenside(board, castlingRights, rank))
             {
                 (int, int)[] start = new (int, int)[] { (4, rank), (0, rank) };
                 (int, int)[] end = new (int, int)[] { (2, rank), (3, rank) };
+                moves.Add(new Move(start, end));
             }
+            return moves;
         }
 
         private static bool CanCastleKingside(Board board, CastlingRights castlingRights, int rank)
@@ -205,7 +207,7 @@ namespace Chess
         }
         private static bool CanCastleQueenside(Board board, CastlingRights castlingRights, int rank)
         {
-            bool canCastleQueenside = (rank == 0) ? castlingRights.HasFlag(CastlingRights.WhiteKingside) : castlingRights.HasFlag(CastlingRights.BlackKingside);
+            bool canCastleQueenside = (rank == 0) ? castlingRights.HasFlag(CastlingRights.WhiteQueenside) : castlingRights.HasFlag(CastlingRights.BlackQueenside);
             if (!canCastleQueenside) return false;
             return CanCastle(board, new (int, int)[] { (3, rank), (2, rank), (1, rank) });
         }

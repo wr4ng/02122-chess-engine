@@ -61,6 +61,18 @@ namespace Moves
             board.MakeMove(moves[1]);
             Assert.AreEqual("k-------\n--------\n--------\n--------\n--------\n----p---\n--------\nK-------", board.ToString());
         }
+        
+        [TestMethod]
+        public void MakeCastling()
+        {
+            Board board = Board.ImportFromFEN("4k3/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+            List<Move> moves = MoveGenerator.GenerateCastlingMoves(board);
+            board.MakeMove(moves[0]);
+            Assert.AreEqual("---k----\n--------\n--------\n--------\n--------\n--------\n--------\nR---RK-", board.ToString());
+            board.UnmakeMove(moves[0]);
+            board.MakeMove(moves[1]);
+            Assert.AreEqual("---k----\n--------\n--------\n--------\n--------\n--------\n--------\n--KR--R", board.ToString());
+        }
     }
 
 }
