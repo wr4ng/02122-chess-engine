@@ -77,6 +77,16 @@ namespace Moves
             Assert.AreEqual((1, 2), (moves[0].end[0]));
         }
 
+        [TestMethod]
+        public void GeneratePawnEnPassant()
+        {
+            Board board = Board.ImportFromFEN("7k/8/8/pP6/8/8/8/7K w - a6 0 1");
+            List<Move> moves = MoveGenerator.GeneratePawnMove((1, 4), board);
+            Assert.AreEqual(2, moves.Count);
+            board = Board.ImportFromFEN("7k/8/8/1Pp5/8/8/8/7K w - c6 0 1");
+            moves = MoveGenerator.GeneratePawnMove((1, 4), board);
+            Assert.AreEqual(2, moves.Count);
+        }
     }
 
 }

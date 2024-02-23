@@ -35,22 +35,24 @@ namespace Chess
         }
         public void MakeMove(Board board)
         {
+            this.SetRemovedPiece(board.GetPiece(end[0]));
             for (int i = 0; i < start.Length; i++)
             {
-                this.SetRemovedPiece(board.GetPiece(end[i]));
                 board.SetPiece(end[i], board.GetPiece(start[i]));
                 board.SetPiece(start[i], null);
-                board.SwapPlayer();
             }
+            board.SwapPlayer();
         }
         public void UnmakeMove(Board board)
         {
-            for (int i = 0; i < start.Length; i++)
+            if (start.Length == 2)
             {
-                board.SetPiece(start[0], board.GetPiece(end[0]));
-                board.SetPiece(end[0], this.GetRemovedPiece());
-                board.SwapPlayer();
+                board.SetPiece(start[1], board.GetPiece(end[1]));
+                board.SetPiece(end[1], null);
             }
+            board.SetPiece(start[0], board.GetPiece(end[0]));
+            board.SetPiece(end[0], this.GetRemovedPiece());
+            board.SwapPlayer();
         }
     }
 }

@@ -40,6 +40,27 @@ namespace Moves
             board.UnmakeMove(move);
             Assert.AreEqual("-nbqkbnr\npppppppp\n--------\n--------\n--------\nr-------\n-PPPPPPP\nRNBQKBNR", board.ToString());
         }
+        [TestMethod]
+        public void MakeEnPassant()
+        {
+            Board board = Board.ImportFromFEN("k7/8/8/3pP3/8/8/8/K7 w KQkq d6 0 1");
+            List<Move> moves = MoveGenerator.GeneratePawnMove((4, 4), board);
+            board.MakeMove(moves[1]);
+            Assert.AreEqual("k-------\n--------\n---P----\n--------\n--------\n--------\n--------\nK-------", board.ToString());
+            board = Board.ImportFromFEN("k7/8/8/4Pp2/8/8/8/K7 w KQkq f6 0 1");
+            moves = MoveGenerator.GeneratePawnMove((4, 4), board);
+            board.MakeMove(moves[1]);
+            Assert.AreEqual("k-------\n--------\n-----P--\n--------\n--------\n--------\n--------\nK-------", board.ToString());
+
+            board = Board.ImportFromFEN("k7/8/8/8/3pP3/8/8/K7 b KQkq e3 0 1");
+            moves = MoveGenerator.GeneratePawnMove((3, 3), board);
+            board.MakeMove(moves[1]);
+            Assert.AreEqual("k-------\n--------\n--------\n--------\n--------\n----p---\n--------\nK-------", board.ToString());
+            board = Board.ImportFromFEN("k7/8/8/8/4Pp2/8/8/K7 b KQkq e3 0 1");
+            moves = MoveGenerator.GeneratePawnMove((5, 3), board);
+            board.MakeMove(moves[1]);
+            Assert.AreEqual("k-------\n--------\n--------\n--------\n--------\n----p---\n--------\nK-------", board.ToString());
+        }
     }
 
 }
