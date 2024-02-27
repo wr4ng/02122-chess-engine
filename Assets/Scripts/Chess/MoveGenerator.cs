@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -181,43 +182,45 @@ namespace Chess
         public static List<Move> GenerateCastlingMoves(Board board)
         {
             List<Move> moves = new List<Move>();
-            int rank = (board.GetCurrentPlayer() == Color.White) ? 0 : 7;
+            Color attackingColor = (board.GetCurrentPlayer() == Color.White) ? Color.Black : Color.White;
+            int rank = (attackingColor == Color.White) ? 7 : 0;
             CastlingRights castlingRights = board.GetCastlingRights();
-            if (Check.IsInCheck(board.GetKingPosition(board.GetCurrentPlayer()), board)) return moves;
-            if (CanCastleKingside(board, castlingRights, rank))
+            if (Check.IsAttacked(board.GetKingPosition(board.GetCurrentPlayer()), board, attackingColor)) return moves;
+            if (CanCastleKingside(board, castlingRights, rank, attackingColor))
             {
                 (int, int)[] start = new (int, int)[] { (4, rank), (7, rank) };
                 (int, int)[] end = new (int, int)[] { (6, rank), (5, rank) };
                 moves.Add(new Move(start, end));
             }
-            if (CanCastleQueenside(board, castlingRights, rank))
+            if (CanCastleQueenside(board, castlingRights, rank, attackingColor))
             {
                 (int, int)[] start = new (int, int)[] { (4, rank), (0, rank) };
                 (int, int)[] end = new (int, int)[] { (2, rank), (3, rank) };
                 moves.Add(new Move(start, end));
             }
+            Console.WriteLine(moves.Count);
             return moves;
         }
 
-        private static bool CanCastleKingside(Board board, CastlingRights castlingRights, int rank)
+        private static bool CanCastleKingside(Board board, CastlingRights castlingRights, int rank, Color attackingColor)
         {
             bool canCastleKingside = (rank == 0) ? castlingRights.HasFlag(CastlingRights.WhiteKingside) : castlingRights.HasFlag(CastlingRights.BlackKingside);
             if (!canCastleKingside) return false;
-            return CanCastle(board, new (int, int)[] { (5, rank), (6, rank) });
+            return CanCastle(board, new (int, int)[] { (5, rank), (6, rank) }, attackingColor);
         }
-        private static bool CanCastleQueenside(Board board, CastlingRights castlingRights, int rank)
+        private static bool CanCastleQueenside(Board board, CastlingRights castlingRights, int rank, Color attackingColor)
         {
             bool canCastleQueenside = (rank == 0) ? castlingRights.HasFlag(CastlingRights.WhiteQueenside) : castlingRights.HasFlag(CastlingRights.BlackQueenside);
             if (!canCastleQueenside) return false;
-            return CanCastle(board, new (int, int)[] { (3, rank), (2, rank), (1, rank) });
+            return CanCastle(board, new (int, int)[] { (3, rank), (2, rank), (1, rank) }, attackingColor);
         }
-        private static bool CanCastle(Board board, (int, int)[] squaresToBeEmpty)
+        private static bool CanCastle(Board board, (int, int)[] squaresToBeEmpty, Color attackingColor)
         {
             foreach ((int, int) square in squaresToBeEmpty)
             {
                 Piece piece = board.GetPiece(square);
                 if (piece != null) return false;
-                if (square.Item1 != 1 && Check.IsInCheck(square, board)) return false;
+                if (square.Item1 != 1 && Check.IsAttacked(square, board, attackingColor)) return false;
             }
             return true;
         }
