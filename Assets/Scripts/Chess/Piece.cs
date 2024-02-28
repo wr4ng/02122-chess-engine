@@ -46,12 +46,12 @@ namespace Chess
 
 	public enum PieceType
 	{
-		Pawn,
-		Rook,
-		Knight,
-		Bishop,
-		Queen,
-		King
+		Pawn   = 0b000001,
+		Rook   = 0b000010,
+		Knight = 0b000100,
+		Bishop = 0b001000,
+		Queen  = 0b010000,
+		King   = 0b100000
 	}
 
 	public enum Color

@@ -172,7 +172,7 @@ namespace Chess
         {
             Color kingColor = board.GetCurrentPlayer();
             board.MakeMove(move);
-            if (!Check.IsInCheck(board.GetKingPosition(kingColor), board))
+            if (!Attack.IsInCheck(board.GetKingPosition(kingColor), board))
             {
                 moves.Add(move);
             }
@@ -185,7 +185,7 @@ namespace Chess
             Color attackingColor = (board.GetCurrentPlayer() == Color.White) ? Color.Black : Color.White;
             int rank = (attackingColor == Color.White) ? 7 : 0;
             CastlingRights castlingRights = board.GetCastlingRights();
-            if (Check.IsAttacked(board.GetKingPosition(board.GetCurrentPlayer()), board, attackingColor)) return moves;
+            if (Attack.IsAttacked(board.GetKingPosition(board.GetCurrentPlayer()), board, attackingColor)) return moves;
             if (CanCastleKingside(board, castlingRights, rank, attackingColor))
             {
                 (int, int)[] start = new (int, int)[] { (4, rank), (7, rank) };
@@ -220,7 +220,7 @@ namespace Chess
             {
                 Piece piece = board.GetPiece(square);
                 if (piece != null) return false;
-                if (square.Item1 != 1 && Check.IsAttacked(square, board, attackingColor)) return false;
+                if (square.Item1 != 1 && Attack.IsAttacked(square, board, attackingColor)) return false;
             }
             return true;
         }
