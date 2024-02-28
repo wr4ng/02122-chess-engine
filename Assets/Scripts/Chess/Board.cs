@@ -121,11 +121,42 @@ namespace Chess
 
 		public void MakeMove(Move move)
 		{
-			move.MakeMove(this);
+			// TODO Handle promotion
+			// If move is a capture, remove captured piece
+			if (move.IsCapture())
+			{
+				SetPiece(move.GetCaptureSquare(), null);
+			}
+			// If move is a castle, move rook
+			else if (move.IsCastle())
+			{
+				SetPiece(move.GetRookEnd(), GetPiece(move.GetRookStart()));
+				SetPiece(move.GetRookStart(), null);
+			}
+			// Move main piece
+			SetPiece(move.GetEndSquare(), GetPiece(move.GetStartSquare()));
+			SetPiece(move.GetStartSquare(), null);
+
+			SwapPlayer();
 		}
 		public void UnmakeMove(Move move)
 		{
-			move.UnmakeMove(this);
+			// TODO Handle promotion
+			// Move main piece back
+			SetPiece(move.GetStartSquare(), GetPiece(move.GetEndSquare()));
+			SetPiece(move.GetEndSquare(), null);
+			// If castle, move rook back
+			if (move.IsCastle())
+			{
+				SetPiece(move.GetRookStart(), GetPiece(move.GetRookEnd()));
+				SetPiece(move.GetRookEnd(), null);
+			}
+			// If capture, re-add captured piece
+			if (move.IsCapture())
+			{
+				SetPiece(move.GetCaptureSquare(), move.GetCapturedPiece());
+			}
+			SwapPlayer();
 		}
 
 		internal (int, int) GetKingPosition(Color color)

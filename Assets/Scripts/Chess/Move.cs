@@ -23,7 +23,14 @@ namespace Chess
 
 		public (int file, int rank) GetStartSquare() => startSquare;
 		public (int file, int rank) GetEndSquare() => endSquare;
+
+		public bool IsCapture() => isCapture;
+		public (int file, int rank) GetCaptureSquare() => captureSquare;
 		public Piece GetCapturedPiece() => capturedPiece;
+
+		public bool IsCastle() => isCastle;
+		public (int file, int rank) GetRookStart() => rookStart;
+		public (int file, int rank) GetRookEnd() => rookEnd;
 
 		private Move((int file, int rank) start, (int file, int rank) end)
 		{
@@ -66,46 +73,5 @@ namespace Chess
 		}
 
 		// TODO Move PromotionMove(...)
-
-		// TODO Move to Board.cs
-		public void MakeMove(Board board)
-		{
-			// TODO Handle promotion
-			// If move is a capture, remove captured piece
-			if (isCapture)
-			{
-				board.SetPiece(captureSquare, null);
-			}
-			// If move is a castle, move rook
-			else if (isCastle)
-			{
-				board.SetPiece(rookEnd, board.GetPiece(rookStart));
-				board.SetPiece(rookStart, null);
-			}
-			// Move main piece
-			board.SetPiece(endSquare, board.GetPiece(startSquare));
-			board.SetPiece(startSquare, null);
-
-			board.SwapPlayer();
-		}
-		public void UnmakeMove(Board board)
-		{
-			// TODO Handle promotion
-			// Move main piece back
-			board.SetPiece(startSquare, board.GetPiece(endSquare));
-			board.SetPiece(endSquare, null);
-			// If castle, move rook back
-			if (isCastle)
-			{
-				board.SetPiece(rookStart, board.GetPiece(rookEnd));
-				board.SetPiece(rookEnd, null);
-			}
-			// If capture, re-add captured piece
-			if (isCapture)
-			{
-				board.SetPiece(captureSquare, capturedPiece);
-			}
-			board.SwapPlayer();
-		}
 	}
 }
