@@ -69,7 +69,7 @@ namespace Chess
                 positionCount.Add(position, 1);
             }
 
-            
+
         }
 
         /// <summary>
@@ -103,11 +103,13 @@ namespace Chess
         /// <summary>
         /// Checks for dead position
         /// If there are only 2 pieces left on the board, it checks if they are bishops or knights
+        /// 
         /// </summary>
         /// <param name="board">The board</param>
         public void checkForDeadPossition(board board)
         {
-            if (count <= 1){
+            if (count <= 1)
+            {
                 if (board.getWhitePieces().Count == 1 && board.getBlackPieces().Count == 1)
                 {
                     blackInsufficientMaterial = true;
@@ -144,37 +146,89 @@ namespace Chess
                         }
                     }
                 }
+                else if (board.getWhitePieces().Count == 2 && board.getBlackPieces().Count == 2)
+                {
+                    foreach (Piece piece in board.getWhitePieces())
+                    {
+                        if (piece.GetPieceType() == PieceType.Bishop)
+                        {
+                            foreach (Piece piece2 in board.getBlackPieces())
+                            {
+                                if (piece2.GetPieceType() == PieceType.Bishop)
+                                {
+                                    if (isSameSquaredBishop(board))
+                                    {
+                                        blackInsufficientMaterial = true;
+                                        whiteInsufficientMaterial = true;
+                                        isDraw = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-        }
 
-        //Check stalemate
-        /// <summary>
-        /// Checks for a stalemate
-        /// </summary>
-        /// <param name="moves">List of possible moves</param>
-        /// <param name="isInCheck">Call from Check class</param>
-        public void checkStalemate(List<Move> moves, bool isInCheck)
-        {
-            if (moves.Count == 0 && !isInCheck)
+            public bool isSameSquaredBishop(board board)
             {
-                isDraw = true;
+                int type1 = 2;
+                int type2 = 2;
+                for (int i = 0; i < board.BOARD_SIZE)
+                {
+                    for (int j = 0; j < board.BOARD_SIZE)
+                    {
+                        if (board.GetBoard()[i, j] != null && board.GetBoard()[i, j].GetPieceType() == PieceType.Bishop)
+                        {
+                            if ((i + j) % 2 == 0 && type1 == 2)
+                            {
+                                type1 = 0;
+                            }
+                            else if ((i + j) % 2 != 0 && type1 == 2)
+                            {
+                                type1 = 1;
+                            }
+                            else if ((i + j) % 2 == 0 && type1 == 0)
+                            {
+                                return true;
+                            }
+                            else if ((i + j) % 2 != 0 && type1 == 1)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
             }
-        }
+
+            //Check stalemate
+            /// <summary>
+            /// Checks for a stalemate
+            /// </summary>
+            /// <param name="moves">List of possible moves</param>
+            /// <param name="isInCheck">Call from Check class</param>
+            public void checkStalemate(List<Move> moves, bool isInCheck)
+            {
+                if (moves.Count == 0 && !isInCheck)
+                {
+                    isDraw = true;
+                }
+            }
 
 
-        /// <summary>
-        /// Checks all the conditions for a draw
-        /// </summary>
-        /// <returns>If the game is a draw</returns>
-        public bool getIsDraw()
-        {
+            /// <summary>
+            /// Checks all the conditions for a draw
+            /// </summary>
+            /// <returns>If the game is a draw</returns>
+            public bool getIsDraw()
+            {
             // 50 moves, 1 move is 2 turns
             else if (countOfMoves >= 100)
-            {
-                isDraw = true;
-            }
+                {
+                    isDraw = true;
+                }
 
-            return isDraw;
+                return isDraw;
+            }
         }
     }
-}
