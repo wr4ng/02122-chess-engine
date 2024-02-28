@@ -91,10 +91,60 @@ namespace Chess
             }
         }
 
-
-        public void checkDeadPossition(int count)
+        /// <summary>
+        /// Material count for dead position
+        /// add 1 to the count if pieace is a bishop or knight, add 2 if it is a rook, queen or pawn
+        /// </summary>
+        public void countForDeadPossition(int count)
         {
             this.count += count;
+        }
+
+        /// <summary>
+        /// Checks for dead position
+        /// If there are only 2 pieces left on the board, it checks if they are bishops or knights
+        /// </summary>
+        /// <param name="board">The board</param>
+        public void checkForDeadPossition(board board)
+        {
+            if (count <= 1){
+                if (board.getWhitePieces().Count == 1 && board.getBlackPieces().Count == 1)
+                {
+                    blackInsufficientMaterial = true;
+                    whiteInsufficientMaterial = true;
+                    isDraw = true;
+                }
+                else if (board.getWhitePieces().Count == 1)
+                {
+                    whiteInsufficientMaterial = true;
+                    if (board.getBlackPieces().Count == 2)
+                    {
+                        foreach (Piece piece in board.getBlackPieces())
+                        {
+                            if (piece.GetPieceType() == PieceType.Bishop || piece.GetPieceType() == PieceType.Knight)
+                            {
+                                blackInsufficientMaterial = true;
+                                isDraw = true;
+                            }
+                        }
+                    }
+                }
+                else if (board.getBlackPieces().Count == 1)
+                {
+                    blackInsufficientMaterial = true;
+                    if (board.getWhitePieces().Count == 2)
+                    {
+                        foreach (Piece piece in board.getWhitePieces())
+                        {
+                            if (piece.GetPieceType() == PieceType.Bishop && piece.GetPieceType() == PieceType.Knight)
+                            {
+                                whiteInsufficientMaterial = true;
+                                isDraw = true;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         //Check stalemate
@@ -118,11 +168,6 @@ namespace Chess
         /// <returns>If the game is a draw</returns>
         public bool getIsDraw()
         {
-            // Check for insufficient material
-            if (blackInsufficientMaterial && whiteInsufficientMaterial)
-            {
-                isDraw = true;
-            }
             // 50 moves, 1 move is 2 turns
             else if (countOfMoves >= 100)
             {
