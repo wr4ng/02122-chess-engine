@@ -55,14 +55,14 @@ namespace Chess
             bool isBlocked = board.GetPiece(position) != null;
             if (!isBlocked)
             {
-                Move move = new Move(start, position);
+                Move move = Move.SimpleMove(start, position);
                 AddMove(move, board, moves);
                 bool atStartPosition = (color == Color.White && start.Item2 == 1) || (color == Color.Black && start.Item2 == 6);
                 position = Util.AddTuples(position, direction);
                 isBlocked = board.GetPiece(position) != null;
                 if (atStartPosition && !isBlocked)
                 {
-                    Move move2 = new Move(start, position);
+                    Move move2 = Move.SimpleMove(start, position);
                     AddMove(move2, board, moves);
                 }
             }
@@ -76,15 +76,15 @@ namespace Chess
                     Piece attackedPiece = board.GetPiece(position);
                     if (attackedPiece != null && attackedPiece.GetColor() != color)
                     {
-                        Move move = new Move(start, position);
+                        Move move = Move.CaptureMove(start, position, attackedPiece);
                         AddMove(move, board, moves);
                     }
                     if (position == board.GetEnPassantCoords())
                     {
-                        (int, int)[] startMove = new (int, int)[] { position, start };
-                        (int, int)[] end = new (int, int)[] { Util.AddTuples(position, (color == Color.White) ? (0, -1) : (0, 1)), position };
-                        Move move = new Move(startMove, end);
-                        move.SetEnpassant(true);
+						// Calculate position of captured pawn
+						var capturedPosition = (position.Item1, position.Item2 - direction.Item2);
+						var capturedPiece = board.GetPiece(capturedPosition);
+                        Move move = Move.EnPassantMove(start, position, capturedPiece, capturedPosition);
                         AddMove(move, board, moves);
                     }
                 }
@@ -127,12 +127,12 @@ namespace Chess
                     attackedPiece = board.GetPiece(position);
                     if (attackedPiece == null)
                     {
-                        Move move = new Move(start, position);
+                        Move move = Move.SimpleMove(start, position);
                         AddMove(move, board, moves);
                     }
                     else if (attackedPiece.GetColor() != color)
                     {
-                        Move move = new Move(start, position);
+                        Move move = Move.CaptureMove(start, position, attackedPiece);
                         AddMove(move, board, moves);
                         break;
                     }
@@ -157,12 +157,12 @@ namespace Chess
                 attackedPiece = board.GetPiece(position);
                 if (attackedPiece == null)
                 {
-                    Move move = new Move(start, position);
+                    Move move = Move.SimpleMove(start, position);
                     AddMove(move, board, moves);
                 }
                 else if (attackedPiece.GetColor() != color)
                 {
-                    Move move = new Move(start, position);
+                    Move move = Move.CaptureMove(start, position, attackedPiece);
                     AddMove(move, board, moves);
                 }
             }
@@ -179,6 +179,7 @@ namespace Chess
             board.UnmakeMove(move);
         }
 
+		// TODO Refactor to simplify
         public static List<Move> GenerateCastlingMoves(Board board)
         {
             List<Move> moves = new List<Move>();
@@ -188,15 +189,11 @@ namespace Chess
             if (Attack.IsAttacked(board.GetKingPosition(board.GetCurrentPlayer()), board, attackingColor)) return moves;
             if (CanCastleKingside(board, castlingRights, rank, attackingColor))
             {
-                (int, int)[] start = new (int, int)[] { (4, rank), (7, rank) };
-                (int, int)[] end = new (int, int)[] { (6, rank), (5, rank) };
-                moves.Add(new Move(start, end));
+				moves.Add(Move.CastleMove((4, rank), (6, rank), (7, rank), (5, rank)));
             }
             if (CanCastleQueenside(board, castlingRights, rank, attackingColor))
             {
-                (int, int)[] start = new (int, int)[] { (4, rank), (0, rank) };
-                (int, int)[] end = new (int, int)[] { (2, rank), (3, rank) };
-                moves.Add(new Move(start, end));
+				moves.Add(Move.CastleMove((4, rank), (2, rank), (0, rank), (3, rank)));
             }
             Console.WriteLine(moves.Count);
             return moves;
