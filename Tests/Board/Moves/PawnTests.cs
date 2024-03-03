@@ -87,6 +87,21 @@ namespace Moves
             moves = MoveGenerator.GeneratePawnMove((1, 4), board);
             Assert.AreEqual(2, moves.Count);
         }
-    }
 
+		[TestMethod]
+		public void GeneratePawnSimplePromotion()
+		{
+			// White promotion
+			Board board = Board.ImportFromFEN("k7/3P4/8/8/8/8/8/7K w - - 0 1");
+			List<Move> promotionMoves = MoveGenerator.GeneratePawnMove((3, 6), board);
+			Assert.AreEqual(4, promotionMoves.Count);
+
+			// Black promotion
+			board = Board.ImportFromFEN("k7/8/8/8/8/8/5p2/7K b - - 0 1");
+			promotionMoves = MoveGenerator.GeneratePawnMove((5, 1), board);
+			Assert.AreEqual(4, promotionMoves.Count);
+		}
+
+		//TODO Capture promotion tests
+    }
 }

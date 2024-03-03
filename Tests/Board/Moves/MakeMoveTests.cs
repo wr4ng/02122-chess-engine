@@ -79,6 +79,27 @@ namespace Moves
             moves = MoveGenerator.GenerateCastlingMoves(board);
             Assert.AreEqual(0, moves.Count);
         }
+
+		[TestMethod]
+		public void MakePromotion()
+		{
+			Board board = Board.ImportFromFEN("8/k4P2/8/8/8/8/8/7K w - - 0 1");
+			List<Move> promotionMoves = MoveGenerator.GeneratePawnMove((5, 6), board);
+
+			// Rook promotion
+			board.MakeMove(promotionMoves[0]);
+			Assert.IsTrue(board.ExportToFEN().StartsWith("5R2/k7/8/8/8/8/8/7K b"));
+			board.UnmakeMove(promotionMoves[0]);
+			Assert.AreEqual("8/k4P2/8/8/8/8/8/7K w - - 0 1", board.ExportToFEN());
+
+			// Queen promotion
+			board.MakeMove(promotionMoves[3]);
+			Assert.IsTrue(board.ExportToFEN().StartsWith("5Q2/k7/8/8/8/8/8/7K b"));
+			board.UnmakeMove(promotionMoves[3]);
+			Assert.AreEqual("8/k4P2/8/8/8/8/8/7K w - - 0 1", board.ExportToFEN());
+		}
+
+		// TODO Capture promotion tests
     }
 
 }

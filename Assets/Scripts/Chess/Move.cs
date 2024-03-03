@@ -18,8 +18,9 @@ namespace Chess
 		(int file, int rank) rookStart, rookEnd;
 		// TODO Handle updating castling rights when castling
 
-		// TODO Promotion
-		// bool isPromotion;
+		// Promotion moves
+		bool isPromotion;
+		PieceType promotionPiecetype;
 
 		public (int file, int rank) GetStartSquare() => startSquare;
 		public (int file, int rank) GetEndSquare() => endSquare;
@@ -31,6 +32,9 @@ namespace Chess
 		public bool IsCastle() => isCastle;
 		public (int file, int rank) GetRookStart() => rookStart;
 		public (int file, int rank) GetRookEnd() => rookEnd;
+
+		public bool IsPromotion() => isPromotion;
+		public PieceType PromotionPieceType() => promotionPiecetype;
 
 		private Move((int file, int rank) start, (int file, int rank) end)
 		{
@@ -72,6 +76,12 @@ namespace Chess
 			return move;
 		}
 
-		// TODO Move PromotionMove(...)
+		public static Move PromotionMove((int, int) start, (int, int) end, PieceType promotionPieceType)
+		{
+			Move m = new Move(start, end);
+			m.isPromotion = true;
+			m.promotionPiecetype = promotionPieceType;
+			return m;
+		}
 	}
 }

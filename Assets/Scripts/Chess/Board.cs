@@ -52,17 +52,20 @@ namespace Chess
 		{
 			return board[file, rank];
 		}
+
 		public Piece GetPiece((int, int) coords)
 		{
 			return board[coords.Item1, coords.Item2];
 		}
+
 		public void SetPiece((int, int) coords, Piece piece)
 		{
 			board[coords.Item1, coords.Item2] = piece;
 		}
+
 		public void SwapPlayer()
 		{
-			currentPlayer = (currentPlayer == Color.White) ? Color.Black : Color.White;
+			currentPlayer = currentPlayer.Opposite();
 		}
 
 		public Color GetCurrentPlayer()
@@ -79,10 +82,12 @@ namespace Chess
 		{
 			return enPassantSquare == (-1, -1) ? "-" : FEN.CoordinateToFEN(enPassantSquare);
 		}
+
 		public (int, int) GetEnPassantCoords()
 		{
 			return enPassantSquare;
 		}
+
 		public Piece[,] GetBoard()
 		{
 			return board;
@@ -121,7 +126,6 @@ namespace Chess
 
 		public void MakeMove(Move move)
 		{
-			// TODO Handle promotion
 			// If move is a capture, remove captured piece
 			if (move.IsCapture())
 			{
@@ -134,16 +138,29 @@ namespace Chess
 				SetPiece(move.GetRookStart(), null);
 			}
 			// Move main piece
-			SetPiece(move.GetEndSquare(), GetPiece(move.GetStartSquare()));
+			if (move.IsPromotion())
+			{
+				SetPiece(move.GetEndSquare(), new Piece(move.PromotionPieceType(), currentPlayer));
+			}
+			else
+			{
+				SetPiece(move.GetEndSquare(), GetPiece(move.GetStartSquare()));
+			}
 			SetPiece(move.GetStartSquare(), null);
 
 			SwapPlayer();
 		}
 		public void UnmakeMove(Move move)
 		{
-			// TODO Handle promotion
 			// Move main piece back
-			SetPiece(move.GetStartSquare(), GetPiece(move.GetEndSquare()));
+			if (move.IsPromotion())
+			{
+				SetPiece(move.GetStartSquare(), new Piece(PieceType.Pawn, currentPlayer.Opposite()));
+			}
+			else
+			{
+				SetPiece(move.GetStartSquare(), GetPiece(move.GetEndSquare()));
+			}
 			SetPiece(move.GetEndSquare(), null);
 			// If castle, move rook back
 			if (move.IsCastle())
