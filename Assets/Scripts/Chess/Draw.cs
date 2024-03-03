@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Rendering;
 
 namespace Chess
 {
@@ -14,12 +11,10 @@ namespace Chess
         private bool isDraw;
         private int countOfMoves;
 
-
-        // The count of the pieces on the board 1 for bishop and knight and 2 for the other pieces       
+        // The count of the pieces on the board 1 for bishop and knight and 2 for the other pieces
         private int count;
         private bool blackInsufficientMaterial;
         private bool whiteInsufficientMaterial;
-
 
         public Draw()
         {
@@ -51,8 +46,6 @@ namespace Chess
                     }
                 }
             }
-
-
             if (positionCount.ContainsKey(position))
             {
                 if (positionCount[position] >= 2)
@@ -68,13 +61,11 @@ namespace Chess
             {
                 positionCount.Add(position, 1);
             }
-
-
         }
 
         /// <summary>
         /// Checks for the 50 move rule
-        /// Just at the end of the turn, after the move has been made 
+        /// Just at the end of the turn, after the move has been made
         /// </summary>
         /// <param name="pieceMoved">The piece that was moved</param>
         /// <param name="pieceCaptured">The piece that was captured</param>
@@ -103,18 +94,17 @@ namespace Chess
         /// <summary>
         /// Checks for dead position
         /// If there are only 2 pieces left on the board, it checks if they are bishops or knights
-        /// 
+        ///
         /// </summary>
         /// <param name="board">The board</param>
-
 
         public bool isSameSquaredBishop(Board board)
         {
             int type1 = 2;
-            int type2 = 2;
-            for (int i = 0; i < board.BOARD_SIZE)
+            //int type2 = 2;
+            for (int i = 0; i < Board.BOARD_SIZE; i++)
             {
-                for (int j = 0; j < board.BOARD_SIZE)
+                for (int j = 0; j < Board.BOARD_SIZE; j++)
                 {
                     if (board.GetBoard()[i, j] != null && board.GetBoard()[i, j].GetPieceType() == PieceType.Bishop)
                     {
@@ -140,7 +130,6 @@ namespace Chess
             return false;
         }
 
-        //Check stalemate
         /// <summary>
         /// Checks for a stalemate
         /// </summary>
@@ -154,7 +143,6 @@ namespace Chess
             }
         }
 
-
         /// <summary>
         /// Checks all the conditions for a draw
         /// </summary>
@@ -162,7 +150,7 @@ namespace Chess
         public bool getIsDraw()
         {
             // 50 moves, 1 move is 2 turns
-            else if (countOfMoves >= 100)
+            if (countOfMoves >= 100)
             {
                 isDraw = true;
             }
