@@ -7,7 +7,28 @@ namespace Chess
 	{
 		static PieceType[] PROMOTION_PIECES = { PieceType.Rook, PieceType.Knight, PieceType.Bishop, PieceType.Queen };
 
-		public static List<Move> GenerateMoves(Board board)
+		public static List<Move> GenerateLegalMoves(Board board)
+		{
+			var pseudoLegalMoves = GeneratePseudoLegalMoves(board);
+			var legalMoves = pseudoLegalMoves.Where(move => IsLegal(board, move)).ToList();
+			return legalMoves;
+		}
+
+		private static bool IsLegal(Board board, Move move)
+		{
+			// Make the move
+			board.MakeMove(move);
+
+			(int file, int rank) kingPosition = board.GetKingPosition(board.GetCurrentPlayer().Opposite());
+			// If the king is in check after the move, the move wasn't legal
+			bool isLegal = !Attack.IsAttacked(kingPosition, board, board.GetCurrentPlayer());
+
+			// Unmake the move
+			board.UnmakeMove(move);
+			return isLegal;
+		}
+
+		public static List<Move> GeneratePseudoLegalMoves(Board board)
 		{
 			List<Move> moves = new List<Move>();
 			for (int file = 0; file < 8; file++)
@@ -21,66 +42,64 @@ namespace Chess
 						switch (piece.GetPieceType())
 						{
 							case PieceType.Pawn:
-								moves.Concat(GeneratePawnMove(coords, board));
+								moves.AddRange(GeneratePawnMove(coords, board));
 								break;
 							case PieceType.Bishop:
-								moves.Concat(GenerateBishopMove(coords, board));
+								moves.AddRange(GenerateBishopMove(coords, board));
 								break;
 							case PieceType.Rook:
-								moves.Concat(GenerateRookMove(coords, board));
+								moves.AddRange(GenerateRookMove(coords, board));
 								break;
 							case PieceType.Queen:
-								moves.Concat(GenerateQueenMove(coords, board));
+								moves.AddRange(GenerateQueenMove(coords, board));
 								break;
 							case PieceType.Knight:
-								moves.Concat(GenerateKnightMove(coords, board));
+								moves.AddRange(GenerateKnightMove(coords, board));
 								break;
 							case PieceType.King:
-								moves.Concat(GenerateKingMove(coords, board));
+								moves.AddRange(GenerateKingMove(coords, board));
 								break;
 						}
 					}
 				}
 			}
-			moves.Concat(GenerateCastlingMoves(board));
-
+			moves.AddRange(GenerateCastlingMoves(board));
 			return moves;
 		}
 
-		public static List<Move> GeneratePawnMove((int, int) start, Board board)
+		private static List<Move> GeneratePawnMove((int file, int rank) start, Board board)
 		{
 			List<Move> moves = new List<Move>();
+
 			Color color = board.GetPiece(start).GetColor();
-			(int, int) direction = (color == Color.White) ? (0, 1) : (0, -1);
+			(int file, int rank) direction = (color == Color.White) ? (0, 1) : (0, -1);
 
 			// Foward Moves
-			(int file, int rank) position = Util.AddTuples(start, direction);
-			bool isBlocked = board.GetPiece(position) != null;
+			(int file, int rank) end = Util.AddTuples(start, direction);
+			bool isBlocked = board.GetPiece(end) != null;
 			if (!isBlocked)
 			{
 				// If pawn is moving to the opposite back rank, handle promotion
-				if (position.rank == 0 || position.rank == 7)
+				if (end.rank == 0 || end.rank == 7)
 				{
-					// TODO Extract method
-					foreach (PieceType promotionPieceType in PROMOTION_PIECES)
-					{
-						Move move = Move.PromotionMove(start, position, promotionPieceType);
-						AddMove(move, board, moves);
-					}
+					moves.AddRange(PromotionMoves(start, end));
 				}
 				else
 				{
-					Move move = Move.SimpleMove(start, position);
-					AddMove(move, board, moves);
+					Move move = Move.SimpleMove(start, end, PieceType.Pawn);
+					moves.Add(move);
 
 					// Double forward move
-					bool atStartPosition = (color == Color.White && start.Item2 == 1) || (color == Color.Black && start.Item2 == 6);
-					position = Util.AddTuples(position, direction);
-					isBlocked = board.GetPiece(position) != null;
-					if (atStartPosition && !isBlocked)
+					bool atStartPosition = (color == Color.White && start.rank == 1) || (color == Color.Black && start.rank == 6);
+					if (atStartPosition)
 					{
-						Move move2 = Move.SimpleMove(start, position);
-						AddMove(move2, board, moves);
+						var doubleEnd = Util.AddTuples(end, direction);
+						isBlocked = board.GetPiece(doubleEnd) != null;
+						if (!isBlocked)
+						{
+							Move doubleMove = Move.SimpleMove(start, doubleEnd, PieceType.Pawn);
+							moves.Add(doubleMove);
+						}
 					}
 				}
 			}
@@ -88,55 +107,74 @@ namespace Chess
 			(int, int)[] attackPositions = { Util.AddTuples(direction, (1, 0)), Util.AddTuples(direction, (-1, 0)) };
 			foreach ((int, int) attackPosition in attackPositions)
 			{
-				position = Util.AddTuples(start, attackPosition);
-				if (Util.InBoard(position))
+				end = Util.AddTuples(start, attackPosition);
+				if (Util.InBoard(end))
 				{
-					Piece attackedPiece = board.GetPiece(position);
+					Piece attackedPiece = board.GetPiece(end);
 					if (attackedPiece != null && attackedPiece.GetColor() != color)
 					{
-						// TODO Handle attack promotion
-						Move move = Move.CaptureMove(start, position, attackedPiece);
-						AddMove(move, board, moves);
+						// Capture promotion
+						if (end.rank == 0 || end.rank == 7)
+						{
+							moves.AddRange(PromotionMoves(start, end, isCapture: true, attackedPiece));
+						}
+						// Pawn capture (no promotion)
+						else
+						{
+							Move move = Move.CaptureMove(start, end, PieceType.Pawn, attackedPiece);
+							moves.Add(move);
+						}
 					}
-					if (position == board.GetEnPassantCoords())
+					else if (end == board.GetEnPassantCoords())
 					{
 						// Calculate position of captured pawn
-						var capturedPosition = (position.Item1, position.Item2 - direction.Item2);
+						var capturedPosition = (end.file, end.rank - direction.rank);
 						var capturedPiece = board.GetPiece(capturedPosition);
-						Move move = Move.EnPassantMove(start, position, capturedPiece, capturedPosition);
-						AddMove(move, board, moves);
+						Move move = Move.EnPassantMove(start, end, capturedPiece, capturedPosition);
+						moves.Add(move);
 					}
 				}
 			}
 			return moves;
 		}
 
-		public static List<Move> GenerateBishopMove((int, int) start, Board board)
+		// Returns the four possible promotion moves given a start and end square
+		private static List<Move> PromotionMoves((int file, int rank) start, (int file, int rank) end, bool isCapture = false, Piece capturePiece = null)
 		{
-			return MoveByDirection(start, board, new (int, int)[] { (-1, -1), (-1, 1), (1, -1), (1, 1) }); //TODO vi kunne lave directions til enums maybe?
+			var moves = new List<Move>();
+			foreach (PieceType promotionPieceType in PROMOTION_PIECES)
+			{
+				moves.Add(Move.PromotionMove(start, end, promotionPieceType, isCapture, capturePiece));
+			}
+			return moves;
 		}
 
-		public static List<Move> GenerateRookMove((int, int) start, Board board)
+		private static List<Move> GenerateBishopMove((int, int) start, Board board)
 		{
-			return MoveByDirection(start, board, new (int, int)[] { (-1, 0), (1, 0), (0, -1), (0, 1) });
+			return MoveByDirection(start, board, new (int, int)[] { (-1, -1), (-1, 1), (1, -1), (1, 1) }, PieceType.Bishop); //TODO vi kunne lave directions til enums maybe?
 		}
 
-		public static List<Move> GenerateQueenMove((int, int) start, Board board)
+		private static List<Move> GenerateRookMove((int, int) start, Board board)
 		{
-			return MoveByDirection(start, board, new (int, int)[] { (-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1) });
+			return MoveByDirection(start, board, new (int, int)[] { (-1, 0), (1, 0), (0, -1), (0, 1) }, PieceType.Rook);
 		}
 
-		public static List<Move> GenerateKnightMove((int, int) start, Board board)
+		private static List<Move> GenerateQueenMove((int, int) start, Board board)
 		{
-			return MoveByOffset(start, board, new (int, int)[] { (1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1), (-2, 1), (-1, 2) });
+			return MoveByDirection(start, board, new (int, int)[] { (-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1) }, PieceType.Queen);
 		}
 
-		public static List<Move> GenerateKingMove((int, int) start, Board board)
+		private static List<Move> GenerateKnightMove((int, int) start, Board board)
 		{
-			return MoveByOffset(start, board, new (int, int)[] { (1, 1), (1, 0), (1, -1), (0, 1), (0, -1), (-1, 1), (-1, 0), (-1, -1) });
+			return MoveByOffset(start, board, new (int, int)[] { (1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1), (-2, 1), (-1, 2) }, PieceType.Knight);
 		}
 
-		public static List<Move> MoveByDirection((int, int) start, Board board, (int, int)[] directions)
+		private static List<Move> GenerateKingMove((int, int) start, Board board)
+		{
+			return MoveByOffset(start, board, new (int, int)[] { (1, 1), (1, 0), (1, -1), (0, 1), (0, -1), (-1, 1), (-1, 0), (-1, -1) }, PieceType.King);
+		}
+
+		private static List<Move> MoveByDirection((int, int) start, Board board, (int, int)[] directions, PieceType pieceType)
 		{
 			List<Move> moves = new List<Move>();
 			Color color = board.GetPiece(start).GetColor();
@@ -149,13 +187,13 @@ namespace Chess
 					attackedPiece = board.GetPiece(position);
 					if (attackedPiece == null)
 					{
-						Move move = Move.SimpleMove(start, position);
-						AddMove(move, board, moves);
+						Move move = Move.SimpleMove(start, position, pieceType);
+						moves.Add(move);
 					}
 					else if (attackedPiece.GetColor() != color)
 					{
-						Move move = Move.CaptureMove(start, position, attackedPiece);
-						AddMove(move, board, moves);
+						Move move = Move.CaptureMove(start, position, pieceType, attackedPiece);
+						moves.Add(move);
 						break;
 					}
 					else
@@ -168,7 +206,7 @@ namespace Chess
 			return moves;
 		}
 
-		public static List<Move> MoveByOffset((int, int) start, Board board, (int, int)[] offsets)
+		public static List<Move> MoveByOffset((int, int) start, Board board, (int, int)[] offsets, PieceType pieceType)
 		{
 			List<Move> moves = new List<Move>();
 			Color color = board.GetPiece(start).GetColor();
@@ -180,27 +218,16 @@ namespace Chess
 				attackedPiece = board.GetPiece(position);
 				if (attackedPiece == null)
 				{
-					Move move = Move.SimpleMove(start, position);
-					AddMove(move, board, moves);
+					Move move = Move.SimpleMove(start, position, pieceType);
+					moves.Add(move);
 				}
 				else if (attackedPiece.GetColor() != color)
 				{
-					Move move = Move.CaptureMove(start, position, attackedPiece);
-					AddMove(move, board, moves);
+					Move move = Move.CaptureMove(start, position, pieceType, attackedPiece);
+					moves.Add(move);
 				}
 			}
 			return moves;
-		}
-
-		private static void AddMove(Move move, Board board, List<Move> moves)
-		{
-			Color kingColor = board.GetCurrentPlayer();
-			board.MakeMove(move);
-			if (!Attack.IsInCheck(board.GetKingPosition(kingColor), board))
-			{
-				moves.Add(move);
-			}
-			board.UnmakeMove(move);
 		}
 
 		// TODO Refactor to simplify
