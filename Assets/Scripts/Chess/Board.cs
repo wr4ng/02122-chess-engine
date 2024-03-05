@@ -124,6 +124,7 @@ namespace Chess
 			return result.Trim();
 		}
 
+		// TODO Update castling rights when making a move
 		public void MakeMove(Move move)
 		{
 			// If move is a capture, remove captured piece
@@ -150,6 +151,8 @@ namespace Chess
 
 			SwapPlayer();
 		}
+
+		// TODO Update castling rights when unmaking a move
 		public void UnmakeMove(Move move)
 		{
 			// Move main piece back

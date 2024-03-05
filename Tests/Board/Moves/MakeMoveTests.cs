@@ -72,22 +72,32 @@ namespace Moves
             Assert.AreEqual("k-------\n--------\n--------\n--------\n--------\n----p---\n--------\nK-------", board.ToString());
         }
 
+		//TODO Tests that castlingrights correctly updates
         [TestMethod]
         public void MakeCastling()
         {
             Board board = Board.ImportFromFEN("4k3/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
-            List<Move> moves = MoveGenerator.GenerateCastlingMoves(board);
-            board.MakeMove(moves[0]);
+            List<Move> legalMoves = MoveGenerator.GenerateLegalMoves(board);
+            List<Move> castleMoves = legalMoves.Where(move => move.IsCastle()).ToList();
+			foreach (Move m in castleMoves)
+			{
+				Console.WriteLine($"{m.GetStartSquare()} - {m.GetEndSquare()}");
+			}
+            board.MakeMove(castleMoves[0]);
             Assert.AreEqual("----k---\n--------\n--------\n--------\n--------\n--------\n--------\nR----RK-", board.ToString());
-            board.UnmakeMove(moves[0]);
-            board.MakeMove(moves[1]);
+            board.UnmakeMove(castleMoves[0]);
+            board.MakeMove(castleMoves[1]);
             Assert.AreEqual("----k---\n--------\n--------\n--------\n--------\n--------\n--------\n--KR---R", board.ToString());
+
             board = Board.ImportFromFEN("4k3/8/8/8/8/8/8/R3K2R w Kkq - 0 1");
-            moves = MoveGenerator.GenerateCastlingMoves(board);
-            Assert.AreEqual(1, moves.Count);
+            legalMoves = MoveGenerator.GenerateLegalMoves(board);
+            castleMoves = legalMoves.Where(move => move.IsCastle()).ToList();
+            Assert.AreEqual(1, castleMoves.Count);
+
             board = Board.ImportFromFEN("4k3/8/8/8/8/8/8/R3K2R w kq - 0 1");
-            moves = MoveGenerator.GenerateCastlingMoves(board);
-            Assert.AreEqual(0, moves.Count);
+            legalMoves = MoveGenerator.GenerateLegalMoves(board);
+            castleMoves = legalMoves.Where(move => move.IsCastle()).ToList();
+            Assert.AreEqual(0, castleMoves.Count);
         }
 
 		[TestMethod]

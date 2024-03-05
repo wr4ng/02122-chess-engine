@@ -41,5 +41,7 @@ namespace Moves
             List<Move> kingMoves = legalMoves.Where(move => move.GetPieceType() == PieceType.King).ToList();
             Assert.AreEqual(3, kingMoves.Count);
         }
+
+		//TODO Tests that castlingrights correctly updates
     }
 }

@@ -230,46 +230,68 @@ namespace Chess
 			return moves;
 		}
 
-		// TODO Refactor to simplify
-		public static List<Move> GenerateCastlingMoves(Board board)
+		private static List<Move> GenerateCastlingMoves(Board board)
 		{
 			List<Move> moves = new List<Move>();
-			Color attackingColor = (board.GetCurrentPlayer() == Color.White) ? Color.Black : Color.White;
-			int rank = (attackingColor == Color.White) ? 7 : 0;
-			CastlingRights castlingRights = board.GetCastlingRights();
-			if (Attack.IsAttacked(board.GetKingPosition(board.GetCurrentPlayer()), board, attackingColor)) return moves;
-			if (CanCastleKingside(board, castlingRights, rank, attackingColor))
+
+			Color kingColor = board.GetCurrentPlayer();
+			int kingRank = (kingColor == Color.White) ? 0 : 7;
+			// Cannot castle out of check
+			bool kingUnderAttack = Attack.IsAttacked(board.GetKingPosition(kingColor), board, kingColor.Opposite());
+			if (kingUnderAttack)
 			{
-				moves.Add(Move.CastleMove((4, rank), (6, rank), (7, rank), (5, rank)));
+				return moves;
 			}
-			if (CanCastleQueenside(board, castlingRights, rank, attackingColor))
+			// Check if can castle to king and queenside
+			CastlingRights castlingRights = board.GetCastlingRights();
+			if (CanCastleKingside(board, castlingRights, kingColor, kingRank))
 			{
-				moves.Add(Move.CastleMove((4, rank), (2, rank), (0, rank), (3, rank)));
+				Move kingSide = Move.CastleMove((4, kingRank), (6, kingRank), (7, kingRank), (5, kingRank));
+				moves.Add(kingSide);
+			}
+			if (CanCastleQueenside(board, castlingRights, kingColor, kingRank))
+			{
+				Move queenSide = Move.CastleMove((4, kingRank), (2, kingRank), (0, kingRank), (3, kingRank));
+				moves.Add(queenSide);
 			}
 			return moves;
 		}
 
-		private static bool CanCastleKingside(Board board, CastlingRights castlingRights, int rank, Color attackingColor)
+		private static bool CanCastleKingside(Board board, CastlingRights castlingRights, Color kingColor, int kingRank)
 		{
-			bool canCastleKingside = (rank == 0) ? castlingRights.HasFlag(CastlingRights.WhiteKingside) : castlingRights.HasFlag(CastlingRights.BlackKingside);
-			if (!canCastleKingside) return false;
-			return CanCastle(board, new (int, int)[] { (5, rank), (6, rank) }, attackingColor);
+			// Check if the king has the right to castle (king and rook hasn't moved)
+			bool canCastleKingside = (kingColor == Color.White) ? castlingRights.HasFlag(CastlingRights.WhiteKingside) : castlingRights.HasFlag(CastlingRights.BlackKingside);
+			if (!canCastleKingside)
+			{
+				return false;
+			}
+			// Check if the required squares are empty and not under attack
+			bool squaresEmptyAndNotAttacked = CanCastle(board, new (int, int)[] { (5, kingRank), (6, kingRank) }, kingColor.Opposite());
+			return squaresEmptyAndNotAttacked;
 		}
 
-		private static bool CanCastleQueenside(Board board, CastlingRights castlingRights, int rank, Color attackingColor)
+		private static bool CanCastleQueenside(Board board, CastlingRights castlingRights, Color kingColor, int kingRank)
 		{
-			bool canCastleQueenside = (rank == 0) ? castlingRights.HasFlag(CastlingRights.WhiteQueenside) : castlingRights.HasFlag(CastlingRights.BlackQueenside);
-			if (!canCastleQueenside) return false;
-			return CanCastle(board, new (int, int)[] { (3, rank), (2, rank), (1, rank) }, attackingColor);
+			// Check if the king has the right to castle (king and rook hasn't moved)
+			bool canCastleQueenside = (kingColor == Color.White) ? castlingRights.HasFlag(CastlingRights.WhiteQueenside) : castlingRights.HasFlag(CastlingRights.BlackQueenside);
+			if (!canCastleQueenside)
+			{
+				return false;
+			}
+			// Check if the required squares are empty and not under attack
+			bool squaresEmptyAndNotAttacked = CanCastle(board, new (int, int)[] { (3, kingRank), (2, kingRank), (1, kingRank) }, kingColor.Opposite());
+			return squaresEmptyAndNotAttacked;
 		}
 
+		// TODO Is there a better name for this method
 		private static bool CanCastle(Board board, (int, int)[] squaresToBeEmpty, Color attackingColor)
 		{
-			foreach ((int, int) square in squaresToBeEmpty)
+			foreach ((int file, int rank) square in squaresToBeEmpty)
 			{
 				Piece piece = board.GetPiece(square);
 				if (piece != null) return false;
-				if (square.Item1 != 1 && Attack.IsAttacked(square, board, attackingColor)) return false;
+				// When castling queenside, b1 or b8 doesn't have to not under attack
+				if (square.file != 1 && Attack.IsAttacked(square, board, attackingColor)) return false;
 			}
 			return true;
 		}

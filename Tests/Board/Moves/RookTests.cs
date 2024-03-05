@@ -40,6 +40,8 @@ namespace Moves
 			List<Move> rookMoves = legalMoves.Where(move => move.GetPieceType() == PieceType.Rook).ToList();
             Assert.AreEqual(8, rookMoves.Count);
         }
+
+		//TODO Tests that castlingrights correctly updates
     }
 
 }
