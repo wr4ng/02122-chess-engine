@@ -69,6 +69,11 @@ namespace Chess
 						{
 							return true;
 						}
+						// Blocked by another opposite piece, not of the attacking type (ie. blokced diagonally by pawn or rook)
+						else
+						{
+							break;
+						}
 					}
 					// If nextSquare was empty, go to next square by adding current direction (dx, dy)
 					nextSquare = (nextSquare.file + dx, nextSquare.rank + dy);
