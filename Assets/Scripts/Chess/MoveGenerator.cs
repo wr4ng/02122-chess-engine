@@ -244,6 +244,7 @@ namespace Chess
 			}
 			// Check if can castle to king and queenside
 			CastlingRights castlingRights = board.GetCastlingRights();
+			// TODO Check if there is a rook in the correct position
 			if (CanCastleKingside(board, castlingRights, kingColor, kingRank))
 			{
 				Move kingSide = Move.CastleMove((4, kingRank), (6, kingRank), (7, kingRank), (5, kingRank));
