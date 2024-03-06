@@ -47,6 +47,10 @@ public class BoardUI : MonoBehaviour
 
 	private void GenerateBoard()
 	{
+		// Initialize no highlighted tile
+		highlightedTile = null;
+		highlightedCoordinates = (-1, -1);
+
 		tiles = new Tile[Board.BOARD_SIZE, Board.BOARD_SIZE];
 		Vector3 offset = new Vector3(-3.5f, -3.5f, 0);
 
@@ -70,10 +74,6 @@ public class BoardUI : MonoBehaviour
 
 	public void UpdateBoard(Board board)
 	{
-		// Reset highlighted tile on board update
-		highlightedTile = null;
-		highlightedCoordinates = (-1, -1);
-
 		for (int file = 0; file < Board.BOARD_SIZE; file++)
 		{
 			for (int rank = 0; rank < Board.BOARD_SIZE; rank++)
@@ -113,8 +113,9 @@ public class BoardUI : MonoBehaviour
 		// Another tile was already selected
 		else
 		{
-			// TODO try to complete move
-			Debug.Log($"{FEN.CoordinateToFEN(highlightedCoordinates)} - {FEN.CoordinateToFEN(file, rank)}");
+			// Try to perform move (if selected tiles corresponds to a legal move)
+			GameManager.Instance.TryMove(highlightedCoordinates, (file, rank));
+
 			// Reset previously highlighted square
 			highlightedTile.SetColor(GetBaseColor(highlightedCoordinates.file, highlightedCoordinates.rank));
 			highlightedTile = null;

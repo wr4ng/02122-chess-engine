@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Chess;
 using UnityEngine;
 
@@ -42,5 +43,24 @@ public class GameManager : MonoBehaviour
 			board = Board.DefaultBoard();
 		}
 		BoardUI.Instance.UpdateBoard(board);
+	}
+
+	public void TryMove((int file, int rank) start, (int file, int rank) end)
+	{
+		var legalMoves = MoveGenerator.GenerateLegalMoves(board);
+		// TODO Handle promotion, since start and end are the same½
+		var moves = legalMoves.Where(move => move.GetStartSquare() == start && move.GetEndSquare() == end).ToList();
+		if (moves.Count == 0)
+		{
+			// TODO Show error to player
+			Debug.Log($"No move starting at {FEN.CoordinateToFEN(start)} and ending at {FEN.CoordinateToFEN(end)}");
+		}
+		else
+		{
+			// Use first move with matching start and end
+			// TODO Handle promotion
+			board.MakeMove(moves[0]);
+			BoardUI.Instance.UpdateBoard(board);
+		}
 	}
 }
