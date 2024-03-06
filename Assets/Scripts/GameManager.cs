@@ -42,7 +42,18 @@ public class GameManager : MonoBehaviour
 		{
 			board = Board.DefaultBoard();
 		}
+		// Set UI for board
 		BoardUI.Instance.UpdateBoard(board);
+	}
+
+	private void Update()
+	{
+		// Undo moves on LeftArrow
+		if (Input.GetKeyDown(KeyCode.LeftArrow))
+		{
+			board.UndoPreviousMove();
+			BoardUI.Instance.UpdateBoard(board);
+		}
 	}
 
 	public void TryMove((int file, int rank) start, (int file, int rank) end)
