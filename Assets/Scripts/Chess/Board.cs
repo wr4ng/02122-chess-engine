@@ -58,19 +58,44 @@ namespace Chess
 			return board[file, rank];
 		}
 
+		public Piece GetPiece((int, int) coords)
+		{
+			return board[coords.Item1, coords.Item2];
+		}
+
+		public void SetPiece((int, int) coords, Piece piece)
+		{
+			board[coords.Item1, coords.Item2] = piece;
+		}
+
+		public void SwapPlayer()
+		{
+			currentPlayer = currentPlayer.Opposite();
+		}
+
 		public Color GetCurrentPlayer()
 		{
 			return currentPlayer;
 		}
 
-		public string GetCastlingRights()
+		public CastlingRights GetCastlingRights()
 		{
-			return castlingRights.ToFENString();
+			return castlingRights;
 		}
 
 		public string GetEnPassantSquare()
 		{
 			return enPassantSquare == (-1, -1) ? "-" : FEN.CoordinateToFEN(enPassantSquare);
+		}
+
+		public (int, int) GetEnPassantCoords()
+		{
+			return enPassantSquare;
+		}
+
+		public Piece[,] GetBoard()
+		{
+			return board;
 		}
 
 		public int GetHalfmoveClock()
@@ -102,6 +127,76 @@ namespace Chess
 				result += "\n";
 			}
 			return result.Trim();
+		}
+
+		// TODO Update castling rights when making a move
+		public void MakeMove(Move move)
+		{
+			// If move is a capture, remove captured piece
+			if (move.IsCapture())
+			{
+				SetPiece(move.GetCaptureSquare(), null);
+			}
+			// If move is a castle, move rook
+			else if (move.IsCastle())
+			{
+				SetPiece(move.GetRookEnd(), GetPiece(move.GetRookStart()));
+				SetPiece(move.GetRookStart(), null);
+			}
+			// Move main piece
+			if (move.IsPromotion())
+			{
+				SetPiece(move.GetEndSquare(), new Piece(move.PromotionPieceType(), currentPlayer));
+			}
+			else
+			{
+				SetPiece(move.GetEndSquare(), GetPiece(move.GetStartSquare()));
+			}
+			SetPiece(move.GetStartSquare(), null);
+
+			SwapPlayer();
+		}
+
+		// TODO Update castling rights when unmaking a move
+		public void UnmakeMove(Move move)
+		{
+			// Move main piece back
+			if (move.IsPromotion())
+			{
+				SetPiece(move.GetStartSquare(), new Piece(PieceType.Pawn, currentPlayer.Opposite()));
+			}
+			else
+			{
+				SetPiece(move.GetStartSquare(), GetPiece(move.GetEndSquare()));
+			}
+			SetPiece(move.GetEndSquare(), null);
+			// If castle, move rook back
+			if (move.IsCastle())
+			{
+				SetPiece(move.GetRookStart(), GetPiece(move.GetRookEnd()));
+				SetPiece(move.GetRookEnd(), null);
+			}
+			// If capture, re-add captured piece
+			if (move.IsCapture())
+			{
+				SetPiece(move.GetCaptureSquare(), move.GetCapturedPiece());
+			}
+			SwapPlayer();
+		}
+
+		internal (int, int) GetKingPosition(Color color)
+		{
+			for (int file = 0; file < BOARD_SIZE; file++)
+			{
+				for (int rank = 0; rank < BOARD_SIZE; rank++)
+				{
+					if (board[file, rank] != null && board[file, rank].GetColor() == color && board[file, rank].GetPieceType() == PieceType.King)
+					{
+						return (file, rank);
+					}
+				}
+			}
+			return (-1, -1);
 		}
 	}
 }
