@@ -79,10 +79,6 @@ namespace Moves
 			Board board = Board.ImportFromFEN("4k3/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
 			List<Move> legalMoves = board.GetLegalMoves();
 			List<Move> castleMoves = legalMoves.Where(move => move.IsCastle()).ToList();
-			foreach (Move m in castleMoves)
-			{
-				Console.WriteLine($"{m.GetStartSquare()} - {m.GetEndSquare()}");
-			}
 			board.PlayMove(castleMoves[0]);
 			Assert.AreEqual("----k---\n--------\n--------\n--------\n--------\n--------\n--------\nR----RK-", board.ToString());
 			board.UndoPreviousMove();
