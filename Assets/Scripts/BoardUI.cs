@@ -20,6 +20,8 @@ public class BoardUI : MonoBehaviour
 	[SerializeField] private Sprite rookSprite;
 	[SerializeField] private Sprite queenSprite;
 	[SerializeField] private Sprite kingSprite;
+	[Header("References")]
+	[SerializeField] private SpriteRenderer currentPlayerFrame;
 
 	// Singleton
 	public static BoardUI Instance { get; private set; }
@@ -92,6 +94,8 @@ public class BoardUI : MonoBehaviour
 				}
 			}
 		}
+		// Update current player frame color
+		currentPlayerFrame.color = board.GetCurrentPlayer() == Chess.Color.White ? whiteColor : blackColor;
 	}
 
 	public void HandleTileClick(int file, int rank)
