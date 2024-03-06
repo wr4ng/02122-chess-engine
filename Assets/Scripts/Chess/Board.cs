@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Chess
 {
@@ -13,11 +14,16 @@ namespace Chess
 		private int halfmoveClock; // Used to determine fifty move rule
 		private int fullmoveNumber; // The number of full moves made in the game
 
+		private Stack<Move> playedMoves; // List of played moves
+
 		private Board() { }
 
 		public static Board ImportFromFEN(string fen)
 		{
+			// Initialize board
 			Board board = new Board();
+			board.playedMoves = new Stack<Move>();
+
 			// Validate FEN parts
 			string[] fenParts = fen.Split(' ');
 			if (fenParts.Length != 6)
@@ -155,11 +161,17 @@ namespace Chess
 			SetPiece(move.GetStartSquare(), null);
 
 			SwapPlayer();
+			playedMoves.Push(move);
 		}
 
 		// TODO Update castling rights when unmaking a move
 		public void UnmakeMove(Move move)
 		{
+			// Can only unmake moves that have previously been made
+			if (!playedMoves.TryPeek(out Move topMove) || topMove != move)
+			{
+				throw new ArgumentException("Trying to unmake move which isn't the top move!");
+			}
 			// Move main piece back
 			if (move.IsPromotion())
 			{
@@ -182,6 +194,15 @@ namespace Chess
 				SetPiece(move.GetCaptureSquare(), move.GetCapturedPiece());
 			}
 			SwapPlayer();
+			playedMoves.Pop();
+		}
+
+		public void UndoPreviousMove()
+		{
+			if (playedMoves.TryPeek(out Move previousMove))
+			{
+				UnmakeMove(previousMove);
+			}
 		}
 
 		internal (int, int) GetKingPosition(Color color)
