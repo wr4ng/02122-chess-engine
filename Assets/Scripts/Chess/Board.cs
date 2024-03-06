@@ -153,6 +153,14 @@ namespace Chess
 				SetPiece(move.GetEndSquare(), GetPiece(move.GetStartSquare()));
 			}
 			SetPiece(move.GetStartSquare(), null);
+			// Handle new en passant square
+			move.SetPrevEnPassantSquare(enPassantSquare);
+			if (move.IsDoublePawnMove()){
+				enPassantSquare = move.GetEnPassantSquare();
+			}
+			else {
+				enPassantSquare = (-1,-1);
+			}
 
 			SwapPlayer();
 		}
@@ -181,6 +189,7 @@ namespace Chess
 			{
 				SetPiece(move.GetCaptureSquare(), move.GetCapturedPiece());
 			}
+			enPassantSquare = move.GetPrevEnPassantSquare();
 			SwapPlayer();
 		}
 
