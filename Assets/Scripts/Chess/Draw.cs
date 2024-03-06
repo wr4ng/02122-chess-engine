@@ -16,11 +16,12 @@ namespace Chess
 		private bool blackInsufficientMaterial;
 		private bool whiteInsufficientMaterial;
 
-		public Draw()
+		public Draw(int countOfMoves)
 		{
 			positionCount = new Dictionary<string, int>();
 			isDraw = false;
 			count = 0;
+            this.countOfMoves = countOfMoves;
 			blackInsufficientMaterial = false;
 			whiteInsufficientMaterial = false;
 		}
@@ -69,10 +70,10 @@ namespace Chess
 		/// </summary>
 		/// <param name="pieceMoved">The piece that was moved</param>
 		/// <param name="pieceCaptured">The piece that was captured</param>
-		public void fiftyMoveRule(Piece pieceMoved, Piece pieceCaptured)
+		public void fiftyMoveRule(PieceType pieceMoved, bool capture)
 		{
 			// Check for 50 move rule
-			if (pieceMoved != null && pieceMoved.GetPieceType() != PieceType.Pawn && pieceCaptured == null)
+			if (pieceMoved != PieceType.Pawn && capture == false)
 			{
 				countOfMoves++;
 			}
