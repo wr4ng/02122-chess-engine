@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Chess
 {
@@ -7,26 +6,6 @@ namespace Chess
 	{
 		static PieceType[] PROMOTION_PIECES = { PieceType.Rook, PieceType.Knight, PieceType.Bishop, PieceType.Queen };
 
-		public static List<Move> GenerateLegalMoves(Board board)
-		{
-			var pseudoLegalMoves = GeneratePseudoLegalMoves(board);
-			var legalMoves = pseudoLegalMoves.Where(move => IsLegal(board, move)).ToList();
-			return legalMoves;
-		}
-
-		private static bool IsLegal(Board board, Move move)
-		{
-			// Make the move
-			board.MakeMove(move);
-
-			(int file, int rank) kingPosition = board.GetKingPosition(board.GetCurrentPlayer().Opposite());
-			// If the king is in check after the move, the move wasn't legal
-			bool isLegal = !Attack.IsAttacked(kingPosition, board, board.GetCurrentPlayer());
-
-			// Unmake the move
-			board.UnmakeMove(move);
-			return isLegal;
-		}
 
 		public static List<Move> GeneratePseudoLegalMoves(Board board)
 		{

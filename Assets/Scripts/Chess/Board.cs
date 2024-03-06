@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Chess
@@ -10,13 +11,17 @@ namespace Chess
 		private Piece[,] board = new Piece[BOARD_SIZE, BOARD_SIZE];
 		private Color currentPlayer;
 		private CastlingRights castlingRights;
-		private (int, int) enPassantSquare; // (file, rank), holds possible en Passant square
-		private int halfmoveClock; // Used to determine fifty move rule
-		private int fullmoveNumber; // The number of full moves made in the game
+		private (int, int) enPassantSquare; 	// (file, rank), holds possible en Passant square
+		private int halfmoveClock; 				// Used to determine fifty move rule
+		private int fullmoveNumber; 			// The number of full moves made in the game
 
-		private Stack<Move> playedMoves; // List of played moves
+		private Stack<Move> playedMoves;    	// List of played moves
+		private List<Move> legalMoves;   		// List of the currently legal moves
 
-		private Board() { }
+		private Board()
+		{
+			legalMoves = new List<Move>();
+		}
 
 		public static Board ImportFromFEN(string fen)
 		{
@@ -37,6 +42,10 @@ namespace Chess
 			board.enPassantSquare = FEN.ParseEnPassant(fenParts[3]);
 			board.halfmoveClock = FEN.ParseHalfmoveClock(fenParts[4]);
 			board.fullmoveNumber = FEN.ParseFullmoveNumber(fenParts[5]);
+
+			// Calculate legal moves
+			board.GenerateLegalMoves();
+
 			// Return resulting board
 			return board;
 		}
@@ -114,6 +123,11 @@ namespace Chess
 			return fullmoveNumber;
 		}
 
+		public List<Move> GetLegalMoves()
+		{
+			return legalMoves;
+		}
+
 		public override string ToString()
 		{
 			String result = "";
@@ -136,7 +150,7 @@ namespace Chess
 		}
 
 		// TODO Update castling rights when making a move
-		public void MakeMove(Move move)
+		private void MakeMove(Move move, bool calculateNextLegalMoves = false)
 		{
 			// If move is a capture, remove captured piece
 			if (move.IsCapture())
@@ -161,19 +175,27 @@ namespace Chess
 			SetPiece(move.GetStartSquare(), null);
 			// Handle new en passant square
 			move.SetPrevEnPassantSquare(enPassantSquare);
-			if (move.IsDoublePawnMove()){
+			if (move.IsDoublePawnMove())
+			{
 				enPassantSquare = move.GetEnPassantSquare();
 			}
-			else {
-				enPassantSquare = (-1,-1);
+			else
+			{
+				enPassantSquare = (-1, -1);
 			}
 
 			SwapPlayer();
 			playedMoves.Push(move);
+
+			// After making a move, possibly calculate the new legal moves
+			if (calculateNextLegalMoves)
+			{
+				GenerateLegalMoves();
+			}
 		}
 
 		// TODO Update castling rights when unmaking a move
-		public void UnmakeMove(Move move)
+		private void UnmakeMove(Move move, bool calculateNextLegalMoves = false)
 		{
 			// Can only unmake moves that have previously been made
 			if (!playedMoves.TryPeek(out Move topMove) || topMove != move)
@@ -204,17 +226,55 @@ namespace Chess
 			enPassantSquare = move.GetPrevEnPassantSquare();
 			SwapPlayer();
 			playedMoves.Pop();
+
+			// After making a move, possibly calculate the new legal moves
+			if (calculateNextLegalMoves)
+			{
+				GenerateLegalMoves();
+			}
+		}
+
+		public void PlayMove(Move move)
+		{
+			if (legalMoves.Contains(move))
+			{
+				MakeMove(move, true);
+			}
+			else
+			{
+				throw new ArgumentException("Move not legal!");
+			}
 		}
 
 		public void UndoPreviousMove()
 		{
 			if (playedMoves.TryPeek(out Move previousMove))
 			{
-				UnmakeMove(previousMove);
+				UnmakeMove(previousMove, true);
 			}
 		}
 
-		internal (int, int) GetKingPosition(Color color)
+		private void GenerateLegalMoves()
+		{
+			var pseudoLegalMoves = MoveGenerator.GeneratePseudoLegalMoves(this);
+			legalMoves = pseudoLegalMoves.Where(move => IsLegal(move)).ToList();
+		}
+
+		private bool IsLegal(Move move)
+		{
+			// Make the move
+			MakeMove(move);
+
+			(int file, int rank) kingPosition = GetKingPosition(currentPlayer.Opposite());
+			// If the king is in check after the move, the move wasn't legal
+			bool isLegal = !Attack.IsAttacked(kingPosition, this, currentPlayer);
+
+			// Unmake the move
+			UnmakeMove(move);
+			return isLegal;
+		}
+
+		public (int, int) GetKingPosition(Color color)
 		{
 			for (int file = 0; file < BOARD_SIZE; file++)
 			{
