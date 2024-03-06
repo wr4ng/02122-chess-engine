@@ -15,7 +15,7 @@ namespace Chess
 		bool isEnPassant;
 		bool isDoublePawnMove;
 		(int file, int rank) enPassantSquare;
-		(int file, int rank) prevEnPassantSquare;
+		(int file, int rank) prevEnPassantSquare = (-1,-1);
 
 		// Castling moves
 		bool isCastle;
