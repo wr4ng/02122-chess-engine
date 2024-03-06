@@ -13,6 +13,9 @@ namespace Chess
 
 		// En Passant moves
 		bool isEnPassant;
+		bool isDoublePawnMove;
+		(int file, int rank) enPassantSquare;
+		(int file, int rank) prevEnPassantSquare;
 
 		// Castling moves
 		bool isCastle;
@@ -32,6 +35,10 @@ namespace Chess
 		public Piece GetCapturedPiece() => capturedPiece;
 
 		public bool IsEnPassant() => isEnPassant;
+		public bool IsDoublePawnMove() => isDoublePawnMove;
+		public (int file, int rank) GetEnPassantSquare() => enPassantSquare;
+		public (int file, int rank) GetPrevEnPassantSquare() => prevEnPassantSquare;
+		public void SetPrevEnPassantSquare((int file, int rank) prevSquare) =>  prevEnPassantSquare = prevSquare;
 
 		public bool IsCastle() => isCastle;
 		public (int file, int rank) GetRookStart() => rookStart;
@@ -61,6 +68,12 @@ namespace Chess
 			move.captureSquare = end;
 			return move;
 		}
+		public static Move DoublePawnMove((int file, int rank) start, (int file, int rank) end, (int file, int rank) enPassantSquare){
+			Move move = SimpleMove(start, end, PieceType.Pawn);
+			move.isDoublePawnMove = true;
+			move.enPassantSquare = enPassantSquare;
+			return move;
+		}
 
 		public static Move EnPassantMove((int file, int rank) start, (int file, int rank) end, Piece capturedPiece, (int file, int rank) captureSquare)
 		{
@@ -83,12 +96,12 @@ namespace Chess
 
 		public static Move PromotionMove((int, int) start, (int, int) end, PieceType promotionPieceType, bool isCapture = false, Piece capturedPiece = null)
 		{
-			Move m = new Move(start, end, PieceType.Pawn);
-			m.isPromotion = true;
-			m.promotionPiecetype = promotionPieceType;
-			m.isCapture = isCapture;
-			m.capturedPiece = capturedPiece;
-			return m;
+			Move move = new Move(start, end, PieceType.Pawn);
+			move.isPromotion = true;
+			move.promotionPiecetype = promotionPieceType;
+			move.isCapture = isCapture;
+			move.capturedPiece = capturedPiece;
+			return move;
 		}
 	}
 }

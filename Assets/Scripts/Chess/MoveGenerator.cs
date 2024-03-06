@@ -97,7 +97,7 @@ namespace Chess
 						isBlocked = board.GetPiece(doubleEnd) != null;
 						if (!isBlocked)
 						{
-							Move doubleMove = Move.SimpleMove(start, doubleEnd, PieceType.Pawn);
+							Move doubleMove = Move.DoublePawnMove(start, doubleEnd, end);
 							moves.Add(doubleMove);
 						}
 					}
