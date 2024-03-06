@@ -167,6 +167,7 @@ namespace Chess
 			else {
 				enPassantSquare = (-1,-1);
 			}
+			move.SetPrevCastlingRights(castlingRights);
 
 			SwapPlayer();
 			playedMoves.Push(move);
@@ -202,6 +203,7 @@ namespace Chess
 				SetPiece(move.GetCaptureSquare(), move.GetCapturedPiece());
 			}
 			enPassantSquare = move.GetPrevEnPassantSquare();
+			castlingRights = move.GetPrevCastlingRights();
 			SwapPlayer();
 			playedMoves.Pop();
 		}

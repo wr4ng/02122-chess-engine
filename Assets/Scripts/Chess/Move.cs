@@ -20,6 +20,8 @@ namespace Chess
 		// Castling moves
 		bool isCastle;
 		(int file, int rank) rookStart, rookEnd;
+		CastlingRights prevCastlingRights;
+
 		// TODO Handle updating castling rights when castling
 
 		// Promotion moves
@@ -39,6 +41,9 @@ namespace Chess
 		public (int file, int rank) GetEnPassantSquare() => enPassantSquare;
 		public (int file, int rank) GetPrevEnPassantSquare() => prevEnPassantSquare;
 		public void SetPrevEnPassantSquare((int file, int rank) prevSquare) =>  prevEnPassantSquare = prevSquare;
+
+		public CastlingRights GetPrevCastlingRights() => prevCastlingRights;
+		public void SetPrevCastlingRights(CastlingRights prevRights) =>  prevCastlingRights = prevRights;
 
 		public bool IsCastle() => isCastle;
 		public (int file, int rank) GetRookStart() => rookStart;
