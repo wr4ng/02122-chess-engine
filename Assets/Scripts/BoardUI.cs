@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Chess;
 using UnityEngine;
 
@@ -31,6 +32,7 @@ public class BoardUI : MonoBehaviour
 
 	// Selection
 	private (int file, int rank) highlightedSquare;
+	private List<(int file, int rank)> possibleMovesShown;
 
 	private void Awake()
 	{
@@ -110,6 +112,27 @@ public class BoardUI : MonoBehaviour
 	{
 		tiles[highlightedSquare.file, highlightedSquare.rank].SetHighlight(false);
 		highlightedSquare = (-1, -1);
+	}
+
+	public void ShowPossibleMoves(List<(int file , int rank)> possibleMoves)
+	{
+		foreach ((int file, int rank) in possibleMoves)
+		{
+			tiles[file, rank].SetFrame(true);
+		}
+		possibleMovesShown = possibleMoves;
+	}
+
+	public void ClearPossibleMoves()
+	{
+		if (possibleMovesShown == null)
+		{
+			return;
+		}
+		foreach ((int file, int rank) in possibleMovesShown)
+		{
+			tiles[file, rank].SetFrame(false);
+		}
 	}
 
 	private Sprite PieceToSprite(PieceType type)

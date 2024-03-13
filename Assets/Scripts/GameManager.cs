@@ -91,6 +91,7 @@ public class GameManager : MonoBehaviour
 				hasSelection = false;
 				selectedSquare = (-1, -1);
 				BoardUI.Instance.ClearHighlight();
+				BoardUI.Instance.ClearPossibleMoves();
 			}
 			else
 			{
@@ -103,19 +104,25 @@ public class GameManager : MonoBehaviour
 					hasSelection = false;
 					selectedSquare = (-1, -1);
 					BoardUI.Instance.ClearHighlight();
+					BoardUI.Instance.ClearPossibleMoves();
 				}
 			}
 		}
 		else
 		{
 			// Check if the clicked square has any possible moves before selection it
-			var selectionHasMoves = board.GetLegalMoves().Where(move => move.GetStartSquare() == clickedSquare).Count() > 0;
+			var selectionMoves = board.GetLegalMoves().Where(move => move.GetStartSquare() == clickedSquare).ToList();
+			var selectionHasMoves = selectionMoves.Count() > 0;
 			if (selectionHasMoves)
 			{
 				hasSelection = true;
 				selectedSquare = clickedSquare;
 				// Update selectedion UI
 				BoardUI.Instance.SetHighlightedSquare(clickedSquare);
+				// Map each move it it's ending square
+				var selectionMoveEnds = selectionMoves.Select(move => move.GetEndSquare()).ToList();
+				// Show possible moves
+				BoardUI.Instance.ShowPossibleMoves(selectionMoveEnds);
 			}
 		}
 	}

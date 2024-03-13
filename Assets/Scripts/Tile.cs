@@ -3,10 +3,11 @@ using UnityEngine;
 public class Tile : MonoBehaviour
 {
 	[SerializeField] private SpriteRenderer tileSpriteRenderer;
+	[SerializeField] private SpriteRenderer frameSpriteRenderer;
 	[SerializeField] private SpriteRenderer pieceSpriteRenderer;
 
 	private int file, rank;
-	private bool isHighlighted;
+	private bool isHighlighted = false;
 	private Color baseColor;
 	private Color highlightColor;
 
@@ -17,8 +18,8 @@ public class Tile : MonoBehaviour
 		this.baseColor = baseColor;
 		this.highlightColor = highlightColor;
 
-		isHighlighted = false;
 		tileSpriteRenderer.color = baseColor;
+		frameSpriteRenderer.color = highlightColor;
 		pieceSpriteRenderer.sprite = null;
 	}
 
@@ -54,6 +55,11 @@ public class Tile : MonoBehaviour
 			tileSpriteRenderer.color = baseColor;
 		}
 		isHighlighted = highlight;
+	}
+
+	public void SetFrame(bool setFrame)
+	{
+		frameSpriteRenderer.enabled = setFrame;
 	}
 
 	public void SetPieceSprite(Sprite pieceSprite)
