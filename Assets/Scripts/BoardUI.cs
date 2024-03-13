@@ -66,9 +66,7 @@ public class BoardUI : MonoBehaviour
 
 				// Set tile coordinates, color and piece
 				Tile tile = tileGameObject.GetComponent<Tile>();
-				tile.SetCoordinate(file, rank);
-				tile.SetColor(GetBaseColor(file, rank));
-				tile.SetPieceSprite(null);
+				tile.Initialize(file, rank, GetBaseColor(file, rank), GetHighlightColor(file, rank));
 				tiles[file, rank] = tile;
 			}
 		}
@@ -104,13 +102,13 @@ public class BoardUI : MonoBehaviour
 		if (highlightedCoordinates == (-1, -1))
 		{
 			highlightedTile = tiles[file, rank];
-			highlightedTile.SetColor(GetHighlightColor(file, rank));
+			highlightedTile.SetHighlight(true);
 			highlightedCoordinates = (file, rank);
 		}
 		// Removing highlighted tile when repressing tile
 		else if ((file, rank) == highlightedCoordinates)
 		{
-			highlightedTile.SetColor(GetBaseColor(file, rank));
+			highlightedTile.SetHighlight(false);
 			highlightedTile = null;
 			highlightedCoordinates = (-1, -1);
 		}
@@ -121,7 +119,7 @@ public class BoardUI : MonoBehaviour
 			GameManager.Instance.TryMove(highlightedCoordinates, (file, rank));
 
 			// Reset previously highlighted square
-			highlightedTile.SetColor(GetBaseColor(highlightedCoordinates.file, highlightedCoordinates.rank));
+			highlightedTile.SetHighlight(false);
 			highlightedTile = null;
 			highlightedCoordinates = (-1, -1);
 		}

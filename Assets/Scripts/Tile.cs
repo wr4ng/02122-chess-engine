@@ -6,21 +6,53 @@ public class Tile : MonoBehaviour
 	[SerializeField] private SpriteRenderer pieceSpriteRenderer;
 
 	private int file, rank;
+	private bool isHighlighted;
+	private Color baseColor;
+	private Color highlightColor;
 
-	public void SetCoordinate(int file, int rank)
+	public void Initialize(int file, int rank, Color baseColor, Color highlightColor)
 	{
 		this.file = file;
 		this.rank = rank;
+		this.baseColor = baseColor;
+		this.highlightColor = highlightColor;
+
+		isHighlighted = false;
+		tileSpriteRenderer.color = baseColor;
+		pieceSpriteRenderer.sprite = null;
 	}
 
-	void OnMouseDown()
+	private void OnMouseDown()
 	{
 		BoardUI.Instance.HandleTileClick(file, rank);
 	}
 
-	public void SetColor(Color color)
+	private void OnMouseEnter()
 	{
-		tileSpriteRenderer.color = color;
+		// Highlight tile
+		tileSpriteRenderer.color = highlightColor;
+	}
+
+	private void OnMouseExit()
+	{
+		// Reset tile highlight
+		if (!isHighlighted)
+		{
+			tileSpriteRenderer.color = baseColor;
+		}
+	}
+
+	public void SetHighlight(bool highlight)
+	{
+		if (highlight)
+		{
+			tileSpriteRenderer.color = highlightColor;
+		}
+		else
+		{
+			tileSpriteRenderer.color = baseColor;
+		}
+		isHighlighted = highlight;
 	}
 
 	public void SetPieceSprite(Sprite pieceSprite)
