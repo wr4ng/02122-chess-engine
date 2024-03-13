@@ -211,14 +211,17 @@ namespace Chess
 			fen += CastlingRightsExtensions.ToFENString(castlingRights); //TODO skal vi rykke metoden her ind?
 			return fen;
 		}
+
 		public static string EnPassantToFEN((int, int) enPassantSquare)
 		{
 			return enPassantSquare == (-1, -1) ? " -" : " " + CoordinateToFEN(enPassantSquare);
 		}
+
 		public static string HalfmoveClockToFEN(int halfmoveClock)
 		{
 			return " " + halfmoveClock;
 		}
+
 		public static string FullmoveNumberToFEN(int fullmoveNumber)
 		{
 			return " " + fullmoveNumber;
