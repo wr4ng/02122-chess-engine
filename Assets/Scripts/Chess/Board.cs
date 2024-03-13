@@ -40,7 +40,7 @@ namespace Chess
 			board.halfmoveClock = FEN.ParseHalfmoveClock(fenParts[4]);
 			board.fullmoveNumber = FEN.ParseFullmoveNumber(fenParts[5]);
 
-			board.draw = new Draw(board.GetHalfmoveClock());
+			board.draw = new Draw(board.GetHalfmoveClock(), fen);
 			// Return resulting board
 			return board;
 		}
@@ -191,7 +191,7 @@ namespace Chess
 		{
 			// Undo changes in draw object
 			draw.undoDrawCount(ExportToFEN());
-			
+
 			// Can only unmake moves that have previously been made
 			if (!playedMoves.TryPeek(out Move topMove) || topMove != move)
 			{
