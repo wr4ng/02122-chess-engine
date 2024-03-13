@@ -29,8 +29,8 @@ public class BoardUI : MonoBehaviour
 	// UI Board
 	private Tile[,] tiles;
 
-	private (int file, int rank) highlightedCoordinates;
-	private Tile highlightedTile;
+	// Selection
+	private (int file, int rank) highlightedSquare;
 
 	private void Awake()
 	{
@@ -50,8 +50,7 @@ public class BoardUI : MonoBehaviour
 	private void GenerateBoard()
 	{
 		// Initialize no highlighted tile
-		highlightedTile = null;
-		highlightedCoordinates = (-1, -1);
+		highlightedSquare = (-1, -1);
 
 		tiles = new Tile[Board.BOARD_SIZE, Board.BOARD_SIZE];
 		Vector3 offset = new Vector3(-3.5f, -3.5f, 0);
@@ -96,33 +95,21 @@ public class BoardUI : MonoBehaviour
 		currentPlayerFrame.color = board.GetCurrentPlayer() == Chess.Color.White ? whiteColor : blackColor;
 	}
 
-	public void HandleTileClick(int file, int rank)
+	public void SetHighlightedSquare((int file, int rank) square)
 	{
-		// Highlight tile when no tile is highlighted
-		if (highlightedCoordinates == (-1, -1))
+		tiles[square.file, square.rank].SetHighlight(true);
+		// If we have a previously highlighed square, reset it
+		if (highlightedSquare != (-1, -1))
 		{
-			highlightedTile = tiles[file, rank];
-			highlightedTile.SetHighlight(true);
-			highlightedCoordinates = (file, rank);
+			tiles[highlightedSquare.file, highlightedSquare.rank].SetHighlight(false);
 		}
-		// Removing highlighted tile when repressing tile
-		else if ((file, rank) == highlightedCoordinates)
-		{
-			highlightedTile.SetHighlight(false);
-			highlightedTile = null;
-			highlightedCoordinates = (-1, -1);
-		}
-		// Another tile was already selected
-		else
-		{
-			// Try to perform move (if selected tiles corresponds to a legal move)
-			GameManager.Instance.TryMove(highlightedCoordinates, (file, rank));
+		highlightedSquare = square;
+	}
 
-			// Reset previously highlighted square
-			highlightedTile.SetHighlight(false);
-			highlightedTile = null;
-			highlightedCoordinates = (-1, -1);
-		}
+	public void ClearHighlight()
+	{
+		tiles[highlightedSquare.file, highlightedSquare.rank].SetHighlight(false);
+		highlightedSquare = (-1, -1);
 	}
 
 	private Sprite PieceToSprite(PieceType type)

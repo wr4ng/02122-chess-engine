@@ -24,7 +24,8 @@ public class Tile : MonoBehaviour
 
 	private void OnMouseDown()
 	{
-		BoardUI.Instance.HandleTileClick(file, rank);
+		// Notify GameManager that the Square was clicked on
+		GameManager.Instance.ClickSquare((file, rank));
 	}
 
 	private void OnMouseEnter()
