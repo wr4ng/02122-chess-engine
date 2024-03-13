@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 namespace Chess
 {
 	public class Board
 	{
 		public const int BOARD_SIZE = 8;
+		public Draw draw;
 
 		private Piece[,] board = new Piece[BOARD_SIZE, BOARD_SIZE];
 		private Color currentPlayer;
@@ -37,6 +39,8 @@ namespace Chess
 			board.enPassantSquare = FEN.ParseEnPassant(fenParts[3]);
 			board.halfmoveClock = FEN.ParseHalfmoveClock(fenParts[4]);
 			board.fullmoveNumber = FEN.ParseFullmoveNumber(fenParts[5]);
+
+			board.draw = new Draw(board.GetHalfmoveClock());
 			// Return resulting board
 			return board;
 		}
@@ -168,6 +172,16 @@ namespace Chess
 				enPassantSquare = (-1,-1);
 			}
 
+			// Update halfmove clock in draw object
+			draw.fiftyMoveRule(move.GetPieceType(), move.IsCapture());
+
+			// Update position count in draw object
+			draw.updatePositionCount(ExportToFEN());
+			if (draw.getIsDraw())
+			{
+				// TODO Handle draw
+			}
+
 			SwapPlayer();
 			playedMoves.Push(move);
 		}
@@ -202,6 +216,10 @@ namespace Chess
 				SetPiece(move.GetCaptureSquare(), move.GetCapturedPiece());
 			}
 			enPassantSquare = move.GetPrevEnPassantSquare();
+
+			// Undo changes in draw object
+			draw.undoDrawCount(ExportToFEN());
+
 			SwapPlayer();
 			playedMoves.Pop();
 		}

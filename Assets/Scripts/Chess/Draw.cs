@@ -10,6 +10,7 @@ namespace Chess
 		private Dictionary<string, int> positionCount;
 		private bool isDraw;
 		private int countOfMoves;
+		private int formerCountOfMoves;
 
 		// The count of the pieces on the board 1 for bishop and knight and 2 for the other pieces
 		private int count;
@@ -24,6 +25,35 @@ namespace Chess
             this.countOfMoves = countOfMoves;
 			blackInsufficientMaterial = false;
 			whiteInsufficientMaterial = false;
+		}
+
+		/// <summary>
+		/// Undo the draw changes made from the last move
+		/// </summary>
+		/// <param name="position">The FEN position of the game</param>
+		public void undoDrawCount (string position)
+		{
+			countOfMoves = formerCountOfMoves;
+
+			// split the string to remove the last 2 parts of the FEN
+			int spaceCount = 0;
+			for (int i = 0; i < position.Length; i++)
+			{
+				if (position[i] == ' ')
+				{
+					spaceCount++;
+					if (spaceCount >= 4)
+					{
+						position = position[..i];
+						break;
+					}
+				}
+			}
+
+			if (positionCount.ContainsKey(position))
+			{
+				positionCount[position]--;
+			}
 		}
 
 		// TODO: Call from end of turn
@@ -64,6 +94,8 @@ namespace Chess
 			}
 		}
 
+	
+
 		/// <summary>
 		/// Checks for the 50 move rule
 		/// Just at the end of the turn, after the move has been made
@@ -72,6 +104,7 @@ namespace Chess
 		/// <param name="pieceCaptured">The piece that was captured</param>
 		public void fiftyMoveRule(PieceType pieceMoved, bool capture)
 		{
+			formerCountOfMoves = countOfMoves;
 			// Check for 50 move rule
 			if (pieceMoved != PieceType.Pawn && capture == false)
 			{

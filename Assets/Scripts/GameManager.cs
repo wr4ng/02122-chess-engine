@@ -9,7 +9,6 @@ public class GameManager : MonoBehaviour
 	public static GameManager Instance { get; private set; }
 	
 	private Board board;
-	private Draw draw;
 
 	private void Awake()
 	{
@@ -31,20 +30,17 @@ public class GameManager : MonoBehaviour
 			try
 			{
 				board = Board.ImportFromFEN(IMPORT_FEN);
-				draw = new Draw(board.GetHalfmoveClock());
 			}
 			catch (Exception exception)
 			{
 				// TODO Handle error
 				Debug.Log(exception);
 				board = Board.DefaultBoard();
-				draw = new Draw(0);
 			}
 		}
 		else
 		{
 			board = Board.DefaultBoard();
-			draw = new Draw(0);
 		}
 		// Set UI for board
 		BoardUI.Instance.UpdateBoard(board);
@@ -77,13 +73,7 @@ public class GameManager : MonoBehaviour
 			// TODO Handle promotion
 			board.MakeMove(moves[0]);
 			BoardUI.Instance.UpdateBoard(board);
-			draw.fiftyMoveRule(moves[0].GetPieceType(), moves[0].IsCapture());
-		}
-		draw.updatePositionCount(board.ExportToFEN());
-		if (draw.getIsDraw())
-		{
-			// TODO Handle draw
-			Debug.Log("Draw");
+			
 		}
 	}
 }
