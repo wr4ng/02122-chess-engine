@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Chess
 {
@@ -11,7 +9,9 @@ namespace Chess
 	{
 		private Dictionary<string, int> positionCount;
 		private bool isDraw;
-		private List<int> halfMoveClockList;
+
+		// TODO Change to a stack?
+		private List<int> halfMoveClockList = new List<int>();
 
 		// The count of the pieces on the board 1 for bishop and knight and 2 for the other pieces
 		private int count;
@@ -24,7 +24,7 @@ namespace Chess
 			updatePositionCount(position);
 			isDraw = false;
 			count = 0;
-            this.halfMoveClockList[0] = halfMoveClock;
+            halfMoveClockList.Add(halfMoveClock);
 			blackInsufficientMaterial = false;
 			whiteInsufficientMaterial = false;
 		}
@@ -96,8 +96,6 @@ namespace Chess
 			}
 		}
 
-	
-
 		/// <summary>
 		/// Checks for the 50 move rule
 		/// Just at the end of the turn, after the move has been made
@@ -107,13 +105,13 @@ namespace Chess
 		public void fiftyMoveRule(PieceType pieceMoved, bool capture)
 		{
 			// Check for 50 move rule
-			if (pieceMoved != PieceType.Pawn && capture == false)
+			if (pieceMoved != PieceType.Pawn && capture == false && halfMoveClockList.Count > 0)
 			{
-				halfMoveClockList.Append(halfMoveClockList[halfMoveClockList.Count - 1] + 1);
+				halfMoveClockList.Add(halfMoveClockList[halfMoveClockList.Count - 1] + 1);
 			}
 			else
 			{
-				halfMoveClockList.Append(0);
+				halfMoveClockList.Add(0);
 			}
 		}
 
