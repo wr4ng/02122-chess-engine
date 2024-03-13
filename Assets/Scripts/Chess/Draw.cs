@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Chess
 {
@@ -9,20 +11,19 @@ namespace Chess
 	{
 		private Dictionary<string, int> positionCount;
 		private bool isDraw;
-		private int countOfMoves;
-		private int formerCountOfMoves;
+		private List<int> halfMoveClockList;
 
 		// The count of the pieces on the board 1 for bishop and knight and 2 for the other pieces
 		private int count;
 		private bool blackInsufficientMaterial;
 		private bool whiteInsufficientMaterial;
 
-		public Draw(int countOfMoves)
+		public Draw(int halfMoveClock)
 		{
 			positionCount = new Dictionary<string, int>();
 			isDraw = false;
 			count = 0;
-            this.countOfMoves = countOfMoves;
+            this.halfMoveClockList[0] = halfMoveClock;
 			blackInsufficientMaterial = false;
 			whiteInsufficientMaterial = false;
 		}
@@ -33,7 +34,7 @@ namespace Chess
 		/// <param name="position">The FEN position of the game</param>
 		public void undoDrawCount (string position)
 		{
-			countOfMoves = formerCountOfMoves;
+			halfMoveClockList.RemoveAt(halfMoveClockList.Count - 1);
 
 			// split the string to remove the last 2 parts of the FEN
 			int spaceCount = 0;
@@ -104,15 +105,14 @@ namespace Chess
 		/// <param name="pieceCaptured">The piece that was captured</param>
 		public void fiftyMoveRule(PieceType pieceMoved, bool capture)
 		{
-			formerCountOfMoves = countOfMoves;
 			// Check for 50 move rule
 			if (pieceMoved != PieceType.Pawn && capture == false)
 			{
-				countOfMoves++;
+				halfMoveClockList.Append(halfMoveClockList[halfMoveClockList.Count - 1] + 1);
 			}
 			else
 			{
-				countOfMoves = 0;
+				halfMoveClockList.Append(0);
 			}
 		}
 
@@ -184,7 +184,7 @@ namespace Chess
 		public bool getIsDraw()
 		{
 			// 50 moves, 1 move is 2 turns
-			if (countOfMoves >= 100)
+			if (halfMoveClockList[halfMoveClockList.Count - 1] >= 100)
 			{
 				isDraw = true;
 			}
