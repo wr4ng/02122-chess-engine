@@ -189,6 +189,9 @@ namespace Chess
 		// TODO Update castling rights when unmaking a move
 		public void UnmakeMove(Move move)
 		{
+			// Undo changes in draw object
+			draw.undoDrawCount(ExportToFEN());
+			
 			// Can only unmake moves that have previously been made
 			if (!playedMoves.TryPeek(out Move topMove) || topMove != move)
 			{
@@ -216,9 +219,6 @@ namespace Chess
 				SetPiece(move.GetCaptureSquare(), move.GetCapturedPiece());
 			}
 			enPassantSquare = move.GetPrevEnPassantSquare();
-
-			// Undo changes in draw object
-			draw.undoDrawCount(ExportToFEN());
 
 			SwapPlayer();
 			playedMoves.Pop();
