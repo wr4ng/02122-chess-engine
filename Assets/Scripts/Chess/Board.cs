@@ -89,6 +89,11 @@ namespace Chess
 			return castlingRights;
 		}
 
+		public void SetCastlingRights(CastlingRights castlingRight)
+		{
+			castlingRights = castlingRight;
+		}
+
 		public string GetEnPassantSquare()
 		{
 			return enPassantSquare == (-1, -1) ? "-" : FEN.CoordinateToFEN(enPassantSquare);
@@ -168,7 +173,10 @@ namespace Chess
 				enPassantSquare = (-1,-1);
 			}
 			move.SetPrevCastlingRights(castlingRights);
-
+			castlingRights = UpdateCastlingRights(castlingRights,CastlingRights.WhiteKingside, move, (7,0),(4,0));
+			castlingRights = UpdateCastlingRights(castlingRights,CastlingRights.BlackKingside, move, (7,7),(4,7));
+			castlingRights = UpdateCastlingRights(castlingRights,CastlingRights.WhiteQueenside, move, (0,0),(4,0));
+			castlingRights = UpdateCastlingRights(castlingRights,CastlingRights.BlackQueenside, move, (0,7),(4,7));
 			SwapPlayer();
 			playedMoves.Push(move);
 		}
@@ -214,6 +222,15 @@ namespace Chess
 			{
 				UnmakeMove(previousMove);
 			}
+		}
+
+		public CastlingRights UpdateCastlingRights(CastlingRights castlingRights, CastlingRights rightToCheck, Move move, (int,int) rookPos, (int,int) kingPos){
+			(int,int) moveStart = move.GetStartSquare();
+			(int,int) moveEnd = move.GetCaptureSquare();
+			if ((castlingRights & rightToCheck) == rightToCheck && (moveStart == rookPos || moveStart == kingPos || moveEnd == rookPos)){
+				return castlingRights & (CastlingRights.All ^ rightToCheck);
+			}
+			return castlingRights;
 		}
 
 		internal (int, int) GetKingPosition(Color color)
