@@ -11,7 +11,7 @@ namespace Moves
 		public void GeneratePawnMoveTwoForward()
 		{
 			Board board = Board.ImportFromFEN("7k/8/8/8/8/8/7P/7K w - - 0 1");
-			List<Move> legalMoves = MoveGenerator.GenerateLegalMoves(board);
+			List<Move> legalMoves = board.GetLegalMoves();
 			List<Move> pawnMoves = legalMoves.Where(move => move.GetPieceType() == PieceType.Pawn).ToList();
 
 			Assert.AreEqual(2, pawnMoves.Count);
@@ -25,7 +25,7 @@ namespace Moves
 		public void GeneratePawnMoveOneForward()
 		{
 			Board board = Board.ImportFromFEN("7k/8/8/8/7p/8/7P/7K w - - 0 1");
-			List<Move> legalMoves = MoveGenerator.GenerateLegalMoves(board);
+			List<Move> legalMoves = board.GetLegalMoves();
 			List<Move> pawnMoves = legalMoves.Where(move => move.GetPieceType() == PieceType.Pawn).ToList();
 
 			Assert.AreEqual(1, pawnMoves.Count);
@@ -37,7 +37,7 @@ namespace Moves
 		public void GeneratePawnMoveNotStartingRank()
 		{
 			Board board = Board.ImportFromFEN("7k/8/8/8/8/7P/8/7K w - - 0 1");
-			List<Move> legalMoves = MoveGenerator.GenerateLegalMoves(board);
+			List<Move> legalMoves = board.GetLegalMoves();
 			List<Move> pawnMoves = legalMoves.Where(move => move.GetPieceType() == PieceType.Pawn).ToList();
 
 			Assert.AreEqual(1, pawnMoves.Count);
@@ -49,7 +49,7 @@ namespace Moves
 		public void GeneratePawnMoveNoMoves()
 		{
 			Board board = Board.ImportFromFEN("7k/8/8/8/8/7P/7P/7K w - - 0 1");
-			List<Move> legalMoves = MoveGenerator.GenerateLegalMoves(board);
+			List<Move> legalMoves = board.GetLegalMoves();
 			List<Move> pawnMoves = legalMoves.Where(move => move.GetPieceType() == PieceType.Pawn && move.GetStartSquare().rank == 1).ToList();
 			Assert.AreEqual(0, pawnMoves.Count);
 		}
@@ -58,7 +58,7 @@ namespace Moves
 		public void GeneratePawnMoveAllPossible()
 		{
 			Board board = Board.ImportFromFEN("7k/8/8/8/8/5p1p/6P1/7K w - - 0 1");
-			List<Move> legalMoves = MoveGenerator.GenerateLegalMoves(board);
+			List<Move> legalMoves = board.GetLegalMoves();
 			List<Move> pawnMoves = legalMoves.Where(move => move.GetPieceType() == PieceType.Pawn).ToList();
 
 			Assert.AreEqual(4, pawnMoves.Count);
@@ -76,7 +76,7 @@ namespace Moves
 		public void GeneratePawnMoveEdgeCases()
 		{
 			Board board = Board.ImportFromFEN("7k/8/8/8/8/6pp/7P/7K w - - 0 1");
-			List<Move> legalMoves = MoveGenerator.GenerateLegalMoves(board);
+			List<Move> legalMoves = board.GetLegalMoves();
 			List<Move> pawnMoves = legalMoves.Where(move => move.GetPieceType() == PieceType.Pawn).ToList();
 
 			Assert.AreEqual(1, pawnMoves.Count);
@@ -84,7 +84,7 @@ namespace Moves
 			Assert.AreEqual((6, 2), pawnMoves[0].GetEndSquare());
 
 			board = Board.ImportFromFEN("7k/8/8/8/8/pp6/P7/7K w - - 0 1");
-			legalMoves = MoveGenerator.GenerateLegalMoves(board);
+			legalMoves = board.GetLegalMoves();
 			pawnMoves = legalMoves.Where(move => move.GetPieceType() == PieceType.Pawn).ToList();
 
 			Assert.AreEqual(1, pawnMoves.Count);
@@ -96,12 +96,12 @@ namespace Moves
 		public void GeneratePawnEnPassant()
 		{
 			Board board = Board.ImportFromFEN("7k/8/8/pP6/8/8/8/7K w - a6 0 1");
-			List<Move> legalMoves = MoveGenerator.GenerateLegalMoves(board);
+			List<Move> legalMoves = board.GetLegalMoves();
 			List<Move> enPassantMoves = legalMoves.Where(move => move.IsEnPassant()).ToList();
 			Assert.AreEqual(1, enPassantMoves.Count);
 
 			board = Board.ImportFromFEN("7k/8/8/1Pp5/8/8/8/7K w - c6 0 1");
-			legalMoves = MoveGenerator.GenerateLegalMoves(board);
+			legalMoves = board.GetLegalMoves();
 			enPassantMoves = legalMoves.Where(move => move.IsEnPassant()).ToList();
 			Assert.AreEqual(1, enPassantMoves.Count);
 		}
@@ -111,13 +111,13 @@ namespace Moves
 		{
 			// White promotion
 			Board board = Board.ImportFromFEN("k7/3P4/8/8/8/8/8/7K w - - 0 1");
-			List<Move> legalMoves = MoveGenerator.GenerateLegalMoves(board);
+			List<Move> legalMoves = board.GetLegalMoves();
 			List<Move> promotionMoves = legalMoves.Where(move => move.IsPromotion()).ToList();
 			Assert.AreEqual(4, promotionMoves.Count);
 
 			// Black promotion
 			board = Board.ImportFromFEN("k7/8/8/8/8/8/5p2/7K b - - 0 1");
-			legalMoves = MoveGenerator.GenerateLegalMoves(board);
+			legalMoves = board.GetLegalMoves();
 			promotionMoves = legalMoves.Where(move => move.IsPromotion()).ToList();
 			Assert.AreEqual(4, promotionMoves.Count);
 		}
@@ -126,7 +126,7 @@ namespace Moves
 		public void GeneratePawnCapturePromotion()
 		{
 			Board board = Board.ImportFromFEN("2r4k/1P6/8/8/8/8/8/K7 w - - 0 1");
-			List<Move> legalMoves = MoveGenerator.GenerateLegalMoves(board);
+			List<Move> legalMoves = board.GetLegalMoves();
 			List<Move> promotionCaptures = legalMoves.Where(move => move.IsPromotion() && move.IsCapture()).ToList();
 			Assert.AreEqual(4, promotionCaptures.Count);
 		}

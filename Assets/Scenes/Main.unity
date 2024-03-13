@@ -517,8 +517,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   primaryColor: {r: 1, g: 0.90588236, b: 0.90588236, a: 1}
   secondaryColor: {r: 0.9433962, g: 0.65563065, b: 0.65563065, a: 1}
-  primaryHighlightColor: {r: 0.8, g: 0.7247059, b: 0.7247059, a: 1}
-  secondaryHighlightColor: {r: 0.75, g: 0.5197096, b: 0.5197096, a: 1}
+  primaryHighlightColor: {r: 0.6039216, g: 0.54509807, b: 0.54509807, a: 1}
+  secondaryHighlightColor: {r: 0.6039216, g: 0.42352942, b: 0.42352942, a: 1}
   whiteColor: {r: 1, g: 1, b: 1, a: 1}
   blackColor: {r: 0, g: 0, b: 0, a: 1}
   tilePrefab: {fileID: 2142086515369553848, guid: a6a8d6410cffc6f45b8a36018ad2f09f, type: 3}

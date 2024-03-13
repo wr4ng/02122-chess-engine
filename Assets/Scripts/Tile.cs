@@ -3,24 +3,63 @@ using UnityEngine;
 public class Tile : MonoBehaviour
 {
 	[SerializeField] private SpriteRenderer tileSpriteRenderer;
+	[SerializeField] private SpriteRenderer frameSpriteRenderer;
 	[SerializeField] private SpriteRenderer pieceSpriteRenderer;
 
 	private int file, rank;
+	private bool isHighlighted = false;
+	private Color baseColor;
+	private Color highlightColor;
 
-	public void SetCoordinate(int file, int rank)
+	public void Initialize(int file, int rank, Color baseColor, Color highlightColor)
 	{
 		this.file = file;
 		this.rank = rank;
+		this.baseColor = baseColor;
+		this.highlightColor = highlightColor;
+
+		tileSpriteRenderer.color = baseColor;
+		frameSpriteRenderer.color = highlightColor;
+		pieceSpriteRenderer.sprite = null;
 	}
 
-	void OnMouseDown()
+	private void OnMouseDown()
 	{
-		BoardUI.Instance.HandleTileClick(file, rank);
+		// Notify GameManager that the Square was clicked on
+		GameManager.Instance.ClickSquare((file, rank));
 	}
 
-	public void SetColor(Color color)
+	private void OnMouseEnter()
 	{
-		tileSpriteRenderer.color = color;
+		// Highlight tile
+		tileSpriteRenderer.color = highlightColor;
+	}
+
+	private void OnMouseExit()
+	{
+		// Reset tile highlight
+		if (!isHighlighted)
+		{
+			tileSpriteRenderer.color = baseColor;
+		}
+	}
+
+	public void SetHighlight(bool highlight)
+	{
+		if (highlight)
+		{
+			tileSpriteRenderer.color = highlightColor;
+		}
+		else
+		{
+			tileSpriteRenderer.color = baseColor;
+		}
+		isHighlighted = highlight;
+	}
+
+	public void SetFrame(bool setFrame)
+	{
+		frameSpriteRenderer.enabled = setFrame;
 	}
 
 	public void SetPieceSprite(Sprite pieceSprite)

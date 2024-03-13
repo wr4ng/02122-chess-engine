@@ -1,6 +1,8 @@
+using System;
+
 namespace Chess
 {
-	public class Move
+	public class Move : IEquatable<Move>
 	{
 		// Base move informaton (from -> to)
 		(int file, int rank) startSquare, endSquare;
@@ -15,7 +17,7 @@ namespace Chess
 		bool isEnPassant;
 		bool isDoublePawnMove;
 		(int file, int rank) enPassantSquare;
-		(int file, int rank) prevEnPassantSquare = (-1,-1);
+		(int file, int rank) prevEnPassantSquare = (-1, -1);
 
 		// Castling moves
 		bool isCastle;
@@ -38,7 +40,7 @@ namespace Chess
 		public bool IsDoublePawnMove() => isDoublePawnMove;
 		public (int file, int rank) GetEnPassantSquare() => enPassantSquare;
 		public (int file, int rank) GetPrevEnPassantSquare() => prevEnPassantSquare;
-		public void SetPrevEnPassantSquare((int file, int rank) prevSquare) =>  prevEnPassantSquare = prevSquare;
+		public void SetPrevEnPassantSquare((int file, int rank) prevSquare) => prevEnPassantSquare = prevSquare;
 
 		public bool IsCastle() => isCastle;
 		public (int file, int rank) GetRookStart() => rookStart;
@@ -68,7 +70,8 @@ namespace Chess
 			move.captureSquare = end;
 			return move;
 		}
-		public static Move DoublePawnMove((int file, int rank) start, (int file, int rank) end, (int file, int rank) enPassantSquare){
+		public static Move DoublePawnMove((int file, int rank) start, (int file, int rank) end, (int file, int rank) enPassantSquare)
+		{
 			Move move = SimpleMove(start, end, PieceType.Pawn);
 			move.isDoublePawnMove = true;
 			move.enPassantSquare = enPassantSquare;
@@ -102,6 +105,37 @@ namespace Chess
 			move.isCapture = isCapture;
 			move.capturedPiece = capturedPiece;
 			return move;
+		}
+
+		// TODO Possibly Move should be a record type, to avoid having to overwrite '==' and '!=' for List.Contains()
+		public bool Equals(Move other)
+		{
+			if (other is null)
+			{
+				return false;
+			}
+			// Optimization for a common success case.
+			if (Object.ReferenceEquals(this, other))
+			{
+				return true;
+			}
+			// Equal if all fields are the same
+			return startSquare == other.startSquare &&
+				   endSquare == other.endSquare &&
+				   pieceType == other.pieceType &&
+				   isCapture == other.isCapture &&
+				   captureSquare == other.captureSquare &&
+				   capturedPiece == other.capturedPiece &&
+				   isEnPassant == other.isEnPassant &&
+				   isDoublePawnMove == other.isDoublePawnMove &&
+				   enPassantSquare == other.enPassantSquare &&
+				   prevEnPassantSquare == other.prevEnPassantSquare &&
+				   isCastle == other.isCastle &&
+				   rookStart == other.rookStart &&
+				   rookEnd == other.rookEnd &&
+				   isPromotion == other.isPromotion &&
+				   promotionPiecetype == other.promotionPiecetype;
+
 		}
 	}
 }

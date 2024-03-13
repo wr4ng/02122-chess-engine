@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Chess;
 using UnityEngine;
 
@@ -29,8 +30,9 @@ public class BoardUI : MonoBehaviour
 	// UI Board
 	private Tile[,] tiles;
 
-	private (int file, int rank) highlightedCoordinates;
-	private Tile highlightedTile;
+	// Selection
+	private (int file, int rank) highlightedSquare;
+	private List<(int file, int rank)> possibleMovesShown;
 
 	private void Awake()
 	{
@@ -50,8 +52,7 @@ public class BoardUI : MonoBehaviour
 	private void GenerateBoard()
 	{
 		// Initialize no highlighted tile
-		highlightedTile = null;
-		highlightedCoordinates = (-1, -1);
+		highlightedSquare = (-1, -1);
 
 		tiles = new Tile[Board.BOARD_SIZE, Board.BOARD_SIZE];
 		Vector3 offset = new Vector3(-3.5f, -3.5f, 0);
@@ -66,9 +67,7 @@ public class BoardUI : MonoBehaviour
 
 				// Set tile coordinates, color and piece
 				Tile tile = tileGameObject.GetComponent<Tile>();
-				tile.SetCoordinate(file, rank);
-				tile.SetColor(GetBaseColor(file, rank));
-				tile.SetPieceSprite(null);
+				tile.Initialize(file, rank, GetBaseColor(file, rank), GetHighlightColor(file, rank));
 				tiles[file, rank] = tile;
 			}
 		}
@@ -98,32 +97,41 @@ public class BoardUI : MonoBehaviour
 		currentPlayerFrame.color = board.GetCurrentPlayer() == Chess.Color.White ? whiteColor : blackColor;
 	}
 
-	public void HandleTileClick(int file, int rank)
+	public void SetHighlightedSquare((int file, int rank) square)
 	{
-		// Highlight tile when no tile is highlighted
-		if (highlightedCoordinates == (-1, -1))
+		tiles[square.file, square.rank].SetHighlight(true);
+		// If we have a previously highlighed square, reset it
+		if (highlightedSquare != (-1, -1))
 		{
-			highlightedTile = tiles[file, rank];
-			highlightedTile.SetColor(GetHighlightColor(file, rank));
-			highlightedCoordinates = (file, rank);
+			tiles[highlightedSquare.file, highlightedSquare.rank].SetHighlight(false);
 		}
-		// Removing highlighted tile when repressing tile
-		else if ((file, rank) == highlightedCoordinates)
-		{
-			highlightedTile.SetColor(GetBaseColor(file, rank));
-			highlightedTile = null;
-			highlightedCoordinates = (-1, -1);
-		}
-		// Another tile was already selected
-		else
-		{
-			// Try to perform move (if selected tiles corresponds to a legal move)
-			GameManager.Instance.TryMove(highlightedCoordinates, (file, rank));
+		highlightedSquare = square;
+	}
 
-			// Reset previously highlighted square
-			highlightedTile.SetColor(GetBaseColor(highlightedCoordinates.file, highlightedCoordinates.rank));
-			highlightedTile = null;
-			highlightedCoordinates = (-1, -1);
+	public void ClearHighlight()
+	{
+		tiles[highlightedSquare.file, highlightedSquare.rank].SetHighlight(false);
+		highlightedSquare = (-1, -1);
+	}
+
+	public void ShowPossibleMoves(List<(int file , int rank)> possibleMoves)
+	{
+		foreach ((int file, int rank) in possibleMoves)
+		{
+			tiles[file, rank].SetFrame(true);
+		}
+		possibleMovesShown = possibleMoves;
+	}
+
+	public void ClearPossibleMoves()
+	{
+		if (possibleMovesShown == null)
+		{
+			return;
+		}
+		foreach ((int file, int rank) in possibleMovesShown)
+		{
+			tiles[file, rank].SetFrame(false);
 		}
 	}
 
