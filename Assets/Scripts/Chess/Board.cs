@@ -173,10 +173,7 @@ namespace Chess
 				enPassantSquare = (-1,-1);
 			}
 			move.SetPrevCastlingRights(castlingRights);
-			castlingRights = UpdateCastlingRights(castlingRights,CastlingRights.WhiteKingside, move, (7,0),(4,0));
-			castlingRights = UpdateCastlingRights(castlingRights,CastlingRights.BlackKingside, move, (7,7),(4,7));
-			castlingRights = UpdateCastlingRights(castlingRights,CastlingRights.WhiteQueenside, move, (0,0),(4,0));
-			castlingRights = UpdateCastlingRights(castlingRights,CastlingRights.BlackQueenside, move, (0,7),(4,7));
+			castlingRights = UpdateAllCastlingRights(castlingRights, move);
 			SwapPlayer();
 			playedMoves.Push(move);
 		}
@@ -222,6 +219,13 @@ namespace Chess
 			{
 				UnmakeMove(previousMove);
 			}
+		}
+		public CastlingRights UpdateAllCastlingRights(CastlingRights castlingRights, Move move){
+			castlingRights = UpdateCastlingRights(castlingRights, CastlingRights.WhiteKingside, move, (7,0), (4,0));
+			castlingRights = UpdateCastlingRights(castlingRights, CastlingRights.BlackKingside, move, (7,7), (4,7));
+			castlingRights = UpdateCastlingRights(castlingRights, CastlingRights.WhiteQueenside, move, (0,0), (4,0));
+			castlingRights = UpdateCastlingRights(castlingRights, CastlingRights.BlackQueenside, move, (0,7), (4,7));
+			return castlingRights;
 		}
 
 		public CastlingRights UpdateCastlingRights(CastlingRights castlingRights, CastlingRights rightToCheck, Move move, (int,int) rookPos, (int,int) kingPos){
