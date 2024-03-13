@@ -18,9 +18,10 @@ namespace Chess
 		private bool blackInsufficientMaterial;
 		private bool whiteInsufficientMaterial;
 
-		public Draw(int halfMoveClock)
+		public Draw(int halfMoveClock, string position)
 		{
 			positionCount = new Dictionary<string, int>();
+			updatePositionCount(position);
 			isDraw = false;
 			count = 0;
             this.halfMoveClockList[0] = halfMoveClock;
@@ -177,6 +178,10 @@ namespace Chess
 			}
 		}
 
+		public Dictionary<string, int> getPositionCount()
+		{
+			return positionCount;
+		}
 		/// <summary>
 		/// Checks all the conditions for a draw
 		/// </summary>
