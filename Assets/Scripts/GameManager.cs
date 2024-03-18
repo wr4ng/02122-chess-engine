@@ -73,6 +73,5 @@ public class GameManager : MonoBehaviour
 			board.MakeMove(moves[0]);
 			BoardUI.Instance.UpdateBoard(board);
 		}
-		Debug.Log(board.GetCastlingRights().ToString());
 	}
 }

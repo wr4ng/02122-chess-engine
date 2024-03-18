@@ -15,7 +15,6 @@ namespace Chess
 		private int fullmoveNumber; // The number of full moves made in the game
 
 		private Stack<Move> playedMoves; // List of played moves
-
 		private Board() { }
 
 		public static Board ImportFromFEN(string fen)
