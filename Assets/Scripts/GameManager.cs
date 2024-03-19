@@ -77,6 +77,11 @@ public class GameManager : MonoBehaviour
 			// TODO Handle promotion
 			board.PlayMove(selectedMoves[0]);
 			BoardUI.Instance.UpdateBoard(board);
+			if (board.gameOver)
+			{
+				string winner = (board.isDraw) ? "Draw" : board.GetCurrentPlayer().Opposite().ToString();
+				Debug.Log(winner);
+			}
 			return true;
 		}
 	}

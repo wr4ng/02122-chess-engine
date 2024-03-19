@@ -16,6 +16,10 @@ namespace Chess
 		private int halfmoveClock;              // Used to determine fifty move rule
 		private int fullmoveNumber;             // The number of full moves made in the game
 
+		public bool gameOver = false;
+
+		public bool isDraw = true;
+
 		private Stack<Move> playedMoves;        // List of played moves
 		private List<Move> legalMoves;          // List of the currently legal moves
 
@@ -210,6 +214,14 @@ namespace Chess
 			if (calculateNextLegalMoves)
 			{
 				GenerateLegalMoves();
+				if (legalMoves.Count() == 0)
+				{
+					gameOver = true;
+					if (Attack.IsInCheck(GetKingPosition(currentPlayer), this))
+					{
+						isDraw = false;
+					}
+				}
 			}
 		}
 
@@ -255,6 +267,8 @@ namespace Chess
 			if (calculateNextLegalMoves)
 			{
 				GenerateLegalMoves();
+				gameOver = false;
+				isDraw = true;
 			}
 		}
 
