@@ -12,12 +12,12 @@ namespace Chess
 		private Piece[,] board = new Piece[BOARD_SIZE, BOARD_SIZE];
 		private Color currentPlayer;
 		private CastlingRights castlingRights;
-		private (int, int) enPassantSquare; 	// (file, rank), holds possible en Passant square
-		private int halfmoveClock; 				// Used to determine fifty move rule
-		private int fullmoveNumber; 			// The number of full moves made in the game
+		private (int, int) enPassantSquare;     // (file, rank), holds possible en Passant square
+		private int halfmoveClock;              // Used to determine fifty move rule
+		private int fullmoveNumber;             // The number of full moves made in the game
 
-		private Stack<Move> playedMoves;    	// List of played moves
-		private List<Move> legalMoves;   		// List of the currently legal moves
+		private Stack<Move> playedMoves;        // List of played moves
+		private List<Move> legalMoves;          // List of the currently legal moves
 
 		private Board()
 		{
@@ -99,6 +99,11 @@ namespace Chess
 		public CastlingRights GetCastlingRights()
 		{
 			return castlingRights;
+		}
+
+		public void SetCastlingRights(CastlingRights castlingRight)
+		{
+			castlingRights = castlingRight;
 		}
 
 		public string GetEnPassantSquare()
@@ -196,7 +201,8 @@ namespace Chess
 			{
 				// TODO Handle draw
 			}
-
+			move.SetPrevCastlingRights(castlingRights);
+			castlingRights = UpdateAllCastlingRights(castlingRights, move);
 			SwapPlayer();
 			playedMoves.Push(move);
 
@@ -241,6 +247,7 @@ namespace Chess
 			}
 			enPassantSquare = move.GetPrevEnPassantSquare();
 
+			castlingRights = move.GetPrevCastlingRights();
 			SwapPlayer();
 			playedMoves.Pop();
 
@@ -269,6 +276,25 @@ namespace Chess
 			{
 				UnmakeMove(previousMove, true);
 			}
+		}
+		public CastlingRights UpdateAllCastlingRights(CastlingRights castlingRights, Move move)
+		{
+			castlingRights = UpdateCastlingRights(castlingRights, CastlingRights.WhiteKingside, move, (7, 0), (4, 0));
+			castlingRights = UpdateCastlingRights(castlingRights, CastlingRights.BlackKingside, move, (7, 7), (4, 7));
+			castlingRights = UpdateCastlingRights(castlingRights, CastlingRights.WhiteQueenside, move, (0, 0), (4, 0));
+			castlingRights = UpdateCastlingRights(castlingRights, CastlingRights.BlackQueenside, move, (0, 7), (4, 7));
+			return castlingRights;
+		}
+
+		public CastlingRights UpdateCastlingRights(CastlingRights castlingRights, CastlingRights rightToCheck, Move move, (int, int) rookPos, (int, int) kingPos)
+		{
+			(int, int) moveStart = move.GetStartSquare();
+			(int, int) moveEnd = move.GetCaptureSquare();
+			if ((castlingRights & rightToCheck) == rightToCheck && (moveStart == rookPos || moveStart == kingPos || moveEnd == rookPos))
+			{
+				return castlingRights & (CastlingRights.All ^ rightToCheck);
+			}
+			return castlingRights;
 		}
 
 		private void GenerateLegalMoves()
