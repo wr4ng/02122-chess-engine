@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 namespace Chess
 {
@@ -214,14 +215,6 @@ namespace Chess
 			if (calculateNextLegalMoves)
 			{
 				GenerateLegalMoves();
-				if (legalMoves.Count() == 0)
-				{
-					gameOver = true;
-					if (Attack.IsInCheck(GetKingPosition(currentPlayer), this))
-					{
-						isDraw = false;
-					}
-				}
 			}
 		}
 
@@ -315,6 +308,11 @@ namespace Chess
 		{
 			var pseudoLegalMoves = MoveGenerator.GeneratePseudoLegalMoves(this);
 			legalMoves = pseudoLegalMoves.Where(move => IsLegal(move)).ToList();
+			if (legalMoves.Count() == 0)
+			{
+				gameOver = true;
+				isDraw = !Attack.IsAttacked(GetKingPosition(currentPlayer), this, currentPlayer.Opposite());
+			}
 		}
 
 		private bool IsLegal(Move move)

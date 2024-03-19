@@ -1,6 +1,6 @@
 using Chess;
 
-namespace DrawTests
+namespace ResultTests
 {
 	[TestClass]
 	public class positionCount
@@ -12,5 +12,5 @@ namespace DrawTests
 			Board board = Board.DefaultBoard();
 			Assert.AreEqual(1, board.draw.getPositionCount()["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -"]);
 		}
-    }
+	}
 }
