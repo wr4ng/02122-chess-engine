@@ -1,0 +1,6 @@
+using Chess;
+
+namespace Bot
+{
+
+}
