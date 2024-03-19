@@ -10,7 +10,7 @@ namespace Chess
 
 		// Capture moves
 		bool isCapture;
-		(int file, int rank) captureSquare = (-1, -1);
+		(int file, int rank) captureSquare;
 		Piece capturedPiece;
 
 		// En Passant moves

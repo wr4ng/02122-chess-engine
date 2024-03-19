@@ -290,7 +290,7 @@ namespace Chess
 		{
 			(int, int) moveStart = move.GetStartSquare();
 			(int, int) moveEnd = move.GetCaptureSquare();
-			if ((castlingRights & rightToCheck) == rightToCheck && (moveStart == rookPos || moveStart == kingPos || moveEnd == rookPos))
+			if ((castlingRights & rightToCheck) == rightToCheck && (moveStart == rookPos || moveStart == kingPos || (move.IsCapture() && moveEnd == rookPos)))
 			{
 				return castlingRights & (CastlingRights.All ^ rightToCheck);
 			}
