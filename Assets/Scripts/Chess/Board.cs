@@ -328,6 +328,18 @@ namespace Chess
 			}
 		}
 
+		public List<Move> GenerateLegalMoves(bool t)
+		{
+			var pseudoLegalMoves = MoveGenerator.GeneratePseudoLegalMoves(this);
+			List<Move> lMoves = pseudoLegalMoves.Where(move => IsLegal(move)).ToList();
+			if (lMoves.Count() == 0)
+			{
+				gameOver = true;
+				isDraw = !Attack.IsAttacked(GetKingPosition(currentPlayer), this, currentPlayer.Opposite());
+			}
+			return lMoves;
+		}
+
 		private bool IsLegal(Move move)
 		{
 			// Make the move

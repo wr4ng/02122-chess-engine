@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
 using Chess;
+using Bot;
 using UnityEngine;
+using System.Diagnostics;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,6 +11,7 @@ public class GameManager : MonoBehaviour
 	public static GameManager Instance { get; private set; }
 
 	private Board board;
+	private tempName bot = new tempName(2);
 
 	private bool hasSelection;
 	private (int file, int rank) selectedSquare = (-1, -1);
@@ -37,7 +40,7 @@ public class GameManager : MonoBehaviour
 			catch (Exception exception)
 			{
 				// TODO Handle error
-				Debug.Log(exception);
+				UnityEngine.Debug.Log(exception);
 				board = Board.DefaultBoard();
 			}
 		}
@@ -47,6 +50,24 @@ public class GameManager : MonoBehaviour
 		}
 		// Set UI for board
 		BoardUI.Instance.UpdateBoard(board);
+		//------------------------this is whack ass test------------------------------
+		int[] depths = { 1, 2 };
+
+		foreach (int depth in depths)
+		{
+			Board tempBoard = Board.ImportFromFEN("r5k1/1q1r1bpp/p3pp2/6P1/2P1PPN1/1P1QR3/2B1K3/8 w - - 0 1");
+			// Create a new instance of the bot
+			tempName bot = new tempName(depth);
+
+			// Start the stopwatch
+			Stopwatch stopwatch = Stopwatch.StartNew();
+
+			bot.BestMove(tempBoard);
+			// Stop the stopwatch and print the elapsed time
+			stopwatch.Stop();
+			UnityEngine.Debug.Log($"Depth {depth}: Elapsed time: {stopwatch.ElapsedMilliseconds} ms");
+		}
+		//------------------------this is whack ass test------------------------------
 
 	}
 
@@ -68,7 +89,7 @@ public class GameManager : MonoBehaviour
 		if (selectedMoves.Count == 0)
 		{
 			// TODO Show that move isn't legal to player
-			Debug.Log($"No move starting at {FEN.CoordinateToFEN(start)} and ending at {FEN.CoordinateToFEN(end)}");
+			UnityEngine.Debug.Log($"No move starting at {FEN.CoordinateToFEN(start)} and ending at {FEN.CoordinateToFEN(end)}");
 			return false;
 		}
 		else
@@ -80,7 +101,14 @@ public class GameManager : MonoBehaviour
 			if (board.gameOver)
 			{
 				string winner = (board.isDraw) ? "Draw" : board.GetCurrentPlayer().Opposite().ToString();
-				Debug.Log(winner);
+				UnityEngine.Debug.Log(winner);
+			}
+			else
+			{
+				(Move botMove, float moveEval) = bot.BestMove(board);
+				UnityEngine.Debug.Log(moveEval);
+				board.PlayMove(botMove);
+				BoardUI.Instance.UpdateBoard(board);
 			}
 			return true;
 		}
