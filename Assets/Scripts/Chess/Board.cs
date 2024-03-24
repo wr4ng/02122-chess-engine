@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
 namespace Chess
 {
@@ -56,6 +55,20 @@ namespace Chess
 
 			// Return resulting board
 			return board;
+		}
+
+		public static bool TryParseFEN(string fen, out Board board)
+		{
+			try
+			{
+				board = Board.ImportFromFEN(fen);
+				return true;
+			}
+			catch (Exception)
+			{
+				board = null;
+				return false;
+			}
 		}
 
 		public static Board DefaultBoard()
