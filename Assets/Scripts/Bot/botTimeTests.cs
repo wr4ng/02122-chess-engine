@@ -19,7 +19,7 @@ public static class BotTimeTests
             // Start the stopwatch
             Stopwatch stopwatch = Stopwatch.StartNew();
 
-            bot.BestMove(board);
+            bot.GetBestMove(board);
             // Stop the stopwatch and print the elapsed time
             stopwatch.Stop();
             Console.WriteLine($"Depth {depth}: Elapsed time: {stopwatch.ElapsedMilliseconds} ms");
