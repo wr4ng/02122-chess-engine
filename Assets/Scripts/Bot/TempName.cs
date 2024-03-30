@@ -1,9 +1,8 @@
-using System;
 using Chess;
 
 namespace Bot
 {
-    public class TempName
+    public class TempName : Bot
     {
         int depth;
         //implement mini max / negamax
@@ -13,10 +12,13 @@ namespace Bot
             this.depth = depth;
         }
 
-        public (Move move, float evaluation) BestMove(Board board)
-        {
-            return (board.GetCurrentPlayer() == Color.White) ? miniMaxWhite(board, this.depth) : miniMaxBlack(board, this.depth);
-        }
+		// Implement Bot interface method
+		public Move GetBestMove(Board board)
+		{
+			return ((board.GetCurrentPlayer() == Color.White) ? miniMaxWhite(board, depth) : miniMaxBlack(board, depth)).move;
+		}
+
+
         //TODO find en bedre måde at gemme bestmove på
         private (Move move, float evaluation) miniMaxWhite(Board board, int depth) //wants highest score
         {

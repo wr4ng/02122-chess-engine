@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
 	public static GameManager Instance { get; private set; }
 
 	private Board board;
-	private TempName bot = new TempName(2);
+	private Bot.Bot bot = new TempName(2);
 
 	private bool hasSelection;
 	private (int file, int rank) selectedSquare = (-1, -1);
@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
 			// Start the stopwatch
 			Stopwatch stopwatch = Stopwatch.StartNew();
 
-			bot.BestMove(tempBoard);
+			bot.GetBestMove(tempBoard);
 			// Stop the stopwatch and print the elapsed time
 			stopwatch.Stop();
 			UnityEngine.Debug.Log($"Depth {depth}: Elapsed time: {stopwatch.ElapsedMilliseconds} ms");
@@ -105,8 +105,7 @@ public class GameManager : MonoBehaviour
 			}
 			else
 			{
-				(Move botMove, float moveEval) = bot.BestMove(board);
-				UnityEngine.Debug.Log(moveEval);
+				Move botMove = bot.GetBestMove(board);
 				board.PlayMove(botMove);
 				BoardUI.Instance.UpdateBoard(board);
 			}
