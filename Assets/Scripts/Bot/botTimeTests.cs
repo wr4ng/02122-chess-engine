@@ -14,7 +14,7 @@ public static class BotTimeTests
         {
             Board board = Board.DefaultBoard();
             // Create a new instance of the bot
-            tempName bot = new tempName(depth);
+            TempName bot = new TempName(depth);
 
             // Start the stopwatch
             Stopwatch stopwatch = Stopwatch.StartNew();

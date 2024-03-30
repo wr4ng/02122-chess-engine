@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
 	public static GameManager Instance { get; private set; }
 
 	private Board board;
-	private tempName bot = new tempName(2);
+	private TempName bot = new TempName(2);
 
 	private bool hasSelection;
 	private (int file, int rank) selectedSquare = (-1, -1);
@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour
 		{
 			Board tempBoard = Board.ImportFromFEN("r5k1/1q1r1bpp/p3pp2/6P1/2P1PPN1/1P1QR3/2B1K3/8 w - - 0 1");
 			// Create a new instance of the bot
-			tempName bot = new tempName(depth);
+			TempName bot = new TempName(depth);
 
 			// Start the stopwatch
 			Stopwatch stopwatch = Stopwatch.StartNew();
