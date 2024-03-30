@@ -1,3 +1,4 @@
+using Bot;
 using Chess;
 using TMPro;
 using UnityEditor;
@@ -42,6 +43,14 @@ public class MainMenu : MonoBehaviour
 		{
 			SceneManager.LoadScene((int)SceneIndex.Game);
 		}
+	}
+
+	public void PlayAgainstBot(int botType)
+	{
+		GameManager.againstBot = true;
+		GameManager.botType = (BotType)botType;
+
+		PlayGame();
 	}
 
 	public void SetDefaultFEN()

@@ -7,11 +7,16 @@ using System.Diagnostics;
 
 public class GameManager : MonoBehaviour
 {
-	public static string IMPORT_FEN = string.Empty;
+	// Singleton instance
 	public static GameManager Instance { get; private set; }
 
+	// Static parameters set from Menu
+	public static string IMPORT_FEN = string.Empty;
+	public static bool againstBot = false;
+	public static BotType botType = BotType.RandomBot;
+
 	private Board board;
-	private Bot.Bot bot = new TempName(2);
+	private Bot.Bot bot;
 
 	private bool hasSelection;
 	private (int file, int rank) selectedSquare = (-1, -1);
@@ -48,6 +53,12 @@ public class GameManager : MonoBehaviour
 		{
 			board = Board.DefaultBoard();
 		}
+		// Initialize Bot if against Bot
+		if (againstBot)
+		{
+			bot = botType.CreateBot();
+			UnityEngine.Debug.Log($"Playing against: {botType}");
+		}
 		// Set UI for board
 		BoardUI.Instance.UpdateBoard(board);
 		//------------------------this is whack ass test------------------------------
@@ -68,7 +79,6 @@ public class GameManager : MonoBehaviour
 			UnityEngine.Debug.Log($"Depth {depth}: Elapsed time: {stopwatch.ElapsedMilliseconds} ms");
 		}
 		//------------------------this is whack ass test------------------------------
-
 	}
 
 	private void Update()
@@ -103,7 +113,7 @@ public class GameManager : MonoBehaviour
 				string winner = (board.isDraw) ? "Draw" : board.GetCurrentPlayer().Opposite().ToString();
 				UnityEngine.Debug.Log(winner);
 			}
-			else
+			else if (againstBot)
 			{
 				Move botMove = bot.GetBestMove(board);
 				board.PlayMove(botMove);
