@@ -7,7 +7,8 @@ using UnityEngine.SceneManagement;
 enum SceneIndex
 {
 	Menu = 0,
-	Game = 1
+	Game = 1,
+	Perft = 2
 }
 
 public class MainMenu : MonoBehaviour
@@ -16,6 +17,7 @@ public class MainMenu : MonoBehaviour
 	[SerializeField] private GameObject mainMenu;
 	[SerializeField] private GameObject playMenu;
 	[SerializeField] private GameObject optionsMenu;
+	[SerializeField] private GameObject testingMenu;
 
 	[SerializeField, Tooltip("Input field to pass on FEN or PGN notation")]
 	private TMP_InputField fenInputField;
@@ -55,16 +57,22 @@ public class MainMenu : MonoBehaviour
 		Application.Quit();
 	}
 
+	public void ShowPlayMenu()
+	{
+		mainMenu.SetActive(false);
+		playMenu.SetActive(true);
+	}
+
 	public void ShowOptions()
 	{
 		mainMenu.SetActive(false);
 		optionsMenu.SetActive(true);
 	}
 
-	public void ShowPlayMenu()
+	public void ShowTesting()
 	{
 		mainMenu.SetActive(false);
-		playMenu.SetActive(true);
+		testingMenu.SetActive(true);
 	}
 
 	public void Back()
@@ -72,5 +80,11 @@ public class MainMenu : MonoBehaviour
 		mainMenu.SetActive(true);
 		playMenu.SetActive(false);
 		optionsMenu.SetActive(false);
+		testingMenu.SetActive(false);
+	}
+
+	public void LoadScene(int sceneIndex)
+	{
+		SceneManager.LoadScene(sceneIndex);
 	}
 }

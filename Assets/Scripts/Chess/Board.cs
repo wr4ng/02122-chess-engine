@@ -356,5 +356,29 @@ namespace Chess
 			}
 			return (-1, -1);
 		}
+
+		// TODO Move this to Perft.cs?
+		public int GetNumberOfPositions(int depth)
+		{
+			if (depth == 0)
+			{
+				return 1;
+			}
+
+			if (depth == 1)
+			{
+				return legalMoves.Count;
+			}
+
+			int positions = 0;
+
+			foreach (Move move in legalMoves)
+			{
+				MakeMove(move, depth > 1);
+				positions += GetNumberOfPositions(depth-1);
+				UndoPreviousMove();
+			}
+			return positions;
+		}
 	}
 }
