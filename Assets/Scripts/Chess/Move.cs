@@ -5,23 +5,25 @@ namespace Chess
 	public class Move : IEquatable<Move>
 	{
 		// Base move informaton (from -> to)
-		(int file, int rank) startSquare, endSquare;
+		(int file, int rank) startSquare = (-1, -1);
+		(int file, int rank) endSquare = (-1, -1);
 		PieceType pieceType;
 
 		// Capture moves
-		bool isCapture;
-		(int file, int rank) captureSquare;
+		bool isCapture = false;
+		(int file, int rank) captureSquare = (-1, -1);
 		Piece capturedPiece;
 
 		// En Passant moves
-		bool isEnPassant;
-		bool isDoublePawnMove;
-		(int file, int rank) enPassantSquare;
+		bool isEnPassant = false;
+		bool isDoublePawnMove = false;
+		(int file, int rank) enPassantSquare = (-1, -1);
 		(int file, int rank) prevEnPassantSquare = (-1, -1);
 
 		// Castling moves
-		bool isCastle;
-		(int file, int rank) rookStart, rookEnd;
+		bool isCastle = false;
+		(int file, int rank) rookStart = (-1, -1);
+		(int file, int rank) rookEnd = (-1, -1);
 		CastlingRights prevCastlingRights;
 
 		// TODO Handle updating castling rights when castling
