@@ -22,6 +22,10 @@ Give **.NET** is installed, you can run the tests (from the root directory) usin
 ```shell
 dotnet test .\Tests\Tests.csproj
 ```
+To exclude **Perft** tests (instant vs. ~2 minutes):
+```shell
+dotnet test --filter Name\!~Perft Tests/Tests.csproj
+```
 ## Visual Studio Code
 Install the [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit) **VSCode** extension.
 

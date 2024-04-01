@@ -24,7 +24,7 @@ namespace Moves
 			Assert.AreEqual(48, board.GetNumberOfPositions(1));
 			Assert.AreEqual(2_039, board.GetNumberOfPositions(2));
 			Assert.AreEqual(97_862, board.GetNumberOfPositions(3));
-			// Assert.AreEqual(4_085_603, board.GetNumberOfPositions(4)); // Takes too long...
+			Assert.AreEqual(4_085_603, board.GetNumberOfPositions(4)); // Takes a while...
 		}
 
 		[TestMethod]
@@ -46,6 +46,25 @@ namespace Moves
 			Assert.AreEqual(264, board.GetNumberOfPositions(2));
 			Assert.AreEqual(9_467, board.GetNumberOfPositions(3));
 			Assert.AreEqual(422_333, board.GetNumberOfPositions(4));
+		}
+
+		[TestMethod]
+		public void Position5Perft()
+		{
+			Board board = Board.ImportFromFEN("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
+			Assert.AreEqual(44, board.GetNumberOfPositions(1));
+			Assert.AreEqual(1_486, board.GetNumberOfPositions(2));
+			Assert.AreEqual(62_379, board.GetNumberOfPositions(3));
+			Assert.AreEqual(2_103_487, board.GetNumberOfPositions(4)); // Takes a while...
+		}
+
+		[TestMethod]
+		public void Position6Perft()
+		{
+			Board board = Board.ImportFromFEN("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10");
+			Assert.AreEqual(46, board.GetNumberOfPositions(1));
+			Assert.AreEqual(2_079, board.GetNumberOfPositions(2));
+			Assert.AreEqual(89_890, board.GetNumberOfPositions(3));
 		}
 	}
 }
