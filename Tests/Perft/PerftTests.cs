@@ -45,13 +45,7 @@ namespace Moves
 			Assert.AreEqual(6, board.GetNumberOfPositions(1));
 			Assert.AreEqual(264, board.GetNumberOfPositions(2));
 			Assert.AreEqual(9_467, board.GetNumberOfPositions(3));
-			//TODO Fix error
-			// On board "r3k2r/Pppp1ppp/1b3nbN/nPP5/BB2P3/q4N2/Pp1P2PP/R2Q1RK1 b kq - 0 1"
-			// the move rook a8 to b8 teleports it to a1 instead
-			// resulting board state: "4k2r/Pppp1ppp/1b3nbN/nPP5/BB2P3/q4N2/Pp1P2PP/r2Q1RK1 w k - 0 1"
-			// Therefore UndoPreviousMove() after PlayMove() results in a different board!
-
-			// Assert.AreEqual(422_333, board.GetNumberOfPositions(4)); //TODO Uncomment once above case is fixed
+			Assert.AreEqual(422_333, board.GetNumberOfPositions(4));
 		}
 	}
 }
