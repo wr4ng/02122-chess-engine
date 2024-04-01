@@ -61,7 +61,7 @@ namespace Chess.Testing
 			foreach (Move m in board.GetLegalMoves())
 			{
 				board.PlayMove(m);
-				// TODO Handle promotion when writing move (i.e. a7a8r)
+				// TODO Handle writing promotion moves (i.e. a7a8r)
 				string move = $"{FEN.CoordinateToFEN(m.GetStartSquare())}{FEN.CoordinateToFEN(m.GetEndSquare())}";
 				int positions = board.GetNumberOfPositions(depth - 1);
 				total += positions;
@@ -70,10 +70,10 @@ namespace Chess.Testing
 			}
 
 			stopwatch.Stop();
-			Log($"\nNodes searched: {total}\nTime spent: {stopwatch.ElapsedMilliseconds}ms");
+			Log($"Nodes searched: {total}\nTime spent: {stopwatch.ElapsedMilliseconds}ms");
 		}
 
-		// Utiltiy method to log to both Unity console and UI if playing
+		// Utility method to log to both Unity console and UI if playing
 		private void Log(string message, bool isError = false)
 		{
 			// Log to console
