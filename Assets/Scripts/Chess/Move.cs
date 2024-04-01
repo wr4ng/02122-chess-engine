@@ -111,6 +111,10 @@ namespace Chess
 			move.promotionPiecetype = promotionPieceType;
 			move.isCapture = isCapture;
 			move.capturedPiece = capturedPiece;
+			if (isCapture)
+			{
+				move.captureSquare = end;
+			}
 			return move;
 		}
 
