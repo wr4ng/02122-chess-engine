@@ -122,31 +122,28 @@ namespace Chess
 		public bool Equals(Move other)
 		{
 			if (other is null)
-			{
 				return false;
-			}
-			// Optimization for a common success case.
-			if (Object.ReferenceEquals(this, other))
-			{
-				return true;
-			}
-			// Equal if all fields are the same
-			return startSquare == other.startSquare &&
-				   endSquare == other.endSquare &&
-				   pieceType == other.pieceType &&
-				   isCapture == other.isCapture &&
-				   captureSquare == other.captureSquare &&
-				   capturedPiece == other.capturedPiece &&
-				   isEnPassant == other.isEnPassant &&
-				   isDoublePawnMove == other.isDoublePawnMove &&
-				   enPassantSquare == other.enPassantSquare &&
-				   prevEnPassantSquare == other.prevEnPassantSquare &&
-				   isCastle == other.isCastle &&
-				   rookStart == other.rookStart &&
-				   rookEnd == other.rookEnd &&
-				   isPromotion == other.isPromotion &&
-				   promotionPiecetype == other.promotionPiecetype;
 
+			// Optimization for a common success case.
+			if (ReferenceEquals(this, other))
+				return true;
+
+			// Equal if all fields are the same
+			return (startSquare == other.startSquare) &&
+				   (endSquare == other.endSquare) &&
+				   (pieceType == other.pieceType) &&
+				   (isCapture == other.isCapture) &&
+				   (captureSquare == other.captureSquare) &&
+				   (capturedPiece is null ? other.capturedPiece is null : capturedPiece.Equals(other.capturedPiece)) && // TODO This could be simplified if Piece was a record type or just a number
+				   (isEnPassant == other.isEnPassant) &&
+				   (isDoublePawnMove == other.isDoublePawnMove) &&
+				   (enPassantSquare == other.enPassantSquare) &&
+				   (prevEnPassantSquare == other.prevEnPassantSquare) &&
+				   (isCastle == other.isCastle) &&
+				   (rookStart == other.rookStart) &&
+				   (rookEnd == other.rookEnd) &&
+				   (isPromotion == other.isPromotion) &&
+				   (promotionPiecetype == other.promotionPiecetype);
 		}
 	}
 }

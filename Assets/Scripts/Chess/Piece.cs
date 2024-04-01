@@ -1,8 +1,9 @@
+using System;
 using System.ComponentModel;
 
 namespace Chess
 {
-	public class Piece
+	public class Piece : IEquatable<Piece>
 	{
 		private PieceType type;
 		private Color color;
@@ -41,6 +42,14 @@ namespace Chess
 				_ => throw new InvalidEnumArgumentException()
 			};
 			return color == Color.White ? char.ToUpper(FENchar) : FENchar;
+		}
+
+		// IEquatable implementation. Used when comparing capturedPiece in Move
+		public bool Equals(Piece other)
+		{
+			if (other is null)
+				return false;
+			return type == other.GetPieceType() && color == other.GetColor();
 		}
 	}
 
