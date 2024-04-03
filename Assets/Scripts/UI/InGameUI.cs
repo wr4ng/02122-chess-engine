@@ -7,10 +7,12 @@ public class InGameUI : MonoBehaviour
 	[SerializeField]
 	private TMP_Text botNameText;
 
-	private void Start()
+	private void Update()
 	{
-		// Show name of bot if playing against bot
-		botNameText.text = GameManager.againstBot ? GameManager.Instance.bot.Name() : "";
+		if (GameManager.againstBot)
+		{
+			botNameText.text = $"{GameManager.Instance.bot.Name()}{(GameManager.Instance.botIsCalculating ? " is thinking..." : "")}";
+		}
 	}
 
 	public void QuitToMenu()

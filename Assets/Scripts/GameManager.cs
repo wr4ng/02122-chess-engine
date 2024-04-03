@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
 	public Bot.Bot bot;
 
 	private Thread botThread;
-	private bool botIsCalculating = false;
+	public bool botIsCalculating = false;
 	private bool botIsDone = false;
 	private Move botMove;
 
@@ -37,12 +37,6 @@ public class GameManager : MonoBehaviour
 		else
 		{
 			Instance = this;
-		}
-		// Initialize Bot if against Bot
-		if (againstBot)
-		{
-			bot = botType.CreateBot();
-			UnityEngine.Debug.Log($"Playing against: {botType}");
 		}
 	}
 
@@ -67,6 +61,12 @@ public class GameManager : MonoBehaviour
 		}
 		// Set UI for board
 		BoardUI.Instance.UpdateBoard(board);
+		// Initialize Bot if against Bot
+		if (againstBot)
+		{
+			bot = botType.CreateBot();
+			UnityEngine.Debug.Log($"Playing against: {botType}");
+		}
 		//------------------------this is whack ass test------------------------------
 		int[] depths = { 1, 2 };
 
