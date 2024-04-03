@@ -2,12 +2,12 @@ using Chess;
 
 namespace Bot
 {
-    public class TempName : Bot
+    public class WhiteBoi : Bot
     {
         int depth;
         //implement mini max / negamax
         //Senere med pruning
-        public TempName(int depth)
+        public WhiteBoi(int depth)
         {
             this.depth = depth;
         }
@@ -48,7 +48,7 @@ namespace Bot
             foreach (Move move in board.GetLegalMoves())
             {
                 board.PlayMove(move);
-                (Move m, float score) = miniMaxBlack(board, depth - 1);
+                (Move m, float score) = miniMaxWhite(board, depth - 1);
                 if (score < minEval)
                 {
                     bestMove = move;
