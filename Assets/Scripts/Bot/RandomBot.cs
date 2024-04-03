@@ -13,5 +13,7 @@ namespace Bot
 			int randomIndex = rng.Next(possibleMoves.Count);
 			return possibleMoves[randomIndex];
 		}
+
+		public string Name() => "RandomBot";
 	}
 }

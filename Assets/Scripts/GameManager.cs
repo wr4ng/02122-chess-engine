@@ -4,6 +4,7 @@ using Chess;
 using Bot;
 using UnityEngine;
 using System.Diagnostics;
+using System.Threading;
 
 public class GameManager : MonoBehaviour
 {
@@ -16,7 +17,12 @@ public class GameManager : MonoBehaviour
 	public static BotType botType = BotType.RandomBot;
 
 	private Board board;
-	private Bot.Bot bot;
+	public Bot.Bot bot;
+
+	private Thread botThread;
+	private bool botIsCalculating = false;
+	private bool botIsDone = false;
+	private Move botMove;
 
 	private bool hasSelection;
 	private (int file, int rank) selectedSquare = (-1, -1);
@@ -31,6 +37,12 @@ public class GameManager : MonoBehaviour
 		else
 		{
 			Instance = this;
+		}
+		// Initialize Bot if against Bot
+		if (againstBot)
+		{
+			bot = botType.CreateBot();
+			UnityEngine.Debug.Log($"Playing against: {botType}");
 		}
 	}
 
@@ -52,12 +64,6 @@ public class GameManager : MonoBehaviour
 		else
 		{
 			board = Board.DefaultBoard();
-		}
-		// Initialize Bot if against Bot
-		if (againstBot)
-		{
-			bot = botType.CreateBot();
-			UnityEngine.Debug.Log($"Playing against: {botType}");
 		}
 		// Set UI for board
 		BoardUI.Instance.UpdateBoard(board);
@@ -88,6 +94,15 @@ public class GameManager : MonoBehaviour
 		{
 			board.UndoPreviousMove();
 			BoardUI.Instance.UpdateBoard(board);
+			// TODO Abort if bot is currently calculating
+		}
+		// Check if bot is done
+		if (botIsCalculating && botIsDone)
+		{
+			botIsCalculating = false;
+			botIsDone = false;
+			board.PlayMove(botMove);
+			BoardUI.Instance.UpdateBoard(board);
 		}
 	}
 
@@ -115,9 +130,8 @@ public class GameManager : MonoBehaviour
 			}
 			else if (againstBot)
 			{
-				Move botMove = bot.GetBestMove(board);
-				board.PlayMove(botMove);
-				BoardUI.Instance.UpdateBoard(board);
+				botThread = new Thread(CalculateNextMove);
+				botThread.Start();
 			}
 			return true;
 		}
@@ -125,6 +139,8 @@ public class GameManager : MonoBehaviour
 
 	public void ClickSquare((int file, int rank) clickedSquare)
 	{
+		if (botIsCalculating)
+			return;
 		if (hasSelection)
 		{
 			// Check if the same square was re-clicked
@@ -167,6 +183,21 @@ public class GameManager : MonoBehaviour
 				// Show possible moves
 				BoardUI.Instance.ShowPossibleMoves(selectionMoveEnds);
 			}
+		}
+	}
+
+	private void CalculateNextMove()
+	{
+		botIsCalculating = true;
+		botMove = bot.GetBestMove(board);
+		botIsDone = true;
+	}
+
+	private void OnDestroy()
+	{
+		if (botThread != null && botThread.IsAlive)
+		{
+			botThread.Abort();
 		}
 	}
 }

@@ -18,6 +18,7 @@ namespace Bot
 			return ((board.GetCurrentPlayer() == Color.White) ? miniMaxWhite(board, depth) : miniMaxBlack(board, depth)).move;
 		}
 
+		public string Name() => $"WhiteBoi({depth})";
 
         //TODO find en bedre måde at gemme bestmove på
         private (Move move, float evaluation) miniMaxWhite(Board board, int depth) //wants highest score

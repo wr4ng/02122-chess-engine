@@ -10,7 +10,7 @@ public class InGameUI : MonoBehaviour
 	private void Start()
 	{
 		// Show name of bot if playing against bot
-		botNameText.text = GameManager.againstBot ? GameManager.botType.ToString() : "";
+		botNameText.text = GameManager.againstBot ? GameManager.Instance.bot.Name() : "";
 	}
 
 	public void QuitToMenu()
