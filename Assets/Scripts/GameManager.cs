@@ -3,7 +3,6 @@ using System.Linq;
 using Chess;
 using Bot;
 using UnityEngine;
-using System.Diagnostics;
 using System.Threading;
 
 public class GameManager : MonoBehaviour
@@ -67,24 +66,6 @@ public class GameManager : MonoBehaviour
 			bot = botType.CreateBot();
 			UnityEngine.Debug.Log($"Playing against: {botType}");
 		}
-		//------------------------this is whack ass test------------------------------
-		int[] depths = { 1, 2 };
-
-		foreach (int depth in depths)
-		{
-			Board tempBoard = Board.ImportFromFEN("r5k1/1q1r1bpp/p3pp2/6P1/2P1PPN1/1P1QR3/2B1K3/8 w - - 0 1");
-			// Create a new instance of the bot
-			WhiteBoi bot = new WhiteBoi(depth);
-
-			// Start the stopwatch
-			Stopwatch stopwatch = Stopwatch.StartNew();
-
-			bot.GetBestMove(tempBoard);
-			// Stop the stopwatch and print the elapsed time
-			stopwatch.Stop();
-			UnityEngine.Debug.Log($"Depth {depth}: Elapsed time: {stopwatch.ElapsedMilliseconds} ms");
-		}
-		//------------------------this is whack ass test------------------------------
 	}
 
 	private void Update()

@@ -14,5 +14,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Testing/Perft.unity
     guid: 8767e570bf2fc3e7681eaacbdacbb980
+  - enabled: 1
+    path: Assets/Scenes/Testing/BotTest.unity
+    guid: 6b8e068c2220d861e921833a2602e2a4
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

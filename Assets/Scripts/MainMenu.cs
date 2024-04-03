@@ -9,7 +9,8 @@ enum SceneIndex
 {
 	Menu = 0,
 	Game = 1,
-	Perft = 2
+	Perft = 2,
+	BotTest = 3,
 }
 
 public class MainMenu : MonoBehaviour
