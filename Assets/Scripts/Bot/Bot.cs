@@ -13,7 +13,7 @@ namespace Bot
 	public enum BotType
 	{
 		RandomBot = 0,
-		TempName = 1
+		WhiteBoi = 1
 	}
 
 	public static class BotTypesExtensions
@@ -23,7 +23,7 @@ namespace Bot
 			Bot bot = botType switch
 			{
 				BotType.RandomBot => new RandomBot(),
-				BotType.TempName => new WhiteBoi(depth: 3),
+				BotType.WhiteBoi => new WhiteBoi(depth: 3),
 				_ => null
 			};
 			if (bot == null)
