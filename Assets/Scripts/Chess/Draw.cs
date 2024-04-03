@@ -180,6 +180,11 @@ namespace Chess
 		{
 			return positionCount;
 		}
+
+		public int getHalfMoveClock()
+		{
+			return halfMoveClockList[halfMoveClockList.Count - 1];
+		}
 		/// <summary>
 		/// Checks all the conditions for a draw
 		/// </summary>

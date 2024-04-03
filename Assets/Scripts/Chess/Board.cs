@@ -84,7 +84,7 @@ namespace Chess
 			fen += FEN.CurrentPlayerToFEN(this.currentPlayer);
 			fen += FEN.CastlingRightsToFEN(this.castlingRights);
 			fen += FEN.EnPassantToFEN(this.enPassantSquare);
-			fen += FEN.HalfmoveClockToFEN(this.halfmoveClock);
+			fen += FEN.HalfmoveClockToFEN(draw.getHalfMoveClock());
 			fen += FEN.FullmoveNumberToFEN(this.fullmoveNumber);
 			return fen;
 		}
