@@ -67,6 +67,7 @@ namespace Bot
         {
             if (depth == 0) return (null, Evaluation.EvaluatePosition(board));
             List<Move> moves = board.GetLegalMoves();
+            if(moves.Count == 0) return (null, float.MinValue);
             Move bestMove = moves[0];
             float maxEval = float.MinValue;
             foreach (Move move in board.GenerateLegalMoves(true))
@@ -95,6 +96,7 @@ namespace Bot
         {
             if (depth == 0) return (null, Evaluation.EvaluatePosition(board));
             List<Move> moves = board.GenerateLegalMoves(true);
+            if(moves.Count == 0) return (null, float.MaxValue);
             Move bestMove = moves[0];
             float minEval = float.MaxValue;
             foreach (Move move in moves)
