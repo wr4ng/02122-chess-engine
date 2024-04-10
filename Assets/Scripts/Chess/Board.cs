@@ -213,18 +213,17 @@ namespace Chess
 			// Update halfmove clock in draw object
 			draw.fiftyMoveRule(move.GetPieceType(), move.IsCapture());
 
-			move.SetPrevCastlingRights(castlingRights);
-			castlingRights = UpdateAllCastlingRights(castlingRights, move);
-			SwapPlayer();
-			playedMoves.Push(move);
-
 			// Update position count in draw object
 			draw.updatePositionCount(ExportToFEN());
 			if (draw.getIsDraw())
 			{
 				// TODO Handle draw
 			}
-			
+			move.SetPrevCastlingRights(castlingRights);
+			castlingRights = UpdateAllCastlingRights(castlingRights, move);
+			SwapPlayer();
+			playedMoves.Push(move);
+
 			// After making a move, possibly calculate the new legal moves
 			if (calculateNextLegalMoves)
 			{

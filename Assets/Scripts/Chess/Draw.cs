@@ -55,10 +55,6 @@ namespace Chess
 			if (positionCount.ContainsKey(position))
 			{
 				positionCount[position]--;
-				if (positionCount[position] == 0)
-				{
-					positionCount.Remove(position);
-				}
 			}
 		}
 
@@ -88,7 +84,6 @@ namespace Chess
 				if (positionCount[position] >= 2)
 				{
 					isDraw = true;
-					positionCount[position]++;
 				}
 				else
 				{
