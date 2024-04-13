@@ -2,7 +2,7 @@ namespace Chess
 {
 	public static class BitBoard
 	{
-		public const ulong AllOnes = 0xFFFFFFFF;
+		public const ulong AllOnes = 0xFFFFFFFFFFFFFFFF;
 
 		public static bool HasOne(ulong bitboard, int file, int rank)
 		{
