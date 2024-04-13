@@ -22,5 +22,21 @@ namespace Chess
 
 		// XY--- & 0b11000 = XY000. Check if that is equal to color
 		public static bool IsColor(int piece, int color) => Color(piece) == color;
+
+		public static string ToString(int piece)
+		{
+			if (piece == None) return "None";
+			string type = Type(piece) switch
+			{
+				Pawn => "p",
+				Bishop => "b",
+				Knight => "n",
+				Rook => "r",
+				Queen => "q",
+				King => "k",
+				_ => throw new System.ArgumentException($"Invalid piece type: {piece}")
+			};
+			return Color(piece) == White ? type.ToUpper() : type;
+		}
 	}
 }
