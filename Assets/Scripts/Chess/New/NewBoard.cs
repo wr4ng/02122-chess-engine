@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace Chess
 {
@@ -62,7 +61,7 @@ namespace Chess
 
 		public static NewBoard FromFEN(string fen)
 		{
-			NewBoard board = new NewBoard();
+			NewBoard board = new();
 
 			//TODO Handle the remaining FEN pieces
 			string fenBoard = fen.Split(' ')[0];
@@ -76,7 +75,7 @@ namespace Chess
 				}
 				else if (c == '/')
 				{
-					//TODO Handle invalid FEN
+					//TODO Handle invalid row length
 					file = 0;
 					rank--;
 				}
@@ -90,8 +89,8 @@ namespace Chess
 						'n' => NewPiece.Knight,
 						'r' => NewPiece.Rook,
 						'q' => NewPiece.Queen,
-						'k' => NewPiece.King
-						//TODO Handle invalid chars
+						'k' => NewPiece.King,
+						_ => throw new ArgumentException($"Invalid char found when parsing board: {c}")
 					};
 					// Save king positions
 					if (type == NewPiece.King)
@@ -114,7 +113,7 @@ namespace Chess
 			{
 				for (int file = 0; file < 8; file++)
 				{
-					char type = (squares[file, rank] & 0b111) switch
+					char type = NewPiece.Type(squares[file, rank]) switch
 					{
 						NewPiece.None => '*',
 						NewPiece.Pawn => 'p',
@@ -123,6 +122,7 @@ namespace Chess
 						NewPiece.Rook => 'r',
 						NewPiece.Queen => 'q',
 						NewPiece.King => 'k',
+						_ => '?' // Shoudn't be reached. Then squares[file, rank] has invalid type value (3 least significant bits)
 					};
 					char piece = (squares[file, rank] & 0b11000) == NewPiece.White ? char.ToUpper(type) : type;
 					board += piece;
@@ -140,6 +140,10 @@ namespace Chess
 		public List<(int file, int rank)> pinned;
 		public List<(int file, int rank)> checkers;
 		public bool[] attackedAroundKing;
+
+		// Bitboards
+		public ulong captureBitboard; // If king is in check, contains the locations of the checkers
+		public ulong blockBitboard; // If king is in check, contains the squares where
 
 		// Constant arrays of directiojns used for looping
 		readonly static (int dx, int dy)[] kingDirections = new (int dx, int dy)[8] { (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0) };
@@ -176,13 +180,14 @@ namespace Chess
 					// Check type of piece and generate appropriate moves
 					int pieceType = NewPiece.Type(piece);
 
-					var pieceMoves = pieceType switch
+					List<NewMove> pieceMoves = pieceType switch
 					{
 						NewPiece.Pawn => GetPawnMoves((file, rank)),
 						NewPiece.Knight => GetKnightMoves((file, rank)),
 						NewPiece.Bishop => GetSlidingMoves((file, rank), pieceType),
 						NewPiece.Rook => GetSlidingMoves((file, rank), pieceType),
 						NewPiece.Queen => GetSlidingMoves((file, rank), pieceType),
+						_ => new() // Shouldn't be reached, as the piece has a color and isn't a king
 					};
 
 					moves.AddRange(pieceMoves);
@@ -204,26 +209,29 @@ namespace Chess
 			pinned = new();
 			checkers = new();
 
+			// Initialize bitboard
+			captureBitboard = 0;
+			blockBitboard = 0;
+
 			for (int dirIndex = 0; dirIndex < kingDirections.Length; dirIndex++)
 			{
 				var (dx, dy) = kingDirections[dirIndex];
 				bool foundFriendlyPiece = false;
 				(int file, int rank) friendlySquare = (-1, -1);
 
-				//TODO Instead of looping until the end of the board, we can precalculate the number of squares in each direction for each square (8 directions * 64 squares = 512 ints)
-				int i = 1;
-				while (true)
+				ulong rayBitboard = 0;  // Bitboard having the current ray from the king. Is added to blockBitboard if checker is found
+
+				int toEdge = squaresToEdge[kingFile][kingRank][dirIndex];
+				for (int i = 1; i <= toEdge; i++)
 				{
 					// Calculate current square in direction (dx, dy)
 					(int file, int rank) = (kingFile + dx * i, kingRank + dy * i);
-					// Only continue while inside the board
-					if (!(0 <= file && file < 8 && 0 <= rank && rank < 8)) break;
-
 					int piece = board.squares[file, rank];
+
 					// Continue if square is empty
 					if (piece == NewPiece.None)
 					{
-						i++;
+						rayBitboard = BitBoard.SetOne(rayBitboard, file, rank);
 						continue;
 					}
 
@@ -231,16 +239,12 @@ namespace Chess
 					if (NewPiece.IsColor(piece, board.colorToMove))
 					{
 						// If we already found a friendly piece, two friendly pieces found in this direction and there is no pin
-						if (foundFriendlyPiece)
-						{
-							break;
-						}
+						if (foundFriendlyPiece) break;
 						else
 						{
 							// Save friendly piece as it may be pinned
 							foundFriendlyPiece = true;
 							friendlySquare = (file, rank);
-							i++;
 						}
 					}
 					else
@@ -260,31 +264,22 @@ namespace Chess
 							}
 							else
 							{
-								// King is checked by piece in the current direction. If the piece is more than 1 square away, it cannot move in that direction
+								// King is checked by piece in the current direction. If the piece is more than 1 square away, king cannot move in that direction
 								// If it is 1 square away, the king may be able to capture it, and we then don't want to skip checking it later
 								attackedAroundKing[dirIndex] = i > 1;
 								// Cannot move in the opposite direction, as sliding piece would still check it
 								attackedAroundKing[(dirIndex + 4) % 8] = true;
 								checkers.Add((file, rank));
+								// Add one to the capture bitboard
+								captureBitboard = BitBoard.SetOne(captureBitboard, file, rank);
+								// Since we found sliding checker, add the rayBitboard to blockBitboard
+								blockBitboard |= rayBitboard;
 							}
 						}
 						break;
 					}
 				}
 			}
-			// Old Check for knights
-			// foreach (var (dx, dy) in knightDirections)
-			// {
-			// 	(int file, int rank) = (kingFile + dx, kingRank + dy);
-			// 	// If outside board, continue
-			// 	if (!(0 <= file && file < 8 && 0 <= rank && rank < 8)) continue;
-			// 	// Check if attacking piece is enemy knight
-			// 	if (board.squares[file, rank] == (board.oppositeColor | NewPiece.Knight))
-			// 	{
-			// 		checkers.Add((file, rank));
-			// 	}
-			// }
-
 			// Check for knights. Loop through precomputed knight moves
 			foreach ((int file, int rank) in knightMoves[kingFile, kingRank])
 			{
@@ -306,6 +301,12 @@ namespace Chess
 				{
 					checkers.Add((file, rank));
 				}
+			}
+			// If king isn't in check, set blockBitboard and captureBitboard to all 1's
+			if (checkers.Count == 0)
+			{
+				captureBitboard = BitBoard.AllOnes;
+				blockBitboard = BitBoard.AllOnes;
 			}
 		}
 
@@ -334,6 +335,7 @@ namespace Chess
 			return kingMoves;
 		}
 
+		// TODO If King is in check, check if the move blocks or captures the checker!
 		public List<NewMove> GetPawnMoves((int file, int rank) square)
 		{
 			List<NewMove> moves = new();
@@ -355,20 +357,24 @@ namespace Chess
 				bool isBlocked = board.squares[square.file, square.rank + forward] != NewPiece.None;
 				if (!isBlocked)
 				{
-					if (square.rank + forward == 0 || square.rank + forward == 7)
+					// Check block bitboard for forward move
+					if (BitBoard.HasOne(blockBitboard, square.file, square.rank + forward))
 					{
-						// TODO Handle promotion
-					}
-					else
-					{
-						moves.Add(new NewMove(square, (square.file, square.rank + forward)));
+						if (square.rank + forward == 0 || square.rank + forward == 7)
+						{
+							// TODO Handle promotion
+						}
+						else
+						{
+							moves.Add(new NewMove(square, (square.file, square.rank + forward)));
+						}
 					}
 					// Double forward move
 					bool atStartPosition = (board.colorToMove == NewPiece.White && square.rank == 1) || (board.colorToMove == NewPiece.Black && square.rank == 6);
 					if (atStartPosition)
 					{
 						bool doubleBlocked = board.squares[square.file, square.rank + 2 * forward] != NewPiece.None;
-						if (!doubleBlocked)
+						if (!doubleBlocked && BitBoard.HasOne(blockBitboard, square.file, square.rank + 2 * forward))
 						{
 							moves.Add(new NewMove(square, (square.file, square.rank + 2 * forward)));
 						}
@@ -384,7 +390,9 @@ namespace Chess
 				if (!InsideBoard(file, rank)) continue;
 				// If pinned, direction must match direction to king
 				if (isPinned && !((dirToKing.dx == dx && dirToKing.dy == dy) || (dirToKing.dx == -dx && dirToKing.dy == -dy))) continue;
-
+				// Check blockBitboard and captureBitboard (en Passant capture can block)
+				if (!BitBoard.HasOne(blockBitboard | captureBitboard, file, rank)) continue;
+				// Else check the piece at the square
 				int piece = board.squares[file, rank];
 				// TODO Check for en Passant (and for en Passant discovered check!)
 				// If friendly or empty continue
@@ -408,14 +416,18 @@ namespace Chess
 				// Check that (file, rank) isn't a friendly piece
 				if (NewPiece.Color(board.squares[file, rank]) != board.colorToMove)
 				{
-					// To check capture check NewPiece.Color(board.squares[file, rank]) == board.oppositeColor
-					// TODO If king is checked by 1 piece, only add move if it captures that piece or is blocking it
-					moves.Add(new NewMove(square, (file, rank)));
+					// Check block and capture bitboards (all one if checkers.Count == 0)
+					if (BitBoard.HasOne(captureBitboard, file, rank) || BitBoard.HasOne(blockBitboard, file, rank))
+					{
+						// To check capture check NewPiece.Color(board.squares[file, rank]) == board.oppositeColor
+						moves.Add(new NewMove(square, (file, rank)));
+					}
 				}
 			}
 			return moves;
 		}
 
+		// TODO If King is in check, check if the move blocks or captures the checker!
 		public List<NewMove> GetSlidingMoves((int file, int rank) square, int pieceType)
 		{
 			List<NewMove> moves = new();
@@ -447,14 +459,22 @@ namespace Chess
 					// If square is empty, add move to it and continue
 					if (piece == NewPiece.None)
 					{
-						moves.Add(new NewMove(square, (file, rank)));
+						// Only add it if inside blockBitboard
+						if (BitBoard.HasOne(blockBitboard, file, rank))
+						{
+							moves.Add(new NewMove(square, (file, rank)));
+						}
 						continue;
 					}
 					// If piece is friendly, stop looking in this direction
 					if (NewPiece.IsColor(piece, board.colorToMove)) break;
 
 					// Else piece was opponent. Can therefore be captured
-					moves.Add(new NewMove(square, (file, rank)));
+					// Only add it if matches captureBitboard
+					if (BitBoard.HasOne(captureBitboard, file, rank))
+					{
+						moves.Add(new NewMove(square, (file, rank)));
+					}
 					// Stop looking in this direction
 					break;
 				}
@@ -465,20 +485,7 @@ namespace Chess
 		//TODO Use bitboards to check for pawns, knights and kings. Use directions for queen/bishop/rook (i don't like Magic Numbers TM)
 		public bool IsAttacked((int file, int rank) square, int attackingColor)
 		{
-			// Old check for knights
-			// foreach (var (dx, dy) in knightDirections)
-			// {
-			// 	(int file, int rank) = (square.file + dx, square.rank + dy);
-			// 	// If outside board, continue
-			// 	if (!(0 <= file && file < 8 && 0 <= rank && rank < 8)) continue;
-			// 	// Check if attacking piece is enemy knight
-			// 	if (board.squares[file, rank] == (attackingColor | NewPiece.Knight))
-			// 	{
-			// 		return true;
-			// 	}
-			// }
-			// Check for knights
-			// Loop through precomputed knight moves
+			// Check for knights. Loop through precomputed knight moves
 			foreach ((int file, int rank) in knightMoves[square.file, square.rank])
 			{
 				// Check if enemy knight is present there
@@ -609,6 +616,7 @@ namespace Chess
 
 		public static bool InsideBoard(int file, int rank) => 0 <= file && file < 8 && 0 <= rank && rank < 8;
 
+		//TODO Maybe return (-1,-1) on error?
 		// Calculate the direction between two squares. Returns (0,0) if they are not on a diagonal or orthogonal line
 		public static (int dx, int dy) GetDirection((int file, int rank) start, (int file, int rank) end)
 		{
