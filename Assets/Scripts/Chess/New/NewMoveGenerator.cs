@@ -197,7 +197,7 @@ namespace Chess
 					// Check is this square is attacked by enemy piece
 					if (!IsAttacked((file, rank), board.oppositeColor))
 					{
-						kingMoves.Add(new NewMove((kingFile, kingRank), (file, rank)));
+						kingMoves.Add(new NewMove((kingFile, kingRank), (file, rank), board.squares[file, rank]));
 					}
 				}
 			}
@@ -235,7 +235,7 @@ namespace Chess
 						}
 						else
 						{
-							moves.Add(new NewMove(square, (square.file, square.rank + forward)));
+							moves.Add(new NewMove(square, (square.file, square.rank + forward), board.squares[square.file, square.rank + forward]));
 						}
 					}
 					// Double forward move
@@ -245,7 +245,7 @@ namespace Chess
 						bool doubleBlocked = board.squares[square.file, square.rank + 2 * forward] != NewPiece.None;
 						if (!doubleBlocked && BitBoard.HasOne(blockBitboard, square.file, square.rank + 2 * forward))
 						{
-							moves.Add(new NewMove(square, (square.file, square.rank + 2 * forward)));
+							moves.Add(new NewMove(square, (square.file, square.rank + 2 * forward), board.squares[square.file, square.rank + 2 * forward]));
 						}
 					}
 				}
@@ -269,7 +269,7 @@ namespace Chess
 
 				// Then it must be enemy and a valid capture
 				// TODO Check for promotion capture
-				moves.Add(new NewMove(square, (file, rank)));
+				moves.Add(new NewMove(square, (file, rank), board.squares[file, rank]));
 			}
 			return moves;
 		}
@@ -289,7 +289,7 @@ namespace Chess
 					if (BitBoard.HasOne(captureBitboard, file, rank) || BitBoard.HasOne(blockBitboard, file, rank))
 					{
 						// To check capture check NewPiece.Color(board.squares[file, rank]) == board.oppositeColor
-						moves.Add(new NewMove(square, (file, rank)));
+						moves.Add(new NewMove(square, (file, rank), board.squares[file, rank]));
 					}
 				}
 			}
@@ -331,7 +331,7 @@ namespace Chess
 						// Only add it if inside blockBitboard
 						if (BitBoard.HasOne(blockBitboard, file, rank))
 						{
-							moves.Add(new NewMove(square, (file, rank)));
+							moves.Add(new NewMove(square, (file, rank), board.squares[file, rank]));
 						}
 						continue;
 					}
@@ -342,7 +342,7 @@ namespace Chess
 					// Only add it if matches captureBitboard
 					if (BitBoard.HasOne(captureBitboard, file, rank))
 					{
-						moves.Add(new NewMove(square, (file, rank)));
+						moves.Add(new NewMove(square, (file, rank), board.squares[file,rank]));
 					}
 					// Stop looking in this direction
 					break;
