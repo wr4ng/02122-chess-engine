@@ -204,13 +204,12 @@ namespace Chess
 			return kingMoves;
 		}
 
-		// TODO If King is in check, check if the move blocks or captures the checker!
 		public List<NewMove> GetPawnMoves((int file, int rank) square)
 		{
 			List<NewMove> moves = new();
 
 			bool isPinned = pinned.Contains(square);
-			(int dx, int dy) dirToKing = (-1, -1);
+			(int dx, int dy) dirToKing = (0, 0);
 			if (isPinned)
 			{
 				dirToKing = GetDirection(square, board.kingSquares[NewBoard.ColorIndex(board.colorToMove)]);
@@ -221,6 +220,7 @@ namespace Chess
 			if (canMoveForward)
 			{
 				int forward = board.colorToMove == NewPiece.White ? 1 : -1;
+				//TODO Calculate (file, rank) so we dont have to keep calculating it...
 				// Cannot move forward if any piece is in front of the pawn
 				// Don't need to check if outside board, since can't have pawn on back rank
 				bool isBlocked = board.squares[square.file, square.rank + forward] != NewPiece.None;
@@ -231,7 +231,7 @@ namespace Chess
 					{
 						if (square.rank + forward == 0 || square.rank + forward == 7)
 						{
-							// TODO Handle promotion
+							moves.AddRange(GetPromotionMoves(square, (square.file, square.rank + forward), board.squares[square.file, square.rank + forward]));
 						}
 						else
 						{
@@ -266,12 +266,34 @@ namespace Chess
 				// TODO Check for en Passant (and for en Passant discovered check!)
 				// If friendly or empty continue
 				if (NewPiece.IsColor(piece, board.colorToMove) || piece == NewPiece.None) continue;
-
 				// Then it must be enemy and a valid capture
-				// TODO Check for promotion capture
-				moves.Add(new NewMove(square, (file, rank), board.squares[file, rank]));
+				// Check if pawn is moving to back rank, then add promotion moves
+				if (rank == 0 || rank == 7)
+				{
+					moves.AddRange(GetPromotionMoves(square, (file, rank), board.squares[file, rank]));
+				}
+				else
+				{
+					moves.Add(new NewMove(square, (file, rank), board.squares[file, rank]));
+				}
 			}
 			return moves;
+		}
+
+		public List<NewMove> GetPromotionMoves((int, int) from, (int, int) to, int capturedPiece, bool includeAllPromotions = true)
+		{
+			List<NewMove> promotionMoves = new()
+			{
+				new NewMove(from, to, capturedPiece, NewPiece.Queen),
+				new NewMove(from, to, capturedPiece, NewPiece.Knight)
+			};
+			// Bishop and Rook promotions are never better than a queen. Add parameter to exclude them for bot search
+			if (includeAllPromotions)
+			{
+				promotionMoves.Add(new NewMove(from, to, capturedPiece, NewPiece.Bishop));
+				promotionMoves.Add(new NewMove(from, to, capturedPiece, NewPiece.Rook));
+			}
+			return promotionMoves;
 		}
 
 		public List<NewMove> GetKnightMoves((int file, int rank) square)
@@ -296,7 +318,6 @@ namespace Chess
 			return moves;
 		}
 
-		// TODO If King is in check, check if the move blocks or captures the checker!
 		public List<NewMove> GetSlidingMoves((int file, int rank) square, int pieceType)
 		{
 			List<NewMove> moves = new();
@@ -342,7 +363,7 @@ namespace Chess
 					// Only add it if matches captureBitboard
 					if (BitBoard.HasOne(captureBitboard, file, rank))
 					{
-						moves.Add(new NewMove(square, (file, rank), board.squares[file,rank]));
+						moves.Add(new NewMove(square, (file, rank), board.squares[file, rank]));
 					}
 					// Stop looking in this direction
 					break;
@@ -489,7 +510,7 @@ namespace Chess
 		// Calculate the direction between two squares. Returns (0,0) if they are not on a diagonal or orthogonal line
 		public static (int dx, int dy) GetDirection((int file, int rank) start, (int file, int rank) end)
 		{
-			if (start.file == end.rank)
+			if (start.file == end.file)
 			{
 				return (0, end.rank > start.rank ? 1 : -1);
 			}
