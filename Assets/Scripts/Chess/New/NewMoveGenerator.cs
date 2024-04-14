@@ -158,6 +158,8 @@ namespace Chess
 				if (board.squares[file, rank] == (board.oppositeColor | NewPiece.Knight))
 				{
 					checkers.Add((file, rank));
+					// Add knight to captureBitboard
+					captureBitboard = BitBoard.SetOne(captureBitboard, file, rank);
 				}
 			}
 			// Check for pawns
@@ -171,6 +173,8 @@ namespace Chess
 				if (board.squares[file, rank] == (board.oppositeColor | NewPiece.Pawn))
 				{
 					checkers.Add((file, rank));
+					// Add pawn to captureBitboard
+					captureBitboard = BitBoard.SetOne(captureBitboard, file, rank);
 				}
 			}
 			// If king isn't in check, set blockBitboard and captureBitboard to all 1's
