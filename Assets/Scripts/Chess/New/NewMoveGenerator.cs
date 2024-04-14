@@ -6,6 +6,8 @@ namespace Chess
 	{
 		NewBoard board;
 
+		//TODO Add parameters for onlyQuitMoves (ignore non-captures) and simple promotions (ignore bishop and rook promotions)
+
 		public List<(int file, int rank)> pinned;
 		public List<(int file, int rank)> checkers;
 		public bool[] attackedAroundKing;
@@ -15,16 +17,16 @@ namespace Chess
 		public ulong blockBitboard; // If king is in check, contains the squares where
 
 		// Constant arrays of directiojns used for looping
-		readonly static (int dx, int dy)[] kingDirections = new (int dx, int dy)[8] { (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0) };
-		readonly static (int dx, int dy)[] knightDirections = new (int dx, int dy)[8] { (-1, -2), (1, -2), (-2, -1), (2, -1), (-2, 1), (2, 1), (-1, 2), (1, 2) };
+		public readonly static (int dx, int dy)[] kingDirections = new (int dx, int dy)[8] { (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0) };
+		public readonly static (int dx, int dy)[] knightDirections = new (int dx, int dy)[8] { (-1, -2), (1, -2), (-2, -1), (2, -1), (-2, 1), (2, 1), (-1, 2), (1, 2) };
 		//TODO Maybe make it (int, int)[][] instead of [,]
-		readonly static (int dx, int dy)[,] pawnDirections = new (int dx, int dy)[2, 2] { { (-1, 1), (1, 1) }, { (-1, -1), (1, -1) } };
+		public readonly static (int dx, int dy)[,] pawnDirections = new (int dx, int dy)[2, 2] { { (-1, 1), (1, 1) }, { (-1, -1), (1, -1) } };
 
 		public NewMoveGenerator(NewBoard board)
 		{
 			this.board = board;
 			// Precompute move data
-			PrecomputeData();
+			PrecomputedData.Compute();
 		}
 
 		// Generate legal moves for the current position of board
@@ -90,7 +92,7 @@ namespace Chess
 
 				ulong rayBitboard = 0;  // Bitboard having the current ray from the king. Is added to blockBitboard if checker is found
 
-				int toEdge = squaresToEdge[kingFile][kingRank][dirIndex];
+				int toEdge = PrecomputedData.squaresToEdge[kingFile][kingRank][dirIndex];
 				for (int i = 1; i <= toEdge; i++)
 				{
 					// Calculate current square in direction (dx, dy)
@@ -150,7 +152,7 @@ namespace Chess
 				}
 			}
 			// Check for knights. Loop through precomputed knight moves
-			foreach ((int file, int rank) in knightMoves[kingFile, kingRank])
+			foreach ((int file, int rank) in PrecomputedData.knightMoves[kingFile, kingRank])
 			{
 				// Check if enemy knight is present there
 				if (board.squares[file, rank] == (board.oppositeColor | NewPiece.Knight))
@@ -302,7 +304,7 @@ namespace Chess
 			// If this knight is pinned, then it cannot move
 			if (pinned.Contains(square)) return moves;
 			// Else add precomputed moves
-			foreach ((int file, int rank) in knightMoves[square.file, square.rank])
+			foreach ((int file, int rank) in PrecomputedData.knightMoves[square.file, square.rank])
 			{
 				// Check that (file, rank) isn't a friendly piece
 				if (NewPiece.Color(board.squares[file, rank]) != board.colorToMove)
@@ -340,7 +342,7 @@ namespace Chess
 					if (!movingTowardsKing) continue;
 				}
 
-				int toEdge = squaresToEdge[square.file][square.rank][i];
+				int toEdge = PrecomputedData.squaresToEdge[square.file][square.rank][i];
 
 				for (int j = 1; j <= toEdge; j++)
 				{
@@ -376,7 +378,7 @@ namespace Chess
 		public bool IsAttacked((int file, int rank) square, int attackingColor)
 		{
 			// Check for knights. Loop through precomputed knight moves
-			foreach ((int file, int rank) in knightMoves[square.file, square.rank])
+			foreach ((int file, int rank) in PrecomputedData.knightMoves[square.file, square.rank])
 			{
 				// Check if enemy knight is present there
 				if (board.squares[file, rank] == (attackingColor | NewPiece.Knight))
@@ -413,7 +415,7 @@ namespace Chess
 			for (int i = 0; i < kingDirections.Length; i++)
 			{
 				(int dx, int dy) = kingDirections[i];
-				int toEdge = squaresToEdge[square.file][square.rank][i];
+				int toEdge = PrecomputedData.squaresToEdge[square.file][square.rank][i];
 
 				for (int j = 1; j <= toEdge; j++)
 				{
@@ -438,71 +440,6 @@ namespace Chess
 			return false;
 		}
 
-		// Pre-calculated values
-		// file, rank, dir (SW, S, SE, E, NE, N, NW, W)
-		public static int[][][] squaresToEdge; //TODO Maybe make readonly and move to PrecomputedData class
-
-		// [file, rank][moveNo]
-		public static (int file, int rank)[,][] knightMoves;
-
-		static void PrecomputeData()
-		{
-			ComputeSquaresToEdge();
-			ComputeKnightMoves();
-			//TODO Precompute pawn and king moves?
-		}
-
-		static void ComputeSquaresToEdge()
-		{
-			squaresToEdge = new int[8][][];
-
-			for (int file = 0; file < 8; file++)
-			{
-				squaresToEdge[file] = new int[8][];
-
-				for (int rank = 0; rank < 8; rank++)
-				{
-					squaresToEdge[file][rank] = new int[8];
-
-					int south = rank;
-					int west = file;
-					int north = 7 - south;
-					int east = 7 - west;
-
-					// SW, S, SE, E, NE, N, NW, W
-					squaresToEdge[file][rank][0] = System.Math.Min(south, west);
-					squaresToEdge[file][rank][1] = south;
-					squaresToEdge[file][rank][2] = System.Math.Min(south, east);
-					squaresToEdge[file][rank][3] = east;
-					squaresToEdge[file][rank][4] = System.Math.Min(north, east);
-					squaresToEdge[file][rank][5] = north;
-					squaresToEdge[file][rank][6] = System.Math.Min(north, west);
-					squaresToEdge[file][rank][7] = west;
-				}
-			}
-		}
-
-		static void ComputeKnightMoves()
-		{
-			knightMoves = new (int, int)[8, 8][];
-
-			for (int file = 0; file < 8; file++)
-			{
-				for (int rank = 0; rank < 8; rank++)
-				{
-					List<(int, int)> moves = new();
-					foreach ((int dx, int dy) in knightDirections)
-					{
-						(int file, int rank) square = (file + dx, rank + dy);
-						if (InsideBoard(square.file, square.rank))
-						{
-							moves.Add(square);
-						}
-					}
-					knightMoves[file, rank] = moves.ToArray();
-				}
-			}
-		}
 
 		public static bool InsideBoard(int file, int rank) => 0 <= file && file < 8 && 0 <= rank && rank < 8;
 
