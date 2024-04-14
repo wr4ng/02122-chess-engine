@@ -267,14 +267,25 @@ namespace Chess
 				if (isPinned && !((dirToKing.dx == dx && dirToKing.dy == dy) || (dirToKing.dx == -dx && dirToKing.dy == -dy))) continue;
 				// Check blockBitboard and captureBitboard (en Passant capture can block)
 				if (!BitBoard.HasOne(blockBitboard | captureBitboard, file, rank)) continue;
+
 				// Else check the piece at the square
 				int piece = board.squares[file, rank];
-				// TODO Check for en Passant (and for en Passant discovered check!)
-				// If friendly or empty continue
-				if (NewPiece.IsColor(piece, board.colorToMove) || piece == NewPiece.None) continue;
+
+				// Check for en Passant
+				if ((file, rank) == board.enPassantSquare)
+				{
+					//TODO Check for EP discovered check (use MakeMove -> IsAttacked -> UndoPreviousMove)
+					moves.Add(new NewMove(square, (file, rank), piece, isEnPassantCapture: true));
+
+				}
+				else if (NewPiece.IsColor(piece, board.colorToMove) || piece == NewPiece.None)
+				{
+					// If friendly or empty (non-EP) continue
+					continue;
+				}
 				// Then it must be enemy and a valid capture
 				// Check if pawn is moving to back rank, then add promotion moves
-				if (rank == 0 || rank == 7)
+				else if (rank == 0 || rank == 7)
 				{
 					moves.AddRange(GetPromotionMoves(square, (file, rank), board.squares[file, rank]));
 				}
@@ -293,7 +304,7 @@ namespace Chess
 				new NewMove(from, to, capturedPiece, NewPiece.Queen),
 				new NewMove(from, to, capturedPiece, NewPiece.Knight)
 			};
-			// Bishop and Rook promotions are never better than a queen. Add parameter to exclude them for bot search
+			// Bishop and Rook promotions are never better than Queen promotion. Parameter used to exclude them from bot search
 			if (includeAllPromotions)
 			{
 				promotionMoves.Add(new NewMove(from, to, capturedPiece, NewPiece.Bishop));
