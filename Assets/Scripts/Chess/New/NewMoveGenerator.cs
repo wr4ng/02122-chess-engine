@@ -189,6 +189,8 @@ namespace Chess
 		{
 			List<NewMove> kingMoves = new();
 
+			(int kingFile, int kingRank) = board.kingSquares[NewBoard.ColorIndex(board.colorToMove)];
+
 			for (int i = 0; i < kingDirections.Length; i++)
 			{
 				// Ignore squacres we have already determined are attacked (because king is in check)
