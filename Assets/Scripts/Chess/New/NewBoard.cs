@@ -18,6 +18,10 @@ namespace Chess
 		public (int file, int rank) enPassantSquare;
 		public Stack<(int file, int rank)> previousEnPassantSquares;
 
+		// Castling rights
+		public CastlingRights castlingRights;
+		public Stack<CastlingRights> previousCastlingRights;
+
 
 		public static int ColorIndex(int color) => (color == NewPiece.White) ? 0 : 1;
 
@@ -31,6 +35,9 @@ namespace Chess
 
 			enPassantSquare = (-1, -1);
 			previousEnPassantSquares = new();
+
+			castlingRights = CastlingRights.None;
+			previousCastlingRights = new();
 		}
 
 		public static NewBoard FromFEN(string fen)
@@ -142,14 +149,56 @@ namespace Chess
 				squares[move.to.file, move.to.rank - forward] = NewPiece.None;
 
 			}
-			// TODO Castling
-
+			// If castle, also move rook
+			if (move.isCastle)
+			{
+				// Calculate castle direction based on move.to.file. Queenside = c-file = 2. Kingside = g-file = 6
+				bool isKingside = move.to.file == 6;
+				// Get rank of king
+				int kingRank = colorToMove == NewPiece.White ? 0 : 7;
+				// TODO This could be done simpler
+				if (isKingside)
+				{
+					// Move rook
+					squares[7, kingRank] = NewPiece.None;
+					squares[5, kingRank] = colorToMove | NewPiece.Rook;
+				}
+				else
+				{
+					// Move rook
+					squares[0, kingRank] = NewPiece.None;
+					squares[3, kingRank] = colorToMove | NewPiece.Rook;
+				}
+			}
+			// Add previous castling rights to stack
+			previousCastlingRights.Push(castlingRights);
+			// Calculate new castling rights
+			// If the king moves, remove all castling rights for it
+			if (NewPiece.Type(piece) == NewPiece.King)
+			{
+				if (colorToMove == NewPiece.White)
+					castlingRights = castlingRights.ClearRights(CastlingRights.AllWhite);
+				else
+					castlingRights = castlingRights.ClearRights(CastlingRights.AllBlack);
+			}
+			// If any piece moves to or from one of the corners, remove the corresponding castling right (ie. rook being captured or moved)
+			// White Kingside
+			if (move.from == (7, 0) || move.to == (7, 0))
+				castlingRights = castlingRights.ClearRights(CastlingRights.WhiteKingside);
+			// White Queenside
+			if (move.from == (0, 0) || move.to == (0, 0))
+				castlingRights = castlingRights.ClearRights(CastlingRights.WhiteQueenside);
+			// Black Kingside
+			if (move.from == (7, 7) || move.to == (7, 7))
+				castlingRights = castlingRights.ClearRights(CastlingRights.BlackKingside);
+			// Black Queenside
+			if (move.from == (0, 7) || move.to == (0, 7))
+				castlingRights = castlingRights.ClearRights(CastlingRights.BlackQueenside);
 			// Update king position
 			if (NewPiece.Type(piece) == NewPiece.King)
 			{
 				kingSquares[ColorIndex(colorToMove)] = move.to;
 			}
-
 			// Swap player
 			colorToMove = oppositeColor;
 			// Add move to stack of played moves
@@ -193,8 +242,29 @@ namespace Chess
 			{
 				kingSquares[ColorIndex(oppositeColor)] = move.from;
 			}
-
-			// TODO Castling
+			//If castle, move rook back
+			if (move.isCastle)
+			{
+				// Calculate castle direction based on move.to.file. Queenside = c-file = 2. Kingside = g-file = 6
+				bool isKingside = move.to.file == 6;
+				// Get rank of king
+				int kingRank = oppositeColor == NewPiece.White ? 0 : 7;
+				// TODO This could be done simpler
+				if (isKingside)
+				{
+					// Move rook back
+					squares[7, kingRank] = oppositeColor | NewPiece.Rook;
+					squares[5, kingRank] = NewPiece.None;
+				}
+				else
+				{
+					// Move rook back
+					squares[0, kingRank] = oppositeColor | NewPiece.Rook;
+					squares[3, kingRank] = NewPiece.None;
+				}
+			}
+			// Set previous castling rights
+			castlingRights = previousCastlingRights.Pop();
 
 			// Swap player
 			colorToMove = oppositeColor;
