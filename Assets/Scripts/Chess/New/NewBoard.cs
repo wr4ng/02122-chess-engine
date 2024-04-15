@@ -219,7 +219,7 @@ namespace Chess
 
 			// Get moving piece
 			bool isPromotion = move.promotionType != NewPiece.None;
-			int piece = isPromotion ? (colorToMove | NewPiece.Pawn) : squares[move.to.file, move.to.rank];
+			int piece = isPromotion ? (oppositeColor | NewPiece.Pawn) : squares[move.to.file, move.to.rank];
 
 			// Move back
 			squares[move.from.file, move.from.rank] = piece;
