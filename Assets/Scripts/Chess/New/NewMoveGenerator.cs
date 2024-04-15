@@ -196,7 +196,6 @@ namespace Chess
 				// Ignore squacres we have already determined are attacked (because king is in check)
 				if (!attackedAroundKing[i])
 				{
-					(int kingFile, int kingRank) = board.kingSquares[NewBoard.ColorIndex(board.colorToMove)];
 					(int file, int rank) = (kingFile + kingDirections[i].dx, kingRank + kingDirections[i].dy);
 					// If outside board, continue
 					if (!(0 <= file && file < 8 && 0 <= rank && rank < 8)) continue;
@@ -208,6 +207,11 @@ namespace Chess
 						kingMoves.Add(new NewMove((kingFile, kingRank), (file, rank), board.squares[file, rank]));
 					}
 				}
+			}
+			// Add castle moves if king is not in check
+			if (checkers.Count == 0)
+			{
+				kingMoves.AddRange(GetCastleMoves());
 			}
 			return kingMoves;
 		}
@@ -393,6 +397,68 @@ namespace Chess
 					}
 					// Stop looking in this direction
 					break;
+				}
+			}
+			return moves;
+		}
+
+		public List<NewMove> GetCastleMoves()
+		{
+			List<NewMove> moves = new();
+
+			(int file, int rank) kingSquare = board.kingSquares[NewBoard.ColorIndex(board.colorToMove)];
+
+			if (board.colorToMove == NewPiece.White)
+			{
+				// Kingside
+				if (board.castlingRights.HasFlag(CastlingRights.WhiteKingside))
+				{
+					// Check if f1 and g1 are empty and not attacked
+					bool canCastle = (board.squares[5, 0] == NewPiece.None) && !IsAttacked((5, 0), board.oppositeColor) &&
+									 (board.squares[6, 0] == NewPiece.None) && !IsAttacked((6, 0), board.oppositeColor);
+					if (canCastle)
+					{
+						moves.Add(new NewMove(kingSquare, (6, 0), NewPiece.None, isCastle: true));
+					}
+				}
+				// Queenside
+				if (board.castlingRights.HasFlag(CastlingRights.WhiteQueenside))
+				{
+					// Check if d1 and c1 are empty and not attacked, and that b1 is empty
+					bool canCastle = (board.squares[3, 0] == NewPiece.None) && !IsAttacked((3, 0), board.oppositeColor) &&
+									 (board.squares[2, 0] == NewPiece.None) && !IsAttacked((2, 0), board.oppositeColor) &&
+									 (board.squares[1, 0] == NewPiece.None);
+					if (canCastle)
+					{
+						moves.Add(new NewMove(kingSquare, (2, 0), NewPiece.None, isCastle: true));
+					}
+				}
+			}
+			// Black castle moves
+			else
+			{
+				// Kingside
+				if (board.castlingRights.HasFlag(CastlingRights.BlackKingside))
+				{
+					// Check if f1 and g1 are empty and not attacked
+					bool canCastle = (board.squares[5, 7] == NewPiece.None) && !IsAttacked((5, 7), board.oppositeColor) &&
+									 (board.squares[6, 7] == NewPiece.None) && !IsAttacked((6, 7), board.oppositeColor);
+					if (canCastle)
+					{
+						moves.Add(new NewMove(kingSquare, (6, 7), NewPiece.None, isCastle: true));
+					}
+				}
+				// Queenside
+				if (board.castlingRights.HasFlag(CastlingRights.BlackQueenside))
+				{
+					// Check if d1 and c1 are empty and not attacked, and that b1 is empty
+					bool canCastle = (board.squares[3, 7] == NewPiece.None) && !IsAttacked((3, 7), board.oppositeColor) &&
+									 (board.squares[2, 7] == NewPiece.None) && !IsAttacked((2, 7), board.oppositeColor) &&
+									 (board.squares[1, 7] == NewPiece.None);
+					if (canCastle)
+					{
+						moves.Add(new NewMove(kingSquare, (2, 7), NewPiece.None, isCastle: true));
+					}
 				}
 			}
 			return moves;
