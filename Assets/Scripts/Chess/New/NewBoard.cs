@@ -233,10 +233,9 @@ namespace Chess
 			if (move.isEnPassantCapture)
 			{
 				// Add pawn back for the current player
-				int forward = colorToMove == NewPiece.White ? 1 : 0;
+				int forward = colorToMove == NewPiece.White ? 1 : -1;
 				squares[move.to.file, move.to.rank + forward] = colorToMove | NewPiece.Pawn;
 			}
-
 			// Update king square
 			if (NewPiece.Type(piece) == NewPiece.King)
 			{
