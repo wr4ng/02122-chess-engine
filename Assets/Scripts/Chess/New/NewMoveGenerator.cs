@@ -413,7 +413,7 @@ namespace Chess
 			// Check for pawns
 			for (int i = 0; i < pawnDirections.GetLength(1); i++)
 			{
-				var (dx, dy) = pawnDirections[NewBoard.ColorIndex(board.colorToMove), i];
+				var (dx, dy) = pawnDirections[NewBoard.ColorIndex(NewPiece.OppositeColor(attackingColor)), i];
 				(int file, int rank) = (square.file + dx, square.rank + dy);
 				// If outside board, continue
 				if (!(0 <= file && file < 8 && 0 <= rank && rank < 8)) continue;
