@@ -268,7 +268,8 @@ namespace Chess
 				// If pinned, direction must match direction to king
 				if (isPinned && !((dirToKing.dx == dx && dirToKing.dy == dy) || (dirToKing.dx == -dx && dirToKing.dy == -dy))) continue;
 				// Check blockBitboard and captureBitboard (en Passant capture can block)
-				if (!BitBoard.HasOne(blockBitboard | captureBitboard, file, rank)) continue;
+				//TODO Make the en passant part more clear. En passant square is not on captureboard since only pawn can capture it. Maybe OR it together with block and capture bitboard?
+				if (!BitBoard.HasOne(blockBitboard | captureBitboard, file, rank) && (file, rank) != board.enPassantSquare) continue;
 
 				// Else check the piece at the square
 				int piece = board.squares[file, rank];
@@ -276,9 +277,15 @@ namespace Chess
 				// Check for en Passant
 				if ((file, rank) == board.enPassantSquare)
 				{
-					//TODO Check for EP discovered check (use MakeMove -> IsAttacked -> UndoPreviousMove)
-					moves.Add(new NewMove(square, (file, rank), piece, isEnPassantCapture: true));
-
+					// Check for en Passant discovered check (by playing move and checking wether the king is attacked)
+					//TODO Could possibly do it by checking if king is on same rank, and checking for sliding piece ignoring this pawn and the pawn to be captured
+					NewMove ep = new NewMove(square, (file, rank), piece, isEnPassantCapture: true);
+					board.MakeMove(ep);
+					if (!IsAttacked(board.kingSquares[NewBoard.ColorIndex(board.oppositeColor)], board.colorToMove))
+					{
+						moves.Add(ep);
+					}
+					board.UndoPreviousMove();
 				}
 				else if (NewPiece.IsColor(piece, board.colorToMove) || piece == NewPiece.None)
 				{
