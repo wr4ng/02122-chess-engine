@@ -125,7 +125,7 @@ namespace Chess
 				{
 					char type = NewPiece.Type(squares[file, rank]) switch
 					{
-						NewPiece.None => '*',
+						NewPiece.None => '-',
 						NewPiece.Pawn => 'p',
 						NewPiece.Bishop => 'b',
 						NewPiece.Knight => 'n',
