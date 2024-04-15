@@ -22,6 +22,9 @@ namespace Chess
 		public CastlingRights castlingRights;
 		public Stack<CastlingRights> previousCastlingRights;
 
+		// TODO Draw
+		public int halfMoveClock;
+		public int fullMoveNumber;
 
 		public static int ColorIndex(int color) => (color == NewPiece.White) ? 0 : 1;
 
@@ -38,6 +41,9 @@ namespace Chess
 
 			castlingRights = CastlingRights.None;
 			previousCastlingRights = new();
+
+			halfMoveClock = 0;
+			fullMoveNumber = 0;
 		}
 
 		public static NewBoard FromFEN(string fen)
@@ -60,12 +66,23 @@ namespace Chess
 				if (char.IsDigit(c))
 				{
 					file += (int)char.GetNumericValue(c);
+					if (file > 8)
+					{
+						throw new System.ArgumentException("Invalid file length!");
+					}
 				}
 				else if (c == '/')
 				{
-					//TODO Handle invalid row length
+					if (file != 8)
+					{
+						throw new System.ArgumentException("Invalid file length!");
+					}
 					file = 0;
 					rank--;
+					if (rank < 0)
+					{
+						throw new System.ArgumentException($"Too many ranks!");
+					}
 				}
 				else
 				{
@@ -95,6 +112,7 @@ namespace Chess
 					file++;
 				}
 			}
+			//TODO Possibly verify number of ranks == 8
 			// Verify number of kings
 			if (numWhiteKings != 1 || numBlackKings != 1)
 			{
@@ -111,8 +129,8 @@ namespace Chess
 			board.castlingRights = FEN.ParseCastlingRights(fenParts[2]);
 			// Parse en Passant square
 			board.enPassantSquare = FEN.ParseEnPassant(fenParts[3]);
-			// TODO halfMoveClock
-			// TODO fullMoveNumber
+			board.halfMoveClock = FEN.ParseHalfmoveClock(fenParts[4]);
+			board.fullMoveNumber = FEN.ParseFullmoveNumber(fenParts[5]);
 			return board;
 		}
 
@@ -134,12 +152,12 @@ namespace Chess
 						NewPiece.King => 'k',
 						_ => '?' // Shoudn't be reached. Then squares[file, rank] has invalid type value (3 least significant bits)
 					};
-					char piece = (squares[file, rank] & 0b11000) == NewPiece.White ? char.ToUpper(type) : type;
+					char piece = NewPiece.IsColor(squares[file, rank], NewPiece.White) ? char.ToUpper(type) : type;
 					board += piece;
 				}
 				board += "\n";
 			}
-			return board;
+			return board.Trim();
 		}
 
 		public void MakeMove(NewMove move)
