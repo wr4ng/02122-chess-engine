@@ -44,12 +44,16 @@ namespace Chess
 		{
 			NewBoard board = new();
 
-			//TODO Handle the remaining FEN pieces
 			string[] fenParts = fen.Split(' ');
+			if (fenParts.Length != 6)
+			{
+				throw new System.ArgumentException("Invalid number of FEN parts!");
+			}
 
 			// Parse board
 			string fenBoard = fenParts[0];
 			int file = 0, rank = 7;
+			int numWhiteKings = 0, numBlackKings = 0;
 
 			foreach (char c in fenBoard)
 			{
@@ -80,13 +84,35 @@ namespace Chess
 					if (type == NewPiece.King)
 					{
 						board.kingSquares[ColorIndex(color)] = (file, rank);
+						// Increment number of kings
+						if (color == NewPiece.White)
+							numWhiteKings++;
+						else
+							numBlackKings++;
 					}
 
 					board.squares[file, rank] = color | type;
 					file++;
 				}
 			}
-			//TODO Verify the number of kings on each side (1 of each exactly)
+			// Verify number of kings
+			if (numWhiteKings != 1 || numBlackKings != 1)
+			{
+				throw new System.ArgumentException("Invalid number of kings!");
+			}
+			// Parse current player
+			board.colorToMove = fenParts[1] switch
+			{
+				"w" => NewPiece.White,
+				"b" => NewPiece.Black,
+				_ => throw new System.ArgumentException($"Invalid current player: {fenParts[1]}")
+			};
+			// Parse castling rights
+			board.castlingRights = FEN.ParseCastlingRights(fenParts[2]);
+			// Parse en Passant square
+			board.enPassantSquare = FEN.ParseEnPassant(fenParts[3]);
+			// TODO halfMoveClock
+			// TODO fullMoveNumber
 			return board;
 		}
 
