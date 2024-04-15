@@ -23,6 +23,8 @@ namespace Chess
 		// XY--- & 0b11000 = XY000. Check if that is equal to color
 		public static bool IsColor(int piece, int color) => Color(piece) == color;
 
+		public static int OppositeColor(int color) => color == White ? Black : White;
+
 		public static string ToString(int piece)
 		{
 			if (piece == None) return "None";
