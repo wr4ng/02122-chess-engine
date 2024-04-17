@@ -10,7 +10,7 @@ namespace Chess
 
 		//TODO Make 1 constructor with optional arguments for capturedPiece, promotionType, EP and castle
 		// Standard NewMove constructor
-		public NewMove((int file, int rank) from, (int file, int rank) to, int capturedPiece, bool isEnPassantCapture = false, bool isCastle = false)
+		public NewMove((int file, int rank) from, (int file, int rank) to, int capturedPiece = NewPiece.None, bool isEnPassantCapture = false, bool isCastle = false)
 		{
 			this.from = from;
 			this.to = to;
