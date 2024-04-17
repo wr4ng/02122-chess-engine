@@ -134,6 +134,17 @@ namespace Chess
 			return board;
 		}
 
+		public string ToFEN()
+		{
+			string board = FEN.BoardToFEN(this);
+			string player = FEN.ColorToFEN(colorToMove);
+			string castling = castlingRights.ToFEN();
+			string ep = FEN.EnPassantToFEN(enPassantSquare);
+			string halfmove = halfMoveClock.ToString();
+			string fullmove = fullMoveNumber.ToString();
+			return $"{board} {player} {castling} {ep} {halfmove} {fullmove}";
+		}
+
 		public override string ToString()
 		{
 			string board = "";

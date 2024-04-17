@@ -81,10 +81,10 @@ namespace Chess
 			//add the board state "https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation"
 			string board = FEN.BoardToFEN(this.board);
 			string player = FEN.CurrentPlayerToFEN(currentPlayer);
-			string castling = FEN.CastlingRightsToFEN(castlingRights);
+			string castling = castlingRights.ToFEN();
 			string ep = FEN.EnPassantToFEN(enPassantSquare);
-			string halfmove = FEN.HalfmoveClockToFEN(draw.getHalfMoveClock());
-			string fullmove = FEN.FullmoveNumberToFEN(fullmoveNumber);
+			string halfmove = draw.getHalfMoveClock().ToString();
+			string fullmove = fullmoveNumber.ToString();
 			return $"{board} {player} {castling} {ep} {halfmove} {fullmove}";
 		}
 

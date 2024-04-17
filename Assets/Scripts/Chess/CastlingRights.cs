@@ -22,7 +22,7 @@ namespace Chess
 			return castlingRights & ~flags;
 		}
 
-		public static string ToFENString(this CastlingRights castlingRights)
+		public static string ToFEN(this CastlingRights castlingRights)
 		{
 			string result = "";
 			if (castlingRights.HasFlag(CastlingRights.WhiteKingside))

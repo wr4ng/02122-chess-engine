@@ -80,19 +80,19 @@ public class FENTests
 		NewBoard board;
 		// Full castling rights
 		board = NewBoard.FromFEN("k7/8/8/8/8/8/7q/K7 w KQkq - 0 1");
-		Assert.AreEqual("KQkq", board.castlingRights.ToFENString());
+		Assert.AreEqual("KQkq", board.castlingRights.ToFEN());
 
 		// White limited
 		board = NewBoard.FromFEN("k7/8/8/8/8/8/7q/K7 w Kkq - 0 1");
-		Assert.AreEqual("Kkq", board.castlingRights.ToFENString());
+		Assert.AreEqual("Kkq", board.castlingRights.ToFEN());
 
 		// Black limited
 		board = NewBoard.FromFEN("k7/8/8/8/8/8/7q/K7 w KQ - 0 1");
-		Assert.AreEqual("KQ", board.castlingRights.ToFENString());
+		Assert.AreEqual("KQ", board.castlingRights.ToFEN());
 
 		// None
 		board = NewBoard.FromFEN("k7/8/8/8/8/8/7q/K7 w - - 0 1");
-		Assert.AreEqual("-", board.castlingRights.ToFENString());
+		Assert.AreEqual("-", board.castlingRights.ToFEN());
 	}
 
 	[TestMethod]
