@@ -70,15 +70,4 @@ public class PerftTests
 		Assert.AreEqual(89_890, board.GetNumberOfPositions(3));
 		Assert.AreEqual(3_894_594, board.GetNumberOfPositions(4));
 	}
-
-	//TODO Move to move generation
-	[TestMethod]
-	public void EnPassantDiscoveredCheck()
-	{
-		// In this position, pawn on d5 shouldn't be able to capture on c6 by EP, since it would lead to check by rook on h5
-		NewBoard board = NewBoard.FromFEN("7k/8/8/K1pP3r/8/8/8/8 w - c6 0 1");
-		List<NewMove> moves = board.moveGenerator.GenerateMoves();
-		// Assert that the en Passant capture doesn't exists
-		Assert.IsFalse(moves.Any(move => move.isEnPassantCapture));
-	}
 }
