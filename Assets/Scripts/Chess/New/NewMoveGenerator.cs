@@ -216,6 +216,7 @@ namespace Chess
 			return kingMoves;
 		}
 
+		//TODO Split into two method (GetPawnForwardMoves and GetPawnAttackMoves)
 		public List<NewMove> GetPawnMoves((int file, int rank) square)
 		{
 			List<NewMove> moves = new();
@@ -529,7 +530,6 @@ namespace Chess
 			}
 			return false;
 		}
-
 
 		public static bool InsideBoard(int file, int rank) => 0 <= file && file < 8 && 0 <= rank && rank < 8;
 
