@@ -6,12 +6,12 @@ using UnityEngine;
 public class BoardUI : MonoBehaviour
 {
 	[Header("Colors")]
-	[SerializeField] private UnityEngine.Color primaryColor;
-	[SerializeField] private UnityEngine.Color secondaryColor;
-	[SerializeField] private UnityEngine.Color primaryHighlightColor;
-	[SerializeField] private UnityEngine.Color secondaryHighlightColor;
-	[SerializeField] private UnityEngine.Color whiteColor;
-	[SerializeField] private UnityEngine.Color blackColor;
+	[SerializeField] private Color primaryColor;
+	[SerializeField] private Color secondaryColor;
+	[SerializeField] private Color primaryHighlightColor;
+	[SerializeField] private Color secondaryHighlightColor;
+	[SerializeField] private Color whiteColor;
+	[SerializeField] private Color blackColor;
 	[Header("Prefabs")]
 	[SerializeField] private GameObject tilePrefab;
 	[Header("Sprites")]
@@ -54,7 +54,7 @@ public class BoardUI : MonoBehaviour
 		// Initialize no highlighted tile
 		highlightedSquare = (-1, -1);
 
-		tiles = new Tile[Board.BOARD_SIZE, Board.BOARD_SIZE];
+		tiles = new Tile[8, 8];
 		Vector3 offset = new Vector3(-3.5f, -3.5f, 0);
 
 		for (int file = 0; file < 8; file++)
@@ -75,9 +75,9 @@ public class BoardUI : MonoBehaviour
 
 	public void UpdateBoard(NewBoard board)
 	{
-		for (int file = 0; file < Board.BOARD_SIZE; file++)
+		for (int file = 0; file < 8; file++)
 		{
-			for (int rank = 0; rank < Board.BOARD_SIZE; rank++)
+			for (int rank = 0; rank < 8; rank++)
 			{
 				int piece = board.squares[file, rank];
 				Tile tile = tiles[file, rank];
@@ -88,7 +88,7 @@ public class BoardUI : MonoBehaviour
 				else
 				{
 					Sprite pieceSprite = PieceToSprite(NewPiece.Type(piece));
-					UnityEngine.Color pieceColor = NewPiece.IsColor(piece, NewPiece.White) ? whiteColor : blackColor;
+					Color pieceColor = NewPiece.IsColor(piece, NewPiece.White) ? whiteColor : blackColor;
 					tile.SetPieceSprite(pieceSprite, pieceColor);
 				}
 			}
@@ -135,21 +135,6 @@ public class BoardUI : MonoBehaviour
 		}
 	}
 
-	//TODO Remove once NewBoard is implemented
-	private Sprite PieceToSprite(PieceType type)
-	{
-		return type switch
-		{
-			PieceType.Pawn => pawnSprite,
-			PieceType.Knight => knighSprite,
-			PieceType.Bishop => bishopSprite,
-			PieceType.Rook => rookSprite,
-			PieceType.Queen => queenSprite,
-			PieceType.King => kingSprite,
-			_ => throw new ArgumentException($"Invalid PieceType: {type}")
-		};
-	}
-
 	private Sprite PieceToSprite(int type)
 	{
 		return type switch
@@ -164,12 +149,12 @@ public class BoardUI : MonoBehaviour
 		};
 	}
 
-	private UnityEngine.Color GetBaseColor(int rank, int file)
+	private Color GetBaseColor(int rank, int file)
 	{
 		return (file + rank) % 2 != 0 ? primaryColor : secondaryColor;
 	}
 
-	private UnityEngine.Color GetHighlightColor(int rank, int file)
+	private Color GetHighlightColor(int rank, int file)
 	{
 		return (file + rank) % 2 != 0 ? primaryHighlightColor : secondaryHighlightColor;
 	}

@@ -29,15 +29,17 @@ public class MainMenu : MonoBehaviour
 		if (fenInputField.text != "")
 		{
 			// Validate FEN
-			bool isValidFEN = Board.TryParseFEN(fenInputField.text.Trim(), out _);
-			if (isValidFEN)
+			//TODO This is not so clean...
+			try
 			{
+				NewBoard.FromFEN(fenInputField.text.Trim());
+				// Set FEN for GameManager and load game scene
 				GameManager.IMPORT_FEN = fenInputField.text;
 				SceneManager.LoadScene((int)SceneIndex.Game);
 			}
-			else
+			catch (System.Exception e)
 			{
-				fenInputField.text = "INVALID FEN!";
+				fenInputField.text = $"Invalid fen: {e.Message}";
 			}
 		}
 		else

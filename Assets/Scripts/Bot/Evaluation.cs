@@ -17,9 +17,9 @@ namespace Bot
 			//     }
 			//     return (board.GetCurrentPlayer() == Color.White) ? int.MinValue : int.MaxValue;
 			// }
-			for (int file = 0; file < Board.BOARD_SIZE; file++)
+			for (int file = 0; file < 8; file++)
 			{
-				for (int rank = 0; rank < Board.BOARD_SIZE; rank++)
+				for (int rank = 0; rank < 8; rank++)
 				{
 					int piece = board.squares[file, rank];
 					if (piece != NewPiece.None)
