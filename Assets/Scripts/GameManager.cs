@@ -104,14 +104,24 @@ public class GameManager : MonoBehaviour
 			// TODO Handle promotion
 			board.MakeMove(selectedMoves[0]);
 			BoardUI.Instance.UpdateBoard(board);
-			//TODO Handle NewBoard
-			// if (board.gameOver)
-			// {
-			// 	string winner = (board.isDraw) ? "Draw" : board.GetCurrentPlayer().Opposite().ToString();
-			// 	UnityEngine.Debug.Log(winner);
-			// }
-			// else if...
-			if (againstBot)
+			// Check if game has ended
+			if (board.moveGenerator.GenerateMoves().Count == 0)
+			{
+				// Check if king is in check
+				bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[NewBoard.ColorIndex(board.colorToMove)], board.oppositeColor);
+				if (kingAttacked)
+				{
+					// Checkmate
+					Debug.Log($"{(board.oppositeColor == NewPiece.White ? "White" : "Black")} wins!");
+				}
+				else
+				{
+					// Stalemate
+					Debug.Log("Stalemate!");
+				}
+				//TODO Show UI of result
+			}
+			else if (againstBot)
 			{
 				botThread = new Thread(CalculateNextMove);
 				botThread.Start();
