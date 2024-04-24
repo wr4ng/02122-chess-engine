@@ -3,7 +3,7 @@ namespace Tests.Draw;
 [TestClass]
 public class DrawTests
 {
-	//TODO Convert to NewBoard once Draw is implemented
+	//TODO Update test when Draw is implemented in Board (NewBoard)
 	// [TestMethod]
 	// public void AddStartPosition()
 	// {

@@ -5,10 +5,10 @@ namespace Bot
 	public class Evaluation
 	{
 
-		public static float EvaluatePosition(NewBoard board)
+		public static float EvaluatePosition(Board board)
 		{
 			float score = 0;
-			//TODO Handle game over (once Draw is implemented in NewBoard)
+			//TODO Handle game over (once Draw is implemented in Board)
 			// if (board.gameOver)
 			// {
 			//     if (board.isDraw)
@@ -22,7 +22,7 @@ namespace Bot
 				for (int rank = 0; rank < 8; rank++)
 				{
 					int piece = board.squares[file, rank];
-					if (piece != NewPiece.None)
+					if (piece != Piece.None)
 					{
 						score += PieceWeight(piece);
 						score += PiecePosition(piece, file + 8 * rank);
@@ -36,25 +36,25 @@ namespace Bot
 		{
 			//TODO Use switch-expression
 			float weight;
-			switch (NewPiece.Type(piece))
+			switch (Piece.Type(piece))
 			{
-				case NewPiece.Pawn:
-					weight = NewPiece.IsColor(piece, NewPiece.White) ? 10 : -10;
+				case Piece.Pawn:
+					weight = Piece.IsColor(piece, Piece.White) ? 10 : -10;
 					break;
-				case NewPiece.Rook:
-					weight = NewPiece.IsColor(piece, NewPiece.White) ? 50 : -50;
+				case Piece.Rook:
+					weight = Piece.IsColor(piece, Piece.White) ? 50 : -50;
 					break;
-				case NewPiece.Bishop:
-					weight = NewPiece.IsColor(piece, NewPiece.White) ? 30 : -30;
+				case Piece.Bishop:
+					weight = Piece.IsColor(piece, Piece.White) ? 30 : -30;
 					break;
-				case NewPiece.Knight:
-					weight = NewPiece.IsColor(piece, NewPiece.White) ? 30 : -30;
+				case Piece.Knight:
+					weight = Piece.IsColor(piece, Piece.White) ? 30 : -30;
 					break;
-				case NewPiece.Queen:
-					weight = NewPiece.IsColor(piece, NewPiece.White) ? 90 : -90;
+				case Piece.Queen:
+					weight = Piece.IsColor(piece, Piece.White) ? 90 : -90;
 					break;
-				case NewPiece.King:
-					weight = NewPiece.IsColor(piece, NewPiece.White) ? 1000 : -1000;
+				case Piece.King:
+					weight = Piece.IsColor(piece, Piece.White) ? 1000 : -1000;
 					break;
 				default:
 					weight = 0;
@@ -67,25 +67,25 @@ namespace Bot
 		{
 			float weight;
 			//TODO Use the type (int) of piece as index into PositionWeights
-			switch (NewPiece.Type(piece))
+			switch (Piece.Type(piece))
 			{
-				case NewPiece.Pawn:
-					weight = NewPiece.IsColor(piece, NewPiece.White) ? PositionWeights.pawnWeight[63 - index] : -PositionWeights.pawnWeight[index];
+				case Piece.Pawn:
+					weight = Piece.IsColor(piece, Piece.White) ? PositionWeights.pawnWeight[63 - index] : -PositionWeights.pawnWeight[index];
 					break;
-				case NewPiece.Rook:
-					weight = NewPiece.IsColor(piece, NewPiece.White) ? PositionWeights.rookWeight[63 - index] : -PositionWeights.rookWeight[index];
+				case Piece.Rook:
+					weight = Piece.IsColor(piece, Piece.White) ? PositionWeights.rookWeight[63 - index] : -PositionWeights.rookWeight[index];
 					break;
-				case NewPiece.Bishop:
-					weight = NewPiece.IsColor(piece, NewPiece.White) ? PositionWeights.bishopWeight[63 - index] : -PositionWeights.bishopWeight[index];
+				case Piece.Bishop:
+					weight = Piece.IsColor(piece, Piece.White) ? PositionWeights.bishopWeight[63 - index] : -PositionWeights.bishopWeight[index];
 					break;
-				case NewPiece.Knight:
-					weight = NewPiece.IsColor(piece, NewPiece.White) ? PositionWeights.knightWeight[63 - index] : -PositionWeights.knightWeight[index];
+				case Piece.Knight:
+					weight = Piece.IsColor(piece, Piece.White) ? PositionWeights.knightWeight[63 - index] : -PositionWeights.knightWeight[index];
 					break;
-				case NewPiece.Queen:
-					weight = NewPiece.IsColor(piece, NewPiece.White) ? PositionWeights.queenWeight[63 - index] : -PositionWeights.queenWeight[index];
+				case Piece.Queen:
+					weight = Piece.IsColor(piece, Piece.White) ? PositionWeights.queenWeight[63 - index] : -PositionWeights.queenWeight[index];
 					break;
-				case NewPiece.King:
-					weight = NewPiece.IsColor(piece, NewPiece.White) ? PositionWeights.kingWeight[63 - index] : -PositionWeights.kingWeight[index];
+				case Piece.King:
+					weight = Piece.IsColor(piece, Piece.White) ? PositionWeights.kingWeight[63 - index] : -PositionWeights.kingWeight[index];
 					break;
 				default:
 					throw new System.Exception($"Invalid piece type: {piece}");

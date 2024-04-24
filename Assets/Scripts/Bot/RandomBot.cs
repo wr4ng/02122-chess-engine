@@ -7,7 +7,7 @@ namespace Bot
 	{
 		Random rng = new Random();
 
-		public NewMove GetBestMove(NewBoard board)
+		public Move GetBestMove(Board board)
 		{
 			var possibleMoves = board.moveGenerator.GenerateMoves();
 			int randomIndex = rng.Next(possibleMoves.Count);

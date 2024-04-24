@@ -14,24 +14,24 @@ namespace Bot
         }
 
 		// Implement Bot interface method
-		public NewMove GetBestMove(NewBoard board)
+		public Move GetBestMove(Board board)
 		{
 			// return ((board.GetCurrentPlayer() == Color.White) ? miniMaxWhite(board, depth) : miniMaxBlack(board, depth)).move;
-			return ((board.colorToMove == NewPiece.White) ? miniMaxWhiteAB(board, depth, float.NegativeInfinity, float.PositiveInfinity) : miniMaxBlackAB(board, depth,float.NegativeInfinity, float.PositiveInfinity)).move;
+			return ((board.colorToMove == Piece.White) ? miniMaxWhiteAB(board, depth, float.NegativeInfinity, float.PositiveInfinity) : miniMaxBlackAB(board, depth,float.NegativeInfinity, float.PositiveInfinity)).move;
 		}
 
 		public string Name() => $"WhiteBoi({depth} inches)";
 
-        private (NewMove move, float evaluation) miniMaxWhiteAB(NewBoard board, int depth, float alpha, float beta) //wants highest score
+        private (Move move, float evaluation) miniMaxWhiteAB(Board board, int depth, float alpha, float beta) //wants highest score
         {
 			//TODO Handle null
             if (depth == 0) return (new(), Evaluation.EvaluatePosition(board));
-            List<NewMove> moves = board.moveGenerator.GenerateMoves();
+            List<Move> moves = board.moveGenerator.GenerateMoves();
 			// Handle check/stalemate
 			if (moves.Count == 0)
 			{
 				// Check if king is in check
-				bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[NewBoard.ColorIndex(board.colorToMove)], board.oppositeColor);
+				bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Board.ColorIndex(board.colorToMove)], board.oppositeColor);
 				if (kingAttacked)
 				{
 					// No moves + king attacked = checkmate
@@ -45,12 +45,12 @@ namespace Bot
 					return (new(), 0);
 				}
 			}
-            NewMove bestMove = moves[0];
+            Move bestMove = moves[0];
             float maxEval = float.MinValue;
-            foreach (NewMove move in moves)
+            foreach (Move move in moves)
             {
                 board.MakeMove(move);
-                (NewMove m, float score) = miniMaxBlackAB(board, depth - 1, alpha, beta);
+                (Move m, float score) = miniMaxBlackAB(board, depth - 1, alpha, beta);
                 if (score > alpha){
                     alpha = score;
                 }
@@ -68,16 +68,16 @@ namespace Bot
             return (bestMove, maxEval);
         }
 
-        private (NewMove move, float evaluation) miniMaxBlackAB(NewBoard board, int depth, float alpha, float beta) //wants lowest score
+        private (Move move, float evaluation) miniMaxBlackAB(Board board, int depth, float alpha, float beta) //wants lowest score
         {
 			//TODO Handle null move
             if (depth == 0) return (new(), Evaluation.EvaluatePosition(board));
-            List<NewMove> moves = board.moveGenerator.GenerateMoves();
+            List<Move> moves = board.moveGenerator.GenerateMoves();
 			// Handle check/stalemate
 			if (moves.Count == 0)
 			{
 				// Check if king is in check
-				bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[NewBoard.ColorIndex(board.colorToMove)], board.oppositeColor);
+				bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Board.ColorIndex(board.colorToMove)], board.oppositeColor);
 				if (kingAttacked)
 				{
 					// No moves + king attacked = checkmate
@@ -91,12 +91,12 @@ namespace Bot
 					return (new(), 0);
 				}
 			}
-            NewMove bestMove = moves[0];
+            Move bestMove = moves[0];
             float minEval = float.MaxValue;
-            foreach (NewMove move in moves)
+            foreach (Move move in moves)
             {
                 board.MakeMove(move);
-                (NewMove m, float score) = miniMaxWhiteAB(board, depth - 1, alpha, beta);
+                (Move m, float score) = miniMaxWhiteAB(board, depth - 1, alpha, beta);
                 if (score < beta) beta = score;
                 if (score < minEval)
                 {

@@ -73,7 +73,7 @@ public class BoardUI : MonoBehaviour
 		}
 	}
 
-	public void UpdateBoard(NewBoard board)
+	public void UpdateBoard(Board board)
 	{
 		for (int file = 0; file < 8; file++)
 		{
@@ -81,20 +81,20 @@ public class BoardUI : MonoBehaviour
 			{
 				int piece = board.squares[file, rank];
 				Tile tile = tiles[file, rank];
-				if (piece == NewPiece.None)
+				if (piece == Piece.None)
 				{
 					tile.SetPieceSprite(null);
 				}
 				else
 				{
-					Sprite pieceSprite = PieceToSprite(NewPiece.Type(piece));
-					Color pieceColor = NewPiece.IsColor(piece, NewPiece.White) ? whiteColor : blackColor;
+					Sprite pieceSprite = PieceToSprite(Piece.Type(piece));
+					Color pieceColor = Piece.IsColor(piece, Piece.White) ? whiteColor : blackColor;
 					tile.SetPieceSprite(pieceSprite, pieceColor);
 				}
 			}
 		}
 		// Update current player frame color
-		currentPlayerFrame.color = board.colorToMove == NewPiece.White ? whiteColor : blackColor;
+		currentPlayerFrame.color = board.colorToMove == Piece.White ? whiteColor : blackColor;
 	}
 
 	public void SetHighlightedSquare((int file, int rank) square)
@@ -139,12 +139,12 @@ public class BoardUI : MonoBehaviour
 	{
 		return type switch
 		{
-			NewPiece.Pawn => pawnSprite,
-			NewPiece.Knight => knighSprite,
-			NewPiece.Bishop => bishopSprite,
-			NewPiece.Rook => rookSprite,
-			NewPiece.Queen => queenSprite,
-			NewPiece.King => kingSprite,
+			Piece.Pawn => pawnSprite,
+			Piece.Knight => knighSprite,
+			Piece.Bishop => bishopSprite,
+			Piece.Rook => rookSprite,
+			Piece.Queen => queenSprite,
+			Piece.King => kingSprite,
 			_ => throw new ArgumentException($"Invalid PieceType: {type}")
 		};
 	}

@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace Chess
 {
-	public class NewMoveGenerator
+	public class MoveGenerator
 	{
-		NewBoard board;
+		Board board;
 
 		//TODO Add parameters for onlyQuitMoves (ignore non-captures) and simple promotions (ignore bishop and rook promotions)
 
@@ -22,7 +22,7 @@ namespace Chess
 		//TODO Maybe make it (int, int)[][] instead of [,]
 		public readonly static (int dx, int dy)[,] pawnDirections = new (int dx, int dy)[2, 2] { { (-1, 1), (1, 1) }, { (-1, -1), (1, -1) } };
 
-		public NewMoveGenerator(NewBoard board)
+		public MoveGenerator(Board board)
 		{
 			this.board = board;
 			// Precompute move data
@@ -30,11 +30,11 @@ namespace Chess
 		}
 
 		// Generate legal moves for the current position of board
-		public List<NewMove> GenerateMoves()
+		public List<Move> GenerateMoves()
 		{
 			// Check the king positions for checks and pins
 			CheckKingPosition();
-			List<NewMove> moves = GetKingMoves();
+			List<Move> moves = GetKingMoves();
 
 			// If the number of checks is > 1, then only the king can move
 			if (checkers.Count > 1) return moves;
@@ -47,17 +47,17 @@ namespace Chess
 				{
 					int piece = board.squares[file, rank];
 					// If piece isn't friendly (excluding king as moves for king have already been generated) continue
-					if ((NewPiece.Color(piece) != board.colorToMove) || (NewPiece.Type(piece) == NewPiece.King)) continue;
+					if ((Piece.Color(piece) != board.colorToMove) || (Piece.Type(piece) == Piece.King)) continue;
 					// Check type of piece and generate appropriate moves
-					int pieceType = NewPiece.Type(piece);
+					int pieceType = Piece.Type(piece);
 
-					List<NewMove> pieceMoves = pieceType switch
+					List<Move> pieceMoves = pieceType switch
 					{
-						NewPiece.Pawn => GetPawnMoves((file, rank)),
-						NewPiece.Knight => GetKnightMoves((file, rank)),
-						NewPiece.Bishop => GetSlidingMoves((file, rank), pieceType),
-						NewPiece.Rook => GetSlidingMoves((file, rank), pieceType),
-						NewPiece.Queen => GetSlidingMoves((file, rank), pieceType),
+						Piece.Pawn => GetPawnMoves((file, rank)),
+						Piece.Knight => GetKnightMoves((file, rank)),
+						Piece.Bishop => GetSlidingMoves((file, rank), pieceType),
+						Piece.Rook => GetSlidingMoves((file, rank), pieceType),
+						Piece.Queen => GetSlidingMoves((file, rank), pieceType),
 						_ => new() // Shouldn't be reached, as the piece has a color and isn't a king
 					};
 
@@ -71,7 +71,7 @@ namespace Chess
 		public void CheckKingPosition()
 		{
 			// Check attack data around king
-			(int kingFile, int kingRank) = board.kingSquares[NewBoard.ColorIndex(board.colorToMove)];
+			(int kingFile, int kingRank) = board.kingSquares[Board.ColorIndex(board.colorToMove)];
 
 			// Which spaces we for sure know are attacked around the king after checking in each direction (to avoid re-calculating the squares in move generation)
 			attackedAroundKing = new bool[8] { false, false, false, false, false, false, false, false };
@@ -100,14 +100,14 @@ namespace Chess
 					int piece = board.squares[file, rank];
 
 					// Continue if square is empty
-					if (piece == NewPiece.None)
+					if (piece == Piece.None)
 					{
 						rayBitboard = BitBoard.SetOne(rayBitboard, file, rank);
 						continue;
 					}
 
 					// Check if piece is friendly
-					if (NewPiece.IsColor(piece, board.colorToMove))
+					if (Piece.IsColor(piece, board.colorToMove))
 					{
 						// If we already found a friendly piece, two friendly pieces found in this direction and there is no pin
 						if (foundFriendlyPiece) break;
@@ -122,10 +122,10 @@ namespace Chess
 					{
 						// Enemy piece. Check if it can attack in this direction
 						bool isDiagonal = dx * dy != 0;
-						int attackerType = NewPiece.Type(piece);
+						int attackerType = Piece.Type(piece);
 
 						// The piece can attack the king if it is a queen, or a bishop/rook with their respetive directions
-						bool canAttack = (attackerType == NewPiece.Queen) || (isDiagonal && (attackerType == NewPiece.Bishop)) || (!isDiagonal && (attackerType == NewPiece.Rook));
+						bool canAttack = (attackerType == Piece.Queen) || (isDiagonal && (attackerType == Piece.Bishop)) || (!isDiagonal && (attackerType == Piece.Rook));
 						if (canAttack)
 						{
 							// If we found a friendly piece before, it is pinned
@@ -155,7 +155,7 @@ namespace Chess
 			foreach ((int file, int rank) in PrecomputedData.knightMoves[kingFile, kingRank])
 			{
 				// Check if enemy knight is present there
-				if (board.squares[file, rank] == (board.oppositeColor | NewPiece.Knight))
+				if (board.squares[file, rank] == (board.oppositeColor | Piece.Knight))
 				{
 					checkers.Add((file, rank));
 					// Add knight to captureBitboard
@@ -165,12 +165,12 @@ namespace Chess
 			// Check for pawns
 			for (int i = 0; i < pawnDirections.GetLength(1); i++)
 			{
-				var (dx, dy) = pawnDirections[NewBoard.ColorIndex(board.colorToMove), i];
+				var (dx, dy) = pawnDirections[Board.ColorIndex(board.colorToMove), i];
 				(int file, int rank) = (kingFile + dx, kingRank + dy);
 				// If outside board, continue
 				if (!(0 <= file && file < 8 && 0 <= rank && rank < 8)) continue;
 				// Check if piece is enemy pawn
-				if (board.squares[file, rank] == (board.oppositeColor | NewPiece.Pawn))
+				if (board.squares[file, rank] == (board.oppositeColor | Piece.Pawn))
 				{
 					checkers.Add((file, rank));
 					// Add pawn to captureBitboard
@@ -185,11 +185,11 @@ namespace Chess
 			}
 		}
 
-		public List<NewMove> GetKingMoves()
+		public List<Move> GetKingMoves()
 		{
-			List<NewMove> kingMoves = new();
+			List<Move> kingMoves = new();
 
-			(int kingFile, int kingRank) = board.kingSquares[NewBoard.ColorIndex(board.colorToMove)];
+			(int kingFile, int kingRank) = board.kingSquares[Board.ColorIndex(board.colorToMove)];
 
 			for (int i = 0; i < kingDirections.Length; i++)
 			{
@@ -200,11 +200,11 @@ namespace Chess
 					// If outside board, continue
 					if (!(0 <= file && file < 8 && 0 <= rank && rank < 8)) continue;
 					// If there is a friendly piece, continue
-					if (NewPiece.Color(board.squares[file, rank]) == board.colorToMove) continue;
+					if (Piece.Color(board.squares[file, rank]) == board.colorToMove) continue;
 					// Check is this square is attacked by enemy piece
 					if (!IsAttacked((file, rank), board.oppositeColor))
 					{
-						kingMoves.Add(new NewMove((kingFile, kingRank), (file, rank), board.squares[file, rank]));
+						kingMoves.Add(new Move((kingFile, kingRank), (file, rank), board.squares[file, rank]));
 					}
 				}
 			}
@@ -217,26 +217,26 @@ namespace Chess
 		}
 
 		//TODO Split into two method (GetPawnForwardMoves and GetPawnAttackMoves)
-		public List<NewMove> GetPawnMoves((int file, int rank) square)
+		public List<Move> GetPawnMoves((int file, int rank) square)
 		{
-			List<NewMove> moves = new();
+			List<Move> moves = new();
 
 			bool isPinned = pinned.Contains(square);
 			(int dx, int dy) dirToKing = (0, 0);
 			if (isPinned)
 			{
-				dirToKing = GetDirection(square, board.kingSquares[NewBoard.ColorIndex(board.colorToMove)]);
+				dirToKing = GetDirection(square, board.kingSquares[Board.ColorIndex(board.colorToMove)]);
 			}
 			// Forward moves
 			// If pinned, can only possily move forward if king is on the same file
-			bool canMoveForward = !isPinned || (square.file == board.kingSquares[NewBoard.ColorIndex(board.colorToMove)].file);
+			bool canMoveForward = !isPinned || (square.file == board.kingSquares[Board.ColorIndex(board.colorToMove)].file);
 			if (canMoveForward)
 			{
-				int forward = board.colorToMove == NewPiece.White ? 1 : -1;
+				int forward = board.colorToMove == Piece.White ? 1 : -1;
 				//TODO Calculate (file, rank) so we dont have to keep calculating it...
 				// Cannot move forward if any piece is in front of the pawn
 				// Don't need to check if outside board, since can't have pawn on back rank
-				bool isBlocked = board.squares[square.file, square.rank + forward] != NewPiece.None;
+				bool isBlocked = board.squares[square.file, square.rank + forward] != Piece.None;
 				if (!isBlocked)
 				{
 					// Check block bitboard for forward move
@@ -248,17 +248,17 @@ namespace Chess
 						}
 						else
 						{
-							moves.Add(new NewMove(square, (square.file, square.rank + forward), board.squares[square.file, square.rank + forward]));
+							moves.Add(new Move(square, (square.file, square.rank + forward), board.squares[square.file, square.rank + forward]));
 						}
 					}
 					// Double forward move
-					bool atStartPosition = (board.colorToMove == NewPiece.White && square.rank == 1) || (board.colorToMove == NewPiece.Black && square.rank == 6);
+					bool atStartPosition = (board.colorToMove == Piece.White && square.rank == 1) || (board.colorToMove == Piece.Black && square.rank == 6);
 					if (atStartPosition)
 					{
-						bool doubleBlocked = board.squares[square.file, square.rank + 2 * forward] != NewPiece.None;
+						bool doubleBlocked = board.squares[square.file, square.rank + 2 * forward] != Piece.None;
 						if (!doubleBlocked && BitBoard.HasOne(blockBitboard, square.file, square.rank + 2 * forward))
 						{
-							moves.Add(new NewMove(square, (square.file, square.rank + 2 * forward), board.squares[square.file, square.rank + 2 * forward]));
+							moves.Add(new Move(square, (square.file, square.rank + 2 * forward), board.squares[square.file, square.rank + 2 * forward]));
 						}
 					}
 				}
@@ -266,7 +266,7 @@ namespace Chess
 			// Capture moves
 			for (int i = 0; i < pawnDirections.GetLength(1); i++)
 			{
-				var (dx, dy) = pawnDirections[NewBoard.ColorIndex(board.colorToMove), i];
+				var (dx, dy) = pawnDirections[Board.ColorIndex(board.colorToMove), i];
 				(int file, int rank) = (square.file + dx, square.rank + dy);
 				// If outside board, continue
 				if (!Util.InsideBoard(file, rank)) continue;
@@ -284,15 +284,15 @@ namespace Chess
 				{
 					// Check for en Passant discovered check (by playing move and checking wether the king is attacked)
 					//TODO Could possibly do it by checking if king is on same rank, and checking for sliding piece ignoring this pawn and the pawn to be captured
-					NewMove ep = new NewMove(square, (file, rank), piece, isEnPassantCapture: true);
+					Move ep = new Move(square, (file, rank), piece, isEnPassantCapture: true);
 					board.MakeMove(ep);
-					if (!IsAttacked(board.kingSquares[NewBoard.ColorIndex(board.oppositeColor)], board.colorToMove))
+					if (!IsAttacked(board.kingSquares[Board.ColorIndex(board.oppositeColor)], board.colorToMove))
 					{
 						moves.Add(ep);
 					}
 					board.UndoPreviousMove();
 				}
-				else if (NewPiece.IsColor(piece, board.colorToMove) || piece == NewPiece.None)
+				else if (Piece.IsColor(piece, board.colorToMove) || piece == Piece.None)
 				{
 					// If friendly or empty (non-EP) continue
 					continue;
@@ -305,57 +305,57 @@ namespace Chess
 				}
 				else
 				{
-					moves.Add(new NewMove(square, (file, rank), board.squares[file, rank]));
+					moves.Add(new Move(square, (file, rank), board.squares[file, rank]));
 				}
 			}
 			return moves;
 		}
 
-		public List<NewMove> GetPromotionMoves((int, int) from, (int, int) to, int capturedPiece, bool includeAllPromotions = true)
+		public List<Move> GetPromotionMoves((int, int) from, (int, int) to, int capturedPiece, bool includeAllPromotions = true)
 		{
-			List<NewMove> promotionMoves = new()
+			List<Move> promotionMoves = new()
 			{
-				new NewMove(from, to, capturedPiece, NewPiece.Queen),
-				new NewMove(from, to, capturedPiece, NewPiece.Knight)
+				new Move(from, to, capturedPiece, Piece.Queen),
+				new Move(from, to, capturedPiece, Piece.Knight)
 			};
 			// Bishop and Rook promotions are never better than Queen promotion. Parameter used to exclude them from bot search
 			if (includeAllPromotions)
 			{
-				promotionMoves.Add(new NewMove(from, to, capturedPiece, NewPiece.Bishop));
-				promotionMoves.Add(new NewMove(from, to, capturedPiece, NewPiece.Rook));
+				promotionMoves.Add(new Move(from, to, capturedPiece, Piece.Bishop));
+				promotionMoves.Add(new Move(from, to, capturedPiece, Piece.Rook));
 			}
 			return promotionMoves;
 		}
 
-		public List<NewMove> GetKnightMoves((int file, int rank) square)
+		public List<Move> GetKnightMoves((int file, int rank) square)
 		{
-			List<NewMove> moves = new();
+			List<Move> moves = new();
 			// If this knight is pinned, then it cannot move
 			if (pinned.Contains(square)) return moves;
 			// Else add precomputed moves
 			foreach ((int file, int rank) in PrecomputedData.knightMoves[square.file, square.rank])
 			{
 				// Check that (file, rank) isn't a friendly piece
-				if (NewPiece.Color(board.squares[file, rank]) != board.colorToMove)
+				if (Piece.Color(board.squares[file, rank]) != board.colorToMove)
 				{
 					// Check block and capture bitboards (all one if checkers.Count == 0)
 					if (BitBoard.HasOne(captureBitboard, file, rank) || BitBoard.HasOne(blockBitboard, file, rank))
 					{
-						// To check capture check NewPiece.Color(board.squares[file, rank]) == board.oppositeColor
-						moves.Add(new NewMove(square, (file, rank), board.squares[file, rank]));
+						// To check capture check Piece.Color(board.squares[file, rank]) == board.oppositeColor
+						moves.Add(new Move(square, (file, rank), board.squares[file, rank]));
 					}
 				}
 			}
 			return moves;
 		}
 
-		public List<NewMove> GetSlidingMoves((int file, int rank) square, int pieceType)
+		public List<Move> GetSlidingMoves((int file, int rank) square, int pieceType)
 		{
-			List<NewMove> moves = new();
+			List<Move> moves = new();
 			// Diagonals start at 0 and alternates
 			// Orthogonals start at 1 and alternates
-			int startIndex = (pieceType == NewPiece.Rook) ? 1 : 0;
-			int inc = (pieceType == NewPiece.Queen) ? 1 : 2;
+			int startIndex = (pieceType == Piece.Rook) ? 1 : 0;
+			int inc = (pieceType == Piece.Queen) ? 1 : 2;
 
 			bool isPinned = pinned.Contains(square);
 
@@ -366,7 +366,7 @@ namespace Chess
 				// If the piece is pinned, it can only move towards or away from it's king
 				if (isPinned)
 				{
-					var dirToKing = GetDirection(square, board.kingSquares[NewBoard.ColorIndex(board.colorToMove)]);
+					var dirToKing = GetDirection(square, board.kingSquares[Board.ColorIndex(board.colorToMove)]);
 					bool movingTowardsKing = dirToKing == (dx, dy) || dirToKing == (-dx, -dy);
 					if (!movingTowardsKing) continue;
 				}
@@ -378,23 +378,23 @@ namespace Chess
 					(int file, int rank) = (square.file + j * dx, square.rank + j * dy);
 					int piece = board.squares[file, rank];
 					// If square is empty, add move to it and continue
-					if (piece == NewPiece.None)
+					if (piece == Piece.None)
 					{
 						// Only add it if inside blockBitboard
 						if (BitBoard.HasOne(blockBitboard, file, rank))
 						{
-							moves.Add(new NewMove(square, (file, rank), board.squares[file, rank]));
+							moves.Add(new Move(square, (file, rank), board.squares[file, rank]));
 						}
 						continue;
 					}
 					// If piece is friendly, stop looking in this direction
-					if (NewPiece.IsColor(piece, board.colorToMove)) break;
+					if (Piece.IsColor(piece, board.colorToMove)) break;
 
 					// Else piece was opponent. Can therefore be captured
 					// Only add it if matches captureBitboard
 					if (BitBoard.HasOne(captureBitboard, file, rank))
 					{
-						moves.Add(new NewMove(square, (file, rank), board.squares[file, rank]));
+						moves.Add(new Move(square, (file, rank), board.squares[file, rank]));
 					}
 					// Stop looking in this direction
 					break;
@@ -403,35 +403,35 @@ namespace Chess
 			return moves;
 		}
 
-		public List<NewMove> GetCastleMoves()
+		public List<Move> GetCastleMoves()
 		{
-			List<NewMove> moves = new();
+			List<Move> moves = new();
 
-			(int file, int rank) kingSquare = board.kingSquares[NewBoard.ColorIndex(board.colorToMove)];
+			(int file, int rank) kingSquare = board.kingSquares[Board.ColorIndex(board.colorToMove)];
 
-			if (board.colorToMove == NewPiece.White)
+			if (board.colorToMove == Piece.White)
 			{
 				// Kingside
 				if (board.castlingRights.HasFlag(CastlingRights.WhiteKingside))
 				{
 					// Check if f1 and g1 are empty and not attacked
-					bool canCastle = (board.squares[5, 0] == NewPiece.None) && !IsAttacked((5, 0), board.oppositeColor) &&
-									 (board.squares[6, 0] == NewPiece.None) && !IsAttacked((6, 0), board.oppositeColor);
+					bool canCastle = (board.squares[5, 0] == Piece.None) && !IsAttacked((5, 0), board.oppositeColor) &&
+									 (board.squares[6, 0] == Piece.None) && !IsAttacked((6, 0), board.oppositeColor);
 					if (canCastle)
 					{
-						moves.Add(new NewMove(kingSquare, (6, 0), NewPiece.None, isCastle: true));
+						moves.Add(new Move(kingSquare, (6, 0), Piece.None, isCastle: true));
 					}
 				}
 				// Queenside
 				if (board.castlingRights.HasFlag(CastlingRights.WhiteQueenside))
 				{
 					// Check if d1 and c1 are empty and not attacked, and that b1 is empty
-					bool canCastle = (board.squares[3, 0] == NewPiece.None) && !IsAttacked((3, 0), board.oppositeColor) &&
-									 (board.squares[2, 0] == NewPiece.None) && !IsAttacked((2, 0), board.oppositeColor) &&
-									 (board.squares[1, 0] == NewPiece.None);
+					bool canCastle = (board.squares[3, 0] == Piece.None) && !IsAttacked((3, 0), board.oppositeColor) &&
+									 (board.squares[2, 0] == Piece.None) && !IsAttacked((2, 0), board.oppositeColor) &&
+									 (board.squares[1, 0] == Piece.None);
 					if (canCastle)
 					{
-						moves.Add(new NewMove(kingSquare, (2, 0), NewPiece.None, isCastle: true));
+						moves.Add(new Move(kingSquare, (2, 0), Piece.None, isCastle: true));
 					}
 				}
 			}
@@ -442,23 +442,23 @@ namespace Chess
 				if (board.castlingRights.HasFlag(CastlingRights.BlackKingside))
 				{
 					// Check if f1 and g1 are empty and not attacked
-					bool canCastle = (board.squares[5, 7] == NewPiece.None) && !IsAttacked((5, 7), board.oppositeColor) &&
-									 (board.squares[6, 7] == NewPiece.None) && !IsAttacked((6, 7), board.oppositeColor);
+					bool canCastle = (board.squares[5, 7] == Piece.None) && !IsAttacked((5, 7), board.oppositeColor) &&
+									 (board.squares[6, 7] == Piece.None) && !IsAttacked((6, 7), board.oppositeColor);
 					if (canCastle)
 					{
-						moves.Add(new NewMove(kingSquare, (6, 7), NewPiece.None, isCastle: true));
+						moves.Add(new Move(kingSquare, (6, 7), Piece.None, isCastle: true));
 					}
 				}
 				// Queenside
 				if (board.castlingRights.HasFlag(CastlingRights.BlackQueenside))
 				{
 					// Check if d1 and c1 are empty and not attacked, and that b1 is empty
-					bool canCastle = (board.squares[3, 7] == NewPiece.None) && !IsAttacked((3, 7), board.oppositeColor) &&
-									 (board.squares[2, 7] == NewPiece.None) && !IsAttacked((2, 7), board.oppositeColor) &&
-									 (board.squares[1, 7] == NewPiece.None);
+					bool canCastle = (board.squares[3, 7] == Piece.None) && !IsAttacked((3, 7), board.oppositeColor) &&
+									 (board.squares[2, 7] == Piece.None) && !IsAttacked((2, 7), board.oppositeColor) &&
+									 (board.squares[1, 7] == Piece.None);
 					if (canCastle)
 					{
-						moves.Add(new NewMove(kingSquare, (2, 7), NewPiece.None, isCastle: true));
+						moves.Add(new Move(kingSquare, (2, 7), Piece.None, isCastle: true));
 					}
 				}
 			}
@@ -472,7 +472,7 @@ namespace Chess
 			foreach ((int file, int rank) in PrecomputedData.knightMoves[square.file, square.rank])
 			{
 				// Check if enemy knight is present there
-				if (board.squares[file, rank] == (attackingColor | NewPiece.Knight))
+				if (board.squares[file, rank] == (attackingColor | Piece.Knight))
 				{
 					return true;
 				}
@@ -480,12 +480,12 @@ namespace Chess
 			// Check for pawns
 			for (int i = 0; i < pawnDirections.GetLength(1); i++)
 			{
-				var (dx, dy) = pawnDirections[NewBoard.ColorIndex(NewPiece.OppositeColor(attackingColor)), i];
+				var (dx, dy) = pawnDirections[Board.ColorIndex(Piece.OppositeColor(attackingColor)), i];
 				(int file, int rank) = (square.file + dx, square.rank + dy);
 				// If outside board, continue
 				if (!(0 <= file && file < 8 && 0 <= rank && rank < 8)) continue;
 				// Check if piece is enemy pawn
-				if (board.squares[file, rank] == (attackingColor | NewPiece.Pawn))
+				if (board.squares[file, rank] == (attackingColor | Piece.Pawn))
 				{
 					return true;
 				}
@@ -497,7 +497,7 @@ namespace Chess
 				// If outside board, continue
 				if (!(0 <= file && file < 8 && 0 <= rank && rank < 8)) continue;
 				// Check if attacking piece is enemy knight
-				if (board.squares[file, rank] == (attackingColor | NewPiece.King))
+				if (board.squares[file, rank] == (attackingColor | Piece.King))
 				{
 					return true;
 				}
@@ -513,14 +513,14 @@ namespace Chess
 					(int file, int rank) = (square.file + j * dx, square.rank + j * dy);
 					int piece = board.squares[file, rank];
 					// Empty square, continue
-					if (piece == NewPiece.None) continue;
+					if (piece == Piece.None) continue;
 					// If piece isn't attacking, break
-					if (!NewPiece.IsColor(piece, attackingColor)) break;
+					if (!Piece.IsColor(piece, attackingColor)) break;
 					// Else the piece is an enemy piece. Check if it can attack in the given direction
 					bool isDiagonal = dx * dy != 0;
-					int attackerType = NewPiece.Type(piece);
+					int attackerType = Piece.Type(piece);
 					// Can attack if piece is a queen, a bishop on a diagonal or a rook on non-diagonal
-					if ((attackerType == NewPiece.Queen) || (isDiagonal && (attackerType == NewPiece.Bishop)) || (!isDiagonal && (attackerType == NewPiece.Rook)))
+					if ((attackerType == Piece.Queen) || (isDiagonal && (attackerType == Piece.Bishop)) || (!isDiagonal && (attackerType == Piece.Rook)))
 					{
 						return true;
 					}

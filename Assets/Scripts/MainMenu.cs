@@ -32,7 +32,7 @@ public class MainMenu : MonoBehaviour
 			//TODO This is not so clean...
 			try
 			{
-				NewBoard.FromFEN(fenInputField.text.Trim());
+				Board.FromFEN(fenInputField.text.Trim());
 				// Set FEN for GameManager and load game scene
 				GameManager.IMPORT_FEN = fenInputField.text;
 				SceneManager.LoadScene((int)SceneIndex.Game);

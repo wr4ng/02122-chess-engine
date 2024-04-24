@@ -1,7 +1,7 @@
 namespace Chess
 {
 
-	public static class NewPiece
+	public static class Piece
 	{
 		public const int None = 0;
 		public const int Pawn = 1;

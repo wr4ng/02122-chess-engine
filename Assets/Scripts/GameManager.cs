@@ -15,13 +15,13 @@ public class GameManager : MonoBehaviour
 	public static bool againstBot = false;
 	public static BotType botType = BotType.RandomBot;
 
-	private NewBoard board;
+	private Board board;
 	public Bot.Bot bot;
 
 	private Thread botThread;
 	public bool botIsCalculating = false;
 	private bool botIsDone = false;
-	private NewMove botMove;
+	private Move botMove;
 
 	private bool hasSelection;
 	private (int file, int rank) selectedSquare = (-1, -1);
@@ -45,18 +45,18 @@ public class GameManager : MonoBehaviour
 		{
 			try
 			{
-				board = NewBoard.FromFEN(IMPORT_FEN);
+				board = Board.FromFEN(IMPORT_FEN);
 			}
 			catch (Exception exception)
 			{
 				// TODO Handle error
 				Debug.Log(exception);
-				board = NewBoard.FromFEN(FEN.STARTING_POSITION_FEN);
+				board = Board.FromFEN(FEN.STARTING_POSITION_FEN);
 			}
 		}
 		else
 		{
-			board = NewBoard.FromFEN(FEN.STARTING_POSITION_FEN);
+			board = Board.FromFEN(FEN.STARTING_POSITION_FEN);
 		}
 		// Set UI for board
 		BoardUI.Instance.UpdateBoard(board);
@@ -108,11 +108,11 @@ public class GameManager : MonoBehaviour
 			if (board.moveGenerator.GenerateMoves().Count == 0)
 			{
 				// Check if king is in check
-				bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[NewBoard.ColorIndex(board.colorToMove)], board.oppositeColor);
+				bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Board.ColorIndex(board.colorToMove)], board.oppositeColor);
 				if (kingAttacked)
 				{
 					// Checkmate
-					Debug.Log($"{(board.oppositeColor == NewPiece.White ? "White" : "Black")} wins!");
+					Debug.Log($"{(board.oppositeColor == Piece.White ? "White" : "Black")} wins!");
 				}
 				else
 				{

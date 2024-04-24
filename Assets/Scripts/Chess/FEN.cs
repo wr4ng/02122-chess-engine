@@ -101,7 +101,7 @@ namespace Chess
 			}
 		}
 
-		public static string BoardToFEN(NewBoard board)
+		public static string BoardToFEN(Board board)
 		{
 			string fen = "";
 			for (int rank = 7; rank >= 0; rank--)
@@ -109,7 +109,7 @@ namespace Chess
 				int emptyTiles = 0;
 				for (int file = 0; file < 8; file++)
 				{
-					if (board.squares[file, rank] == NewPiece.None)
+					if (board.squares[file, rank] == Piece.None)
 					{
 						emptyTiles++;
 					}
@@ -120,7 +120,7 @@ namespace Chess
 							fen += emptyTiles;
 							emptyTiles = 0;
 						}
-						fen += NewPiece.ToString(board.squares[file, rank]);
+						fen += Piece.ToString(board.squares[file, rank]);
 					}
 				}
 				// Add number of empty space at end of rank if any
@@ -139,7 +139,7 @@ namespace Chess
 
 		public static string ColorToFEN(int color)
 		{
-			return NewPiece.IsColor(color, NewPiece.White) ? "w" : "b";
+			return Piece.IsColor(color, Piece.White) ? "w" : "b";
 		}
 
 		public static string EnPassantToFEN((int, int) enPassantSquare)

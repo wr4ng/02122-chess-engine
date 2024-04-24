@@ -31,10 +31,10 @@ namespace Chess.Testing
 		public void SingleTest()
 		{
 			Log($"PERFT: Starting single test on {(fen == FEN.STARTING_POSITION_FEN ? "startpos" : fen)}");
-			NewBoard board;
+			Board board;
 			try
 			{
-				board = NewBoard.FromFEN(fen);
+				board = Board.FromFEN(fen);
 			}
 			catch
 			{
@@ -53,10 +53,10 @@ namespace Chess.Testing
 		public void DivideTest()
 		{
 			Log($"PERFT: Starting divide test on {(fen == FEN.STARTING_POSITION_FEN ? "startpos" : fen)}");
-			NewBoard board;
+			Board board;
 			try
 			{
-				board = NewBoard.FromFEN(fen);
+				board = Board.FromFEN(fen);
 			}
 			catch
 			{
@@ -67,7 +67,7 @@ namespace Chess.Testing
 			stopwatch.Start();
 			int total = 0;
 
-			foreach (NewMove m in board.moveGenerator.GenerateMoves())
+			foreach (Move m in board.moveGenerator.GenerateMoves())
 			{
 				board.MakeMove(m);
 				// TODO Handle writing promotion moves (i.e. a7a8r)

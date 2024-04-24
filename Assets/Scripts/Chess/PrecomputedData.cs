@@ -59,7 +59,7 @@ namespace Chess
 				for (int rank = 0; rank < 8; rank++)
 				{
 					List<(int, int)> moves = new();
-					foreach ((int dx, int dy) in NewMoveGenerator.knightDirections)
+					foreach ((int dx, int dy) in MoveGenerator.knightDirections)
 					{
 						(int file, int rank) square = (file + dx, rank + dy);
 						if (Util.InsideBoard(square.file, square.rank))

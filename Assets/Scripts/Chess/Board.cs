@@ -2,17 +2,17 @@ using System.Collections.Generic;
 
 namespace Chess
 {
-	public class NewBoard
+	public class Board
 	{
 		public int[,] squares;
 		public int colorToMove;
-		public int oppositeColor => colorToMove == NewPiece.White ? NewPiece.Black : NewPiece.White;
+		public int oppositeColor => colorToMove == Piece.White ? Piece.Black : Piece.White;
 
 		public (int file, int rank)[] kingSquares; // 0 = White, 1 = King
 
-		public NewMoveGenerator moveGenerator;
+		public MoveGenerator moveGenerator;
 
-		public Stack<NewMove> playedMoves;
+		public Stack<Move> playedMoves;
 
 		// En passant
 		public (int file, int rank) enPassantSquare;
@@ -26,14 +26,14 @@ namespace Chess
 		public int halfMoveClock;
 		public int fullMoveNumber;
 
-		public static int ColorIndex(int color) => (color == NewPiece.White) ? 0 : 1;
+		public static int ColorIndex(int color) => (color == Piece.White) ? 0 : 1;
 
-		public NewBoard()
+		public Board()
 		{
 			squares = new int[8, 8];
-			colorToMove = NewPiece.White;
+			colorToMove = Piece.White;
 			kingSquares = new (int file, int rank)[2];
-			moveGenerator = new NewMoveGenerator(this);
+			moveGenerator = new MoveGenerator(this);
 			playedMoves = new();
 
 			enPassantSquare = (-1, -1);
@@ -46,9 +46,9 @@ namespace Chess
 			fullMoveNumber = 0;
 		}
 
-		public static NewBoard FromFEN(string fen)
+		public static Board FromFEN(string fen)
 		{
-			NewBoard board = new();
+			Board board = new();
 
 			string[] fenParts = fen.Split(' ');
 			if (fenParts.Length != 6)
@@ -86,23 +86,23 @@ namespace Chess
 				}
 				else
 				{
-					int color = char.IsUpper(c) ? NewPiece.White : NewPiece.Black;
+					int color = char.IsUpper(c) ? Piece.White : Piece.Black;
 					int type = char.ToLower(c) switch
 					{
-						'p' => NewPiece.Pawn,
-						'b' => NewPiece.Bishop,
-						'n' => NewPiece.Knight,
-						'r' => NewPiece.Rook,
-						'q' => NewPiece.Queen,
-						'k' => NewPiece.King,
+						'p' => Piece.Pawn,
+						'b' => Piece.Bishop,
+						'n' => Piece.Knight,
+						'r' => Piece.Rook,
+						'q' => Piece.Queen,
+						'k' => Piece.King,
 						_ => throw new System.ArgumentException($"Invalid char found when parsing board: {c}")
 					};
 					// Save king positions
-					if (type == NewPiece.King)
+					if (type == Piece.King)
 					{
 						board.kingSquares[ColorIndex(color)] = (file, rank);
 						// Increment number of kings
-						if (color == NewPiece.White)
+						if (color == Piece.White)
 							numWhiteKings++;
 						else
 							numBlackKings++;
@@ -121,8 +121,8 @@ namespace Chess
 			// Parse current player
 			board.colorToMove = fenParts[1] switch
 			{
-				"w" => NewPiece.White,
-				"b" => NewPiece.Black,
+				"w" => Piece.White,
+				"b" => Piece.Black,
 				_ => throw new System.ArgumentException($"Invalid current player: {fenParts[1]}")
 			};
 			// Parse castling rights
@@ -152,18 +152,18 @@ namespace Chess
 			{
 				for (int file = 0; file < 8; file++)
 				{
-					char type = NewPiece.Type(squares[file, rank]) switch
+					char type = Piece.Type(squares[file, rank]) switch
 					{
-						NewPiece.None => '-',
-						NewPiece.Pawn => 'p',
-						NewPiece.Bishop => 'b',
-						NewPiece.Knight => 'n',
-						NewPiece.Rook => 'r',
-						NewPiece.Queen => 'q',
-						NewPiece.King => 'k',
+						Piece.None => '-',
+						Piece.Pawn => 'p',
+						Piece.Bishop => 'b',
+						Piece.Knight => 'n',
+						Piece.Rook => 'r',
+						Piece.Queen => 'q',
+						Piece.King => 'k',
 						_ => '?' // Shoudn't be reached. Then squares[file, rank] has invalid type value (3 least significant bits)
 					};
-					char piece = NewPiece.IsColor(squares[file, rank], NewPiece.White) ? char.ToUpper(type) : type;
+					char piece = Piece.IsColor(squares[file, rank], Piece.White) ? char.ToUpper(type) : type;
 					board += piece;
 				}
 				board += "\n";
@@ -171,15 +171,15 @@ namespace Chess
 			return board.Trim();
 		}
 
-		public void MakeMove(NewMove move)
+		public void MakeMove(Move move)
 		{
 			int piece = squares[move.from.file, move.from.rank];
 			// Move piece
-			squares[move.from.file, move.from.rank] = NewPiece.None;
+			squares[move.from.file, move.from.rank] = Piece.None;
 			squares[move.to.file, move.to.rank] = piece;
 
 			// Handle promotion
-			if (move.promotionType != NewPiece.None)
+			if (move.promotionType != Piece.None)
 			{
 				squares[move.to.file, move.to.rank] = colorToMove | move.promotionType;
 			}
@@ -187,10 +187,10 @@ namespace Chess
 			// Add previous EP square to stack
 			previousEnPassantSquares.Push(enPassantSquare);
 			// If current move is double pawn move, set en Passant square (is piece is pawn is moves 2 ranks)
-			bool doublePawnMove = (NewPiece.Type(piece) == NewPiece.Pawn) && (System.Math.Abs(move.from.rank - move.to.rank) == 2);
+			bool doublePawnMove = (Piece.Type(piece) == Piece.Pawn) && (System.Math.Abs(move.from.rank - move.to.rank) == 2);
 			if (doublePawnMove)
 			{
-				enPassantSquare = (move.from.file, move.from.rank + (colorToMove == NewPiece.White ? 1 : -1));
+				enPassantSquare = (move.from.file, move.from.rank + (colorToMove == Piece.White ? 1 : -1));
 			}
 			else
 			{
@@ -200,8 +200,8 @@ namespace Chess
 			if (move.isEnPassantCapture)
 			{
 				// Remove pawn 1 below move.to
-				int forward = colorToMove == NewPiece.White ? 1 : -1;
-				squares[move.to.file, move.to.rank - forward] = NewPiece.None;
+				int forward = colorToMove == Piece.White ? 1 : -1;
+				squares[move.to.file, move.to.rank - forward] = Piece.None;
 
 			}
 			// If castle, also move rook
@@ -210,28 +210,28 @@ namespace Chess
 				// Calculate castle direction based on move.to.file. Queenside = c-file = 2. Kingside = g-file = 6
 				bool isKingside = move.to.file == 6;
 				// Get rank of king
-				int kingRank = colorToMove == NewPiece.White ? 0 : 7;
+				int kingRank = colorToMove == Piece.White ? 0 : 7;
 				// TODO This could be done simpler
 				if (isKingside)
 				{
 					// Move rook
-					squares[7, kingRank] = NewPiece.None;
-					squares[5, kingRank] = colorToMove | NewPiece.Rook;
+					squares[7, kingRank] = Piece.None;
+					squares[5, kingRank] = colorToMove | Piece.Rook;
 				}
 				else
 				{
 					// Move rook
-					squares[0, kingRank] = NewPiece.None;
-					squares[3, kingRank] = colorToMove | NewPiece.Rook;
+					squares[0, kingRank] = Piece.None;
+					squares[3, kingRank] = colorToMove | Piece.Rook;
 				}
 			}
 			// Add previous castling rights to stack
 			previousCastlingRights.Push(castlingRights);
 			// Calculate new castling rights
 			// If the king moves, remove all castling rights for it
-			if (NewPiece.Type(piece) == NewPiece.King)
+			if (Piece.Type(piece) == Piece.King)
 			{
-				if (colorToMove == NewPiece.White)
+				if (colorToMove == Piece.White)
 					castlingRights = castlingRights.ClearRights(CastlingRights.AllWhite);
 				else
 					castlingRights = castlingRights.ClearRights(CastlingRights.AllBlack);
@@ -250,7 +250,7 @@ namespace Chess
 			if (move.from == (0, 7) || move.to == (0, 7))
 				castlingRights = castlingRights.ClearRights(CastlingRights.BlackQueenside);
 			// Update king position
-			if (NewPiece.Type(piece) == NewPiece.King)
+			if (Piece.Type(piece) == Piece.King)
 			{
 				kingSquares[ColorIndex(colorToMove)] = move.to;
 			}
@@ -260,10 +260,10 @@ namespace Chess
 			playedMoves.Push(move);
 		}
 
-		public void UnmakeMove(NewMove move)
+		public void UnmakeMove(Move move)
 		{
 			// Check if we're trying to unmake a move that hasn't been played yet
-			bool hasMoves = playedMoves.TryPeek(out NewMove topMove);
+			bool hasMoves = playedMoves.TryPeek(out Move topMove);
 			bool matchesTopMove = hasMoves && move.Equals(topMove);
 			if (!matchesTopMove)
 			{
@@ -273,13 +273,13 @@ namespace Chess
 			playedMoves.Pop();
 
 			// Get moving piece
-			bool isPromotion = move.promotionType != NewPiece.None;
-			int piece = isPromotion ? (oppositeColor | NewPiece.Pawn) : squares[move.to.file, move.to.rank];
+			bool isPromotion = move.promotionType != Piece.None;
+			int piece = isPromotion ? (oppositeColor | Piece.Pawn) : squares[move.to.file, move.to.rank];
 
 			// Move back
 			squares[move.from.file, move.from.rank] = piece;
 
-			// Add captured piece back in (can be NewPiece.None)
+			// Add captured piece back in (can be Piece.None)
 			squares[move.to.file, move.to.rank] = move.capturedPiece;
 
 			// Set previous en Passant square
@@ -288,11 +288,11 @@ namespace Chess
 			if (move.isEnPassantCapture)
 			{
 				// Add pawn back for the current player
-				int forward = colorToMove == NewPiece.White ? 1 : -1;
-				squares[move.to.file, move.to.rank + forward] = colorToMove | NewPiece.Pawn;
+				int forward = colorToMove == Piece.White ? 1 : -1;
+				squares[move.to.file, move.to.rank + forward] = colorToMove | Piece.Pawn;
 			}
 			// Update king square
-			if (NewPiece.Type(piece) == NewPiece.King)
+			if (Piece.Type(piece) == Piece.King)
 			{
 				kingSquares[ColorIndex(oppositeColor)] = move.from;
 			}
@@ -302,19 +302,19 @@ namespace Chess
 				// Calculate castle direction based on move.to.file. Queenside = c-file = 2. Kingside = g-file = 6
 				bool isKingside = move.to.file == 6;
 				// Get rank of king
-				int kingRank = oppositeColor == NewPiece.White ? 0 : 7;
+				int kingRank = oppositeColor == Piece.White ? 0 : 7;
 				// TODO This could be done simpler
 				if (isKingside)
 				{
 					// Move rook back
-					squares[7, kingRank] = oppositeColor | NewPiece.Rook;
-					squares[5, kingRank] = NewPiece.None;
+					squares[7, kingRank] = oppositeColor | Piece.Rook;
+					squares[5, kingRank] = Piece.None;
 				}
 				else
 				{
 					// Move rook back
-					squares[0, kingRank] = oppositeColor | NewPiece.Rook;
-					squares[3, kingRank] = NewPiece.None;
+					squares[0, kingRank] = oppositeColor | Piece.Rook;
+					squares[3, kingRank] = Piece.None;
 				}
 			}
 			// Set previous castling rights
@@ -326,7 +326,7 @@ namespace Chess
 
 		public void UndoPreviousMove()
 		{
-			bool hasMove = playedMoves.TryPeek(out NewMove move);
+			bool hasMove = playedMoves.TryPeek(out Move move);
 			if (hasMove)
 			{
 				UnmakeMove(move);
@@ -345,7 +345,7 @@ namespace Chess
 				return moves.Count;
 			}
 			int positions = 0;
-			foreach (NewMove m in moves)
+			foreach (Move m in moves)
 			{
 				MakeMove(m);
 				positions += GetNumberOfPositions(depth - 1);

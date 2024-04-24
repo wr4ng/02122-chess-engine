@@ -5,7 +5,7 @@ namespace Bot
 {
 	public interface Bot
 	{
-		public NewMove GetBestMove(NewBoard board);
+		public Move GetBestMove(Board board);
 		public string Name();
 	}
 
