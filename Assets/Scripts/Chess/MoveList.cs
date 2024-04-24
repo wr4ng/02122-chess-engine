@@ -15,11 +15,11 @@ namespace Chess
     public class MoveList
     {
         Element checkHead, checkTail, captureHead, captureTail, restHead = null;
-        Element head,prevSearched = new Element(null, null);
+        Element head,prevSearched = new Element(new(), null);
         int prevIndex = 0;
         public int count= 0;
         public MoveList(){
-            Insert(null);
+            Insert(new());
         }
 
         private (Element, Element) Insert(Move move, Element head, Element tail){
@@ -47,7 +47,7 @@ namespace Chess
             checkTail.next = captureHead ?? restHead;
             captureTail.next = restHead;
             //Setting the head
-            head = new Element(null,checkHead ?? captureHead ?? restHead);
+            head = new Element(new(),checkHead ?? captureHead ?? restHead);
             prevSearched.next = head.next;
         }
 
@@ -109,7 +109,7 @@ namespace Chess
             if (checkIndex < checkCount) {checkIndex++; return checks[checkIndex];}
             if (captureIndex < captureCount) {captureIndex++; return captures[captureIndex];}
             if (restIndex < restCount) {restIndex++; return rest[restIndex];}
-            return null;
+            return new();
         }
     }
 }
