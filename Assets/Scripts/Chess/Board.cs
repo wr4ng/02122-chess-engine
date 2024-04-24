@@ -78,15 +78,14 @@ namespace Chess
 
 		public string ExportToFEN()
 		{
-			string fen = "";
 			//add the board state "https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation"
-			fen += FEN.BoardToFEN(this.board);
-			fen += FEN.CurrentPlayerToFEN(this.currentPlayer);
-			fen += FEN.CastlingRightsToFEN(this.castlingRights);
-			fen += FEN.EnPassantToFEN(this.enPassantSquare);
-			fen += FEN.HalfmoveClockToFEN(draw.getHalfMoveClock());
-			fen += FEN.FullmoveNumberToFEN(this.fullmoveNumber);
-			return fen;
+			string board = FEN.BoardToFEN(this.board);
+			string player = FEN.CurrentPlayerToFEN(currentPlayer);
+			string castling = castlingRights.ToFEN();
+			string ep = FEN.EnPassantToFEN(enPassantSquare);
+			string halfmove = draw.getHalfMoveClock().ToString();
+			string fullmove = fullmoveNumber.ToString();
+			return $"{board} {player} {castling} {ep} {halfmove} {fullmove}";
 		}
 
 		public Piece GetPiece(int file, int rank)

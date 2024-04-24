@@ -21,6 +21,7 @@ namespace Chess
 			return CoordinateToFEN(coordinate.file, coordinate.rank);
 		}
 
+		// TODO Change to InsideBoard. Maybe to Util class
 		public static bool IsValidCoordinate(int file, int rank)
 		{
 			return 0 <= file || file < Board.BOARD_SIZE || 0 <= rank || rank < Board.BOARD_SIZE;
@@ -166,6 +167,7 @@ namespace Chess
 			}
 		}
 
+		//TODO Delete once NewBoard replaces Board
 		public static string BoardToFEN(Piece[,] board)
 		{
 			string fen = "";
@@ -200,31 +202,56 @@ namespace Chess
 			return fen;
 		}
 
-		public static string CurrentPlayerToFEN(Color currentPlayer)
+		public static string BoardToFEN(NewBoard board)
 		{
-			return currentPlayer == Color.White ? " w" : " b";
+			string fen = "";
+			for (int rank = 7; rank >= 0; rank--)
+			{
+				int emptyTiles = 0;
+				for (int file = 0; file < Board.BOARD_SIZE; file++)
+				{
+					if (board.squares[file, rank] == NewPiece.None)
+					{
+						emptyTiles++;
+					}
+					else
+					{
+						if (emptyTiles > 0)
+						{
+							fen += emptyTiles;
+							emptyTiles = 0;
+						}
+						fen += NewPiece.ToString(board.squares[file, rank]);
+					}
+				}
+				// Add number of empty space at end of rank if any
+				if (emptyTiles != 0)
+				{
+					fen += emptyTiles;
+				}
+				// Add seperator between ranks
+				if (rank != 0)
+				{
+					fen += "/";
+				}
+			}
+			return fen;
 		}
 
-		public static string CastlingRightsToFEN(CastlingRights castlingRights)
+		//TODO Delete once NewBoard replaces Board
+		public static string CurrentPlayerToFEN(Color currentPlayer)
 		{
-			string fen = " ";
-			fen += CastlingRightsExtensions.ToFENString(castlingRights); //TODO skal vi rykke metoden her ind?
-			return fen;
+			return currentPlayer == Color.White ? "w" : "b";
+		}
+
+		public static string ColorToFEN(int color)
+		{
+			return NewPiece.IsColor(color, NewPiece.White) ? "w" : "b";
 		}
 
 		public static string EnPassantToFEN((int, int) enPassantSquare)
 		{
-			return enPassantSquare == (-1, -1) ? " -" : " " + CoordinateToFEN(enPassantSquare);
-		}
-
-		public static string HalfmoveClockToFEN(int halfmoveClock)
-		{
-			return " " + halfmoveClock;
-		}
-
-		public static string FullmoveNumberToFEN(int fullmoveNumber)
-		{
-			return " " + fullmoveNumber;
+			return enPassantSquare == (-1, -1) ? "-" : CoordinateToFEN(enPassantSquare);
 		}
 	}
 }

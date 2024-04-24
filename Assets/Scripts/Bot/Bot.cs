@@ -5,7 +5,7 @@ namespace Bot
 {
 	public interface Bot
 	{
-		public Move GetBestMove(Board board);
+		public NewMove GetBestMove(NewBoard board);
 		public string Name();
 	}
 
@@ -23,7 +23,7 @@ namespace Bot
 			Bot bot = botType switch
 			{
 				BotType.RandomBot => new RandomBot(),
-				BotType.WhiteBoi => new WhiteBoi(depth: 3),
+				BotType.WhiteBoi => new WhiteBoi(depth: 5),
 				_ => null
 			};
 			if (bot == null)

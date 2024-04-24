@@ -15,13 +15,13 @@ public class GameManager : MonoBehaviour
 	public static bool againstBot = false;
 	public static BotType botType = BotType.RandomBot;
 
-	private Board board;
+	private NewBoard board;
 	public Bot.Bot bot;
 
 	private Thread botThread;
 	public bool botIsCalculating = false;
 	private bool botIsDone = false;
-	private Move botMove;
+	private NewMove botMove;
 
 	private bool hasSelection;
 	private (int file, int rank) selectedSquare = (-1, -1);
@@ -45,18 +45,18 @@ public class GameManager : MonoBehaviour
 		{
 			try
 			{
-				board = Board.ImportFromFEN(IMPORT_FEN);
+				board = NewBoard.FromFEN(IMPORT_FEN);
 			}
 			catch (Exception exception)
 			{
 				// TODO Handle error
 				UnityEngine.Debug.Log(exception);
-				board = Board.DefaultBoard();
+				board = NewBoard.FromFEN(FEN.STARTING_POSITION_FEN);
 			}
 		}
 		else
 		{
-			board = Board.DefaultBoard();
+			board = NewBoard.FromFEN(FEN.STARTING_POSITION_FEN);
 		}
 		// Set UI for board
 		BoardUI.Instance.UpdateBoard(board);
@@ -82,7 +82,7 @@ public class GameManager : MonoBehaviour
 		{
 			botIsCalculating = false;
 			botIsDone = false;
-			board.PlayMove(botMove);
+			board.MakeMove(botMove);
 			BoardUI.Instance.UpdateBoard(board);
 		}
 	}
@@ -90,7 +90,7 @@ public class GameManager : MonoBehaviour
 	// Try to perform a move from start to end, returning whether the move was performed or not
 	public bool TryMove((int file, int rank) start, (int file, int rank) end)
 	{
-		var selectedMoves = board.GetLegalMoves().Where(move => move.GetStartSquare() == start && move.GetEndSquare() == end).ToList();
+		var selectedMoves = board.moveGenerator.GenerateMoves().Where(move => move.from == start && move.to == end).ToList();
 		// TODO Handle promotion, since start and end are the same
 		if (selectedMoves.Count == 0)
 		{
@@ -102,12 +102,24 @@ public class GameManager : MonoBehaviour
 		{
 			// Use first move with matching start and end
 			// TODO Handle promotion
-			board.PlayMove(selectedMoves[0]);
+			board.MakeMove(selectedMoves[0]);
 			BoardUI.Instance.UpdateBoard(board);
-			if (board.gameOver)
+			// Check if game has ended
+			if (board.moveGenerator.GenerateMoves().Count == 0)
 			{
-				string winner = (board.isDraw) ? "Draw" : board.GetCurrentPlayer().Opposite().ToString();
-				UnityEngine.Debug.Log(winner);
+				// Check if king is in check
+				bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[NewBoard.ColorIndex(board.colorToMove)], board.oppositeColor);
+				if (kingAttacked)
+				{
+					// Checkmate
+					Debug.Log($"{(board.oppositeColor == NewPiece.White ? "White" : "Black")} wins!");
+				}
+				else
+				{
+					// Stalemate
+					Debug.Log("Stalemate!");
+				}
+				//TODO Show UI of result
 			}
 			else if (againstBot)
 			{
@@ -151,7 +163,7 @@ public class GameManager : MonoBehaviour
 		else
 		{
 			// Check if the clicked square has any possible moves before selection it
-			var selectionMoves = board.GetLegalMoves().Where(move => move.GetStartSquare() == clickedSquare).ToList();
+			var selectionMoves = board.moveGenerator.GenerateMoves().Where(move => move.from == clickedSquare).ToList();
 			var selectionHasMoves = selectionMoves.Count() > 0;
 			if (selectionHasMoves)
 			{
@@ -160,7 +172,7 @@ public class GameManager : MonoBehaviour
 				// Update selectedion UI
 				BoardUI.Instance.SetHighlightedSquare(clickedSquare);
 				// Map each move it it's ending square
-				var selectionMoveEnds = selectionMoves.Select(move => move.GetEndSquare()).ToList();
+				var selectionMoveEnds = selectionMoves.Select(move => move.to).ToList();
 				// Show possible moves
 				BoardUI.Instance.ShowPossibleMoves(selectionMoveEnds);
 			}
