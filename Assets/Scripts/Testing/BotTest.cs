@@ -12,7 +12,7 @@ namespace Chess.Testing
 		{
 			for (int depth = 1; depth <= 3; depth++)
 			{
-				Board board = Board.ImportFromFEN(fen);
+				NewBoard board = NewBoard.FromFEN(fen);
 				UnityEngine.Debug.Log($"Testing board position: {fen}");
 
 				// Create a new instance of the bot

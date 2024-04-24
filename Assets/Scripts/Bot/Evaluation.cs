@@ -6,23 +6,24 @@ namespace Bot
     public class Evaluation
     {
 
-        public static float EvaluatePosition(Board board)
+        public static float EvaluatePosition(NewBoard board)
         {
             float score = 0;
-            if (board.gameOver)
-            {
-                if (board.isDraw)
-                {
-                    return 0;
-                }
-                return (board.GetCurrentPlayer() == Color.White) ? int.MinValue : int.MaxValue;
-            }
+			//TODO Handle game over (once Draw is implemented in NewBoard)
+            // if (board.gameOver)
+            // {
+            //     if (board.isDraw)
+            //     {
+            //         return 0;
+            //     }
+            //     return (board.GetCurrentPlayer() == Color.White) ? int.MinValue : int.MaxValue;
+            // }
             for (int file = 0; file < Board.BOARD_SIZE; file++)
             {
                 for (int rank = 0; rank < Board.BOARD_SIZE; rank++)
                 {
-                    Piece piece = board.GetPiece(file, rank);
-                    if (piece != null)
+                    int piece = board.squares[file, rank];
+                    if (piece != NewPiece.None)
                     {
                         score += PieceWieght(piece);
                     }
@@ -30,28 +31,29 @@ namespace Bot
             }
             return score;
         }
-        public static float PieceWieght(Piece piece)
+        public static float PieceWieght(int piece)
         {
+			//TODO Use switch-expression
             float weight;
-            switch (piece.GetPieceType())
+            switch (NewPiece.Type(piece))
             {
-                case PieceType.Pawn:
-                    weight = (piece.GetColor() == Color.White) ? 1 : -1;
+                case NewPiece.Pawn:
+                    weight = NewPiece.IsColor(piece, NewPiece.White) ? 1 : -1;
                     break;
-                case PieceType.Rook:
-                    weight = (piece.GetColor() == Color.White) ? 5 : -5;
+                case NewPiece.Rook:
+                    weight = NewPiece.IsColor(piece, NewPiece.White) ? 5 : -5;
                     break;
-                case PieceType.Bishop:
-                    weight = (piece.GetColor() == Color.White) ? 3 : -3;
+                case NewPiece.Bishop:
+                    weight = NewPiece.IsColor(piece, NewPiece.White) ? 3 : -3;
                     break;
-                case PieceType.Knight:
-                    weight = (piece.GetColor() == Color.White) ? 3 : -3;
+                case NewPiece.Knight:
+                    weight = NewPiece.IsColor(piece, NewPiece.White) ? 3 : -3;
                     break;
-                case PieceType.Queen:
-                    weight = (piece.GetColor() == Color.White) ? 9 : -9;
+                case NewPiece.Queen:
+                    weight = NewPiece.IsColor(piece, NewPiece.White) ? 9 : -9;
                     break;
-                case PieceType.King:
-                    weight = (piece.GetColor() == Color.White) ? 100 : -100;
+                case NewPiece.King:
+                    weight = NewPiece.IsColor(piece, NewPiece.White) ? 100 : -100;
                     break;
                 default:
                     weight = 0;

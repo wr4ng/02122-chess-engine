@@ -73,28 +73,28 @@ public class BoardUI : MonoBehaviour
 		}
 	}
 
-	public void UpdateBoard(Board board)
+	public void UpdateBoard(NewBoard board)
 	{
 		for (int file = 0; file < Board.BOARD_SIZE; file++)
 		{
 			for (int rank = 0; rank < Board.BOARD_SIZE; rank++)
 			{
-				Piece piece = board.GetPiece(file, rank);
+				int piece = board.squares[file, rank];
 				Tile tile = tiles[file, rank];
-				if (piece == null)
+				if (piece == NewPiece.None)
 				{
 					tile.SetPieceSprite(null);
 				}
 				else
 				{
-					Sprite pieceSprite = PieceToSprite(piece.GetPieceType());
-					var pieceColor = piece.GetColor() == Chess.Color.White ? whiteColor : blackColor;
+					Sprite pieceSprite = PieceToSprite(NewPiece.Type(piece));
+					UnityEngine.Color pieceColor = NewPiece.IsColor(piece, NewPiece.White) ? whiteColor : blackColor;
 					tile.SetPieceSprite(pieceSprite, pieceColor);
 				}
 			}
 		}
 		// Update current player frame color
-		currentPlayerFrame.color = board.GetCurrentPlayer() == Chess.Color.White ? whiteColor : blackColor;
+		currentPlayerFrame.color = board.colorToMove == NewPiece.White ? whiteColor : blackColor;
 	}
 
 	public void SetHighlightedSquare((int file, int rank) square)
@@ -135,6 +135,7 @@ public class BoardUI : MonoBehaviour
 		}
 	}
 
+	//TODO Remove once NewBoard is implemented
 	private Sprite PieceToSprite(PieceType type)
 	{
 		return type switch
@@ -145,6 +146,20 @@ public class BoardUI : MonoBehaviour
 			PieceType.Rook => rookSprite,
 			PieceType.Queen => queenSprite,
 			PieceType.King => kingSprite,
+			_ => throw new ArgumentException($"Invalid PieceType: {type}")
+		};
+	}
+
+	private Sprite PieceToSprite(int type)
+	{
+		return type switch
+		{
+			NewPiece.Pawn => pawnSprite,
+			NewPiece.Knight => knighSprite,
+			NewPiece.Bishop => bishopSprite,
+			NewPiece.Rook => rookSprite,
+			NewPiece.Queen => queenSprite,
+			NewPiece.King => kingSprite,
 			_ => throw new ArgumentException($"Invalid PieceType: {type}")
 		};
 	}
