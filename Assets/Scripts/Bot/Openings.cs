@@ -1,5 +1,3 @@
-using Chess;
-
 namespace Bot
 {
 
