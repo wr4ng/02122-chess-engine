@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -30,8 +31,12 @@ namespace Chess.Testing
 		public void SingleTest()
 		{
 			Log($"PERFT: Starting single test on {(fen == FEN.STARTING_POSITION_FEN ? "startpos" : fen)}");
-			bool success = Board.TryParseFEN(fen, out Board board);
-			if (!success)
+			NewBoard board;
+			try
+			{
+				board = NewBoard.FromFEN(fen);
+			}
+			catch
 			{
 				Log($"Couldn't parse FEN: {fen}\nCancelling perft test", isError: true);
 				return;
@@ -48,21 +53,25 @@ namespace Chess.Testing
 		public void DivideTest()
 		{
 			Log($"PERFT: Starting divide test on {(fen == FEN.STARTING_POSITION_FEN ? "startpos" : fen)}");
-			bool success = Board.TryParseFEN(fen, out Board board);
-			if (!success)
+			NewBoard board;
+			try
 			{
-				Log($"Couldn't parse FEN: {fen}\nCancelling perft test!", isError: true);
+				board = NewBoard.FromFEN(fen);
+			}
+			catch
+			{
+				Log($"Couldn't parse FEN: {fen}\nCancelling perft test", isError: true);
 				return;
 			}
 			stopwatch = new System.Diagnostics.Stopwatch();
 			stopwatch.Start();
 			int total = 0;
 
-			foreach (Move m in board.GetLegalMoves())
+			foreach (NewMove m in board.moveGenerator.GenerateMoves())
 			{
-				board.PlayMove(m);
+				board.MakeMove(m);
 				// TODO Handle writing promotion moves (i.e. a7a8r)
-				string move = $"{FEN.CoordinateToFEN(m.GetStartSquare())}{FEN.CoordinateToFEN(m.GetEndSquare())}";
+				string move = $"{FEN.CoordinateToFEN(m.from)}{FEN.CoordinateToFEN(m.to)}";
 				int positions = board.GetNumberOfPositions(depth - 1);
 				total += positions;
 				Log($"{move}: {positions}");

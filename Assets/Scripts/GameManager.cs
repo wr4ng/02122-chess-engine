@@ -50,7 +50,7 @@ public class GameManager : MonoBehaviour
 			catch (Exception exception)
 			{
 				// TODO Handle error
-				UnityEngine.Debug.Log(exception);
+				Debug.Log(exception);
 				board = NewBoard.FromFEN(FEN.STARTING_POSITION_FEN);
 			}
 		}
@@ -64,7 +64,7 @@ public class GameManager : MonoBehaviour
 		if (againstBot)
 		{
 			bot = botType.CreateBot();
-			UnityEngine.Debug.Log($"Playing against: {botType}");
+			Debug.Log($"Playing against: {botType}");
 		}
 	}
 
@@ -95,7 +95,7 @@ public class GameManager : MonoBehaviour
 		if (selectedMoves.Count == 0)
 		{
 			// TODO Show that move isn't legal to player
-			UnityEngine.Debug.Log($"No move starting at {FEN.CoordinateToFEN(start)} and ending at {FEN.CoordinateToFEN(end)}");
+			Debug.Log($"No move starting at {FEN.CoordinateToFEN(start)} and ending at {FEN.CoordinateToFEN(end)}");
 			return false;
 		}
 		else

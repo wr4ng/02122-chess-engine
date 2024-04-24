@@ -269,7 +269,7 @@ namespace Chess
 				var (dx, dy) = pawnDirections[NewBoard.ColorIndex(board.colorToMove), i];
 				(int file, int rank) = (square.file + dx, square.rank + dy);
 				// If outside board, continue
-				if (!InsideBoard(file, rank)) continue;
+				if (!Util.InsideBoard(file, rank)) continue;
 				// If pinned, direction must match direction to king
 				if (isPinned && !((dirToKing.dx == dx && dirToKing.dy == dy) || (dirToKing.dx == -dx && dirToKing.dy == -dy))) continue;
 				// Check blockBitboard and captureBitboard (en Passant capture can block)
@@ -530,8 +530,6 @@ namespace Chess
 			}
 			return false;
 		}
-
-		public static bool InsideBoard(int file, int rank) => 0 <= file && file < 8 && 0 <= rank && rank < 8;
 
 		//TODO Maybe return (-1,-1) on error?
 		// Calculate the direction between two squares. Returns (0,0) if they are not on a diagonal or orthogonal line
