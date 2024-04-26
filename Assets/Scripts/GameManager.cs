@@ -90,7 +90,8 @@ public class GameManager : MonoBehaviour
 	// Try to perform a move from start to end, returning whether the move was performed or not
 	public bool TryMove((int file, int rank) start, (int file, int rank) end)
 	{
-		var selectedMoves = board.moveGenerator.GenerateMoves().Where(move => move.from == start && move.to == end).ToList();
+		var selectedMoves = board.moveGenerator.GenerateMoves().list.Where(move => move.from == start && move.to == end).ToList();
+		Debug.Log($"{board.moveGenerator.GenerateMoves().list.Count} {board.moveGenerator.GenerateMoves().moveList.Count}");
 		// TODO Handle promotion, since start and end are the same
 		if (selectedMoves.Count == 0)
 		{
@@ -105,7 +106,7 @@ public class GameManager : MonoBehaviour
 			board.MakeMove(selectedMoves[0]);
 			BoardUI.Instance.UpdateBoard(board);
 			// Check if game has ended
-			if (board.moveGenerator.GenerateMoves().Count == 0)
+			if (board.moveGenerator.GenerateMoves().list.Count == 0)
 			{
 				// Check if king is in check
 				bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Board.ColorIndex(board.colorToMove)], board.oppositeColor);
@@ -163,7 +164,7 @@ public class GameManager : MonoBehaviour
 		else
 		{
 			// Check if the clicked square has any possible moves before selection it
-			var selectionMoves = board.moveGenerator.GenerateMoves().Where(move => move.from == clickedSquare).ToList();
+			var selectionMoves = board.moveGenerator.GenerateMoves().list.Where(move => move.from == clickedSquare).ToList();
 			var selectionHasMoves = selectionMoves.Count() > 0;
 			if (selectionHasMoves)
 			{

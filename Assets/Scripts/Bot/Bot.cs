@@ -23,7 +23,7 @@ namespace Bot
 			Bot bot = botType switch
 			{
 				BotType.RandomBot => new RandomBot(),
-				BotType.WhiteBoi => new WhiteBoi(depth: 5),
+				BotType.WhiteBoi => new WhiteBoi(depth: 6),
 				_ => null
 			};
 			if (bot == null)

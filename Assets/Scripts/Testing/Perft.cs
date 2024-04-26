@@ -67,7 +67,7 @@ namespace Chess.Testing
 			stopwatch.Start();
 			int total = 0;
 
-			foreach (Move m in board.moveGenerator.GenerateMoves())
+			foreach (Move m in board.moveGenerator.GenerateMoves().list)
 			{
 				board.MakeMove(m);
 				// TODO Handle writing promotion moves (i.e. a7a8r)
