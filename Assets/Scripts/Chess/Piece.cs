@@ -19,6 +19,7 @@ namespace Chess
 
 		// Get most significant two bits
 		public static int Color(int piece) => piece & 0b11000;
+		public static int ColorTo1Dig(int piece) => (piece & 0b11000)>>3;
 
 		// XY--- & 0b11000 = XY000. Check if that is equal to color
 		public static bool IsColor(int piece, int color) => Color(piece) == color;
