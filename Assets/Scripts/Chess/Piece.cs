@@ -16,6 +16,7 @@ namespace Chess
 
 		// Get least significant three bits
 		public static int Type(int piece) => piece & 0b00111;
+		public static int Type0To5(int piece) => (piece & 0b00111)-1;
 
 		// Get most significant two bits
 		public static int Color(int piece) => piece & 0b11000;

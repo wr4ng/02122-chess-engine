@@ -26,6 +26,8 @@ namespace Chess
 		public int halfMoveClock;
 		public int fullMoveNumber;
 
+		public Zobrist zobrist;
+
 		public static int ColorIndex(int color) => (color == Piece.White) ? 0 : 1;
 
 		public Board()
@@ -44,6 +46,7 @@ namespace Chess
 
 			halfMoveClock = 0;
 			fullMoveNumber = 0;
+			zobrist = new (this);
 		}
 
 		public static Board FromFEN(string fen)
