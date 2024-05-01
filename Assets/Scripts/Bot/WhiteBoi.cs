@@ -26,9 +26,9 @@ namespace Bot
         {
             //TODO Handle null
             if (depth == 0) return (new(), Evaluation.EvaluatePosition(board));
-            (List<Move> moves, MoveList movesList) = board.moveGenerator.GenerateMoves();
+            List<Move> moves = board.moveGenerator.GenerateMoves();
             // Handle check/stalemate
-            if (movesList.Count == 0)
+            if (moves.Count == 0)
             {
                 // Check if king is in check
                 bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Board.ColorIndex(board.colorToMove)], board.oppositeColor);
@@ -48,29 +48,9 @@ namespace Bot
             Move bestMove = new();
             if (moves.Count > 0) bestMove = moves[0];
             float maxEval = float.MinValue;
-            while (movesList.prevIndex < movesList.Count)
-            {
-                Move move = movesList.Get();
-                board.MakeMove(move);
-                (Move m, float score) = miniMaxBlackAB(board, depth - 1, alpha, beta);
-                if (score > alpha)
-                {
-                    alpha = score;
-                }
-                if (score > maxEval)
-                {
-                    bestMove = move;
-                    maxEval = score;
-                }
-                if (score >= beta)
-                {
-                    board.UndoPreviousMove();
-                    break;
-                }
-                board.UndoPreviousMove();
-            }
-            // foreach (Move move in moves)
+            // while (movesList.prevIndex < movesList.Count)
             // {
+            //     Move move = movesList.Get();
             //     board.MakeMove(move);
             //     (Move m, float score) = miniMaxBlackAB(board, depth - 1, alpha, beta);
             //     if (score > alpha)
@@ -89,6 +69,26 @@ namespace Bot
             //     }
             //     board.UndoPreviousMove();
             // }
+            foreach (Move move in moves)
+            {
+                board.MakeMove(move);
+                (Move m, float score) = miniMaxBlackAB(board, depth - 1, alpha, beta);
+                if (score > alpha)
+                {
+                    alpha = score;
+                }
+                if (score > maxEval)
+                {
+                    bestMove = move;
+                    maxEval = score;
+                }
+                if (score >= beta)
+                {
+                    board.UndoPreviousMove();
+                    break;
+                }
+                board.UndoPreviousMove();
+            }
             return (bestMove, maxEval);
         }
 
@@ -96,7 +96,7 @@ namespace Bot
         {
             //TODO Handle null move
             if (depth == 0) return (new(), Evaluation.EvaluatePosition(board));
-            (List<Move> moves, MoveList movesList) = board.moveGenerator.GenerateMoves();
+            List<Move> moves = board.moveGenerator.GenerateMoves();
             // Handle check/stalemate
             if (moves.Count == 0)
             {
@@ -118,26 +118,9 @@ namespace Bot
             Move bestMove = new();
             if (moves.Count > 0) bestMove = moves[0];
             float minEval = float.MaxValue;
-            while (movesList.prevIndex < movesList.Count)
-            {
-                Move move = movesList.Get();
-                board.MakeMove(move);
-                (Move m, float score) = miniMaxWhiteAB(board, depth - 1, alpha, beta);
-                if (score < beta) beta = score;
-                if (score < minEval)
-                {
-                    bestMove = move;
-                    minEval = score;
-                }
-                if (score <= alpha)
-                {
-                    board.UndoPreviousMove();
-                    break;
-                }
-                board.UndoPreviousMove();
-            }
-            // foreach (Move move in moves)
+            // while (movesList.prevIndex < movesList.Count)
             // {
+            //     Move move = movesList.Get();
             //     board.MakeMove(move);
             //     (Move m, float score) = miniMaxWhiteAB(board, depth - 1, alpha, beta);
             //     if (score < beta) beta = score;
@@ -153,6 +136,23 @@ namespace Bot
             //     }
             //     board.UndoPreviousMove();
             // }
+            foreach (Move move in moves)
+            {
+                board.MakeMove(move);
+                (Move m, float score) = miniMaxWhiteAB(board, depth - 1, alpha, beta);
+                if (score < beta) beta = score;
+                if (score < minEval)
+                {
+                    bestMove = move;
+                    minEval = score;
+                }
+                if (score <= alpha)
+                {
+                    board.UndoPreviousMove();
+                    break;
+                }
+                board.UndoPreviousMove();
+            }
             return (bestMove, minEval);
         }
     }

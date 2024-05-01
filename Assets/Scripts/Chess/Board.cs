@@ -339,7 +339,7 @@ namespace Chess
 			{
 				return 1;
 			}
-			var moves = moveGenerator.GenerateMoves().list;
+			var moves = moveGenerator.GenerateMoves();
 			if (depth == 1)
 			{
 				return moves.Count;

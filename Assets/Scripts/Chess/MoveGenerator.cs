@@ -30,15 +30,14 @@ namespace Chess
 		}
 
 		// Generate legal moves for the current position of board
-		public (List<Move> list, MoveList moveList) GenerateMoves()
+		public List<Move> GenerateMoves()
 		{
 			// Check the king positions for checks and pins
 			CheckKingPosition();
-			MoveList movesList = new MoveList();
-			List<Move> moves = GetKingMoves(movesList);
-
+			EasierMoveList movesList = new EasierMoveList();
+			GetKingMoves(movesList);
 			// If the number of checks is > 1, then only the king can move
-			if (checkers.Count > 1) { movesList.ConnectList(); return (moves, movesList); }
+			if (checkers.Count > 1) { movesList.ConnectList(); return movesList.GetList(); }
 
 			// Else, loop through all friendly pieces to generate their moves
 			//TODO Use piecelists?
@@ -52,21 +51,30 @@ namespace Chess
 					// Check type of piece and generate appropriate moves
 					int pieceType = Piece.Type(piece);
 
-					List<Move> pieceMoves = pieceType switch
+					switch (pieceType)
 					{
-						Piece.Pawn => GetPawnMoves((file, rank), movesList),
-						Piece.Knight => GetKnightMoves((file, rank), movesList),
-						Piece.Bishop => GetSlidingMoves((file, rank), pieceType, movesList),
-						Piece.Rook => GetSlidingMoves((file, rank), pieceType, movesList),
-						Piece.Queen => GetSlidingMoves((file, rank), pieceType, movesList),
-						_ => new() // Shouldn't be reached, as the piece has a color and isn't a king
-					};
-
-					moves.AddRange(pieceMoves);
+						case Piece.Pawn:
+							GetPawnMoves((file, rank), movesList);
+							break;
+						case Piece.Knight:
+							GetKnightMoves((file, rank), movesList);
+							break;
+						case Piece.Bishop:
+							GetSlidingMoves((file, rank), pieceType, movesList);
+							break;
+						case Piece.Rook:
+							GetSlidingMoves((file, rank), pieceType, movesList);
+							break;
+						case Piece.Queen:
+							GetSlidingMoves((file, rank), pieceType, movesList);
+							break;
+						default:
+							break;
+					}
 				}
 			}
 			movesList.ConnectList();
-			return (moves, movesList);
+			return movesList.GetList();
 		}
 
 		// TODO Keep track of blocking bitboard (where pieces can move to block a checker) and capture bitboard (checker location)
@@ -187,10 +195,8 @@ namespace Chess
 			}
 		}
 
-		public List<Move> GetKingMoves(MoveList movesList)
+		public void GetKingMoves(EasierMoveList movesList)
 		{
-			List<Move> kingMoves = new();
-
 			(int kingFile, int kingRank) = board.kingSquares[Board.ColorIndex(board.colorToMove)];
 
 			for (int i = 0; i < kingDirections.Length; i++)
@@ -207,22 +213,19 @@ namespace Chess
 					if (!IsAttacked((file, rank), board.oppositeColor))
 					{
 						movesList.Insert(new Move((kingFile, kingRank), (file, rank), board.squares[file, rank]));
-						kingMoves.Add(new Move((kingFile, kingRank), (file, rank), board.squares[file, rank]));
 					}
 				}
 			}
 			// Add castle moves if king is not in check
 			if (checkers.Count == 0)
 			{
-				kingMoves.AddRange(GetCastleMoves(movesList));
+				GetCastleMoves(movesList);
 			}
-			return kingMoves;
 		}
 
 		//TODO Split into two method (GetPawnForwardMoves and GetPawnAttackMoves)
-		public List<Move> GetPawnMoves((int file, int rank) square, MoveList movesList)
+		public void GetPawnMoves((int file, int rank) square, EasierMoveList movesList)
 		{
-			List<Move> moves = new();
 
 			bool isPinned = pinned.Contains(square);
 			(int dx, int dy) dirToKing = (0, 0);
@@ -247,12 +250,11 @@ namespace Chess
 					{
 						if (square.rank + forward == 0 || square.rank + forward == 7)
 						{
-							moves.AddRange(GetPromotionMoves(square, (square.file, square.rank + forward), board.squares[square.file, square.rank + forward], movesList, true));
+							GetPromotionMoves(square, (square.file, square.rank + forward), board.squares[square.file, square.rank + forward], movesList, true);
 						}
 						else
 						{
 							movesList.Insert(new Move(square, (square.file, square.rank + forward), board.squares[square.file, square.rank + forward]));
-							moves.Add(new Move(square, (square.file, square.rank + forward), board.squares[square.file, square.rank + forward]));
 						}
 					}
 					// Double forward move
@@ -263,7 +265,6 @@ namespace Chess
 						if (!doubleBlocked && BitBoard.HasOne(blockBitboard, square.file, square.rank + 2 * forward))
 						{
 							movesList.Insert(new Move(square, (square.file, square.rank + 2 * forward), board.squares[square.file, square.rank + 2 * forward]));
-							moves.Add(new Move(square, (square.file, square.rank + 2 * forward), board.squares[square.file, square.rank + 2 * forward]));
 						}
 					}
 				}
@@ -294,7 +295,6 @@ namespace Chess
 					if (!IsAttacked(board.kingSquares[Board.ColorIndex(board.oppositeColor)], board.colorToMove))
 					{
 						movesList.InsertCapture(ep);
-						moves.Add(ep);
 					}
 					board.UndoPreviousMove();
 				}
@@ -307,40 +307,31 @@ namespace Chess
 				// Check if pawn is moving to back rank, then add promotion moves
 				else if (rank == 0 || rank == 7)
 				{
-					moves.AddRange(GetPromotionMoves(square, (file, rank), board.squares[file, rank], movesList));
+					GetPromotionMoves(square, (file, rank), board.squares[file, rank], movesList);
 				}
 				else
 				{
 					movesList.InsertCapture(new Move(square, (file, rank), board.squares[file, rank]));
-					moves.Add(new Move(square, (file, rank), board.squares[file, rank]));
 				}
 			}
-			return moves;
 		}
 
-		public List<Move> GetPromotionMoves((int, int) from, (int, int) to, int capturedPiece, MoveList movesList, bool includeAllPromotions = true)
+		public void GetPromotionMoves((int, int) from, (int, int) to, int capturedPiece, EasierMoveList movesList, bool includeAllPromotions = true)
 		{
-			List<Move> promotionMoves = new()
-			{
-				new Move(from, to, capturedPiece, Piece.Queen),
-				new Move(from, to, capturedPiece, Piece.Knight)
-			};
 			movesList.InsertCapture(new Move(from, to, capturedPiece, Piece.Queen));
 			movesList.InsertCapture(new Move(from, to, capturedPiece, Piece.Knight));
 			// Bishop and Rook promotions are never better than Queen promotion. Parameter used to exclude them from bot search
 			if (includeAllPromotions)
 			{
-				promotionMoves.Add(new Move(from, to, capturedPiece, Piece.Bishop));
-				promotionMoves.Add(new Move(from, to, capturedPiece, Piece.Rook));
+				movesList.InsertCapture(new Move(from, to, capturedPiece, Piece.Bishop));
+				movesList.InsertCapture(new Move(from, to, capturedPiece, Piece.Rook));
 			}
-			return promotionMoves;
 		}
 
-		public List<Move> GetKnightMoves((int file, int rank) square, MoveList movesList)
+		public void GetKnightMoves((int file, int rank) square, EasierMoveList movesList)
 		{
-			List<Move> moves = new();
 			// If this knight is pinned, then it cannot move
-			if (pinned.Contains(square)) return moves;
+			if (pinned.Contains(square)) return;
 			// Else add precomputed moves
 			foreach ((int file, int rank) in PrecomputedData.knightMoves[square.file, square.rank])
 			{
@@ -353,16 +344,13 @@ namespace Chess
 						// To check capture check Piece.Color(board.squares[file, rank]) == board.oppositeColor
 						Move move = new Move(square, (file, rank), board.squares[file, rank]);
 						if (Piece.Color(board.squares[file, rank]) == board.oppositeColor) movesList.InsertCapture(move); else movesList.Insert(move);
-						moves.Add(move);
 					}
 				}
 			}
-			return moves;
 		}
 
-		public List<Move> GetSlidingMoves((int file, int rank) square, int pieceType, MoveList movesList)
+		public void GetSlidingMoves((int file, int rank) square, int pieceType, EasierMoveList movesList)
 		{
-			List<Move> moves = new();
 			// Diagonals start at 0 and alternates
 			// Orthogonals start at 1 and alternates
 			int startIndex = (pieceType == Piece.Rook) ? 1 : 0;
@@ -395,7 +383,6 @@ namespace Chess
 						if (BitBoard.HasOne(blockBitboard, file, rank))
 						{
 							movesList.Insert(new Move(square, (file, rank), board.squares[file, rank]));
-							moves.Add(new Move(square, (file, rank), board.squares[file, rank]));
 						}
 						continue;
 					}
@@ -407,19 +394,15 @@ namespace Chess
 					if (BitBoard.HasOne(captureBitboard, file, rank))
 					{
 						movesList.InsertCapture(new Move(square, (file, rank), board.squares[file, rank]));
-						moves.Add(new Move(square, (file, rank), board.squares[file, rank]));
 					}
 					// Stop looking in this direction
 					break;
 				}
 			}
-			return moves;
 		}
 
-		public List<Move> GetCastleMoves(MoveList movesList)
+		public void GetCastleMoves(EasierMoveList movesList)
 		{
-			List<Move> moves = new();
-
 			(int file, int rank) kingSquare = board.kingSquares[Board.ColorIndex(board.colorToMove)];
 
 			if (board.colorToMove == Piece.White)
@@ -433,7 +416,6 @@ namespace Chess
 					if (canCastle)
 					{
 						movesList.Insert(new Move(kingSquare, (6, 0), Piece.None, isCastle: true));
-						moves.Add(new Move(kingSquare, (6, 0), Piece.None, isCastle: true));
 					}
 				}
 				// Queenside
@@ -446,7 +428,6 @@ namespace Chess
 					if (canCastle)
 					{
 						movesList.Insert(new Move(kingSquare, (2, 0), Piece.None, isCastle: true));
-						moves.Add(new Move(kingSquare, (2, 0), Piece.None, isCastle: true));
 					}
 				}
 			}
@@ -462,7 +443,6 @@ namespace Chess
 					if (canCastle)
 					{
 						movesList.Insert(new Move(kingSquare, (6, 7), Piece.None, isCastle: true));
-						moves.Add(new Move(kingSquare, (6, 7), Piece.None, isCastle: true));
 					}
 				}
 				// Queenside
@@ -475,11 +455,9 @@ namespace Chess
 					if (canCastle)
 					{
 						movesList.Insert(new Move(kingSquare, (2, 7), Piece.None, isCastle: true));
-						moves.Add(new Move(kingSquare, (2, 7), Piece.None, isCastle: true));
 					}
 				}
 			}
-			return moves;
 		}
 
 		//TODO Use bitboards to check for pawns, knights and kings. Use directions for queen/bishop/rook (i don't like Magic Numbers TM)

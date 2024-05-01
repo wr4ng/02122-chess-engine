@@ -60,14 +60,16 @@ public class PawnTests
 		List<Move> pawnMoves = TestUtil.FilterForPieceType(legalMoves, Piece.Pawn, board);
 
 		Assert.AreEqual(4, pawnMoves.Count);
+		// Captures first
 		Assert.AreEqual((6, 1), pawnMoves[0].from);
-		Assert.AreEqual((6, 2), pawnMoves[0].to);
+		Assert.AreEqual((5, 2), pawnMoves[0].to);
 		Assert.AreEqual((6, 1), pawnMoves[1].from);
-		Assert.AreEqual((6, 3), pawnMoves[1].to);
+		Assert.AreEqual((7, 2), pawnMoves[1].to);
+		// Non-captures
 		Assert.AreEqual((6, 1), pawnMoves[2].from);
-		Assert.AreEqual((5, 2), pawnMoves[2].to);
+		Assert.AreEqual((6, 2), pawnMoves[2].to);
 		Assert.AreEqual((6, 1), pawnMoves[3].from);
-		Assert.AreEqual((7, 2), pawnMoves[3].to);
+		Assert.AreEqual((6, 3), pawnMoves[3].to);
 	}
 
 	[TestMethod]

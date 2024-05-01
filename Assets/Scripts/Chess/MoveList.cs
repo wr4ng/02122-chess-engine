@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Chess
 {
@@ -90,9 +89,12 @@ namespace Chess
         }
         public void ConnectList()
         {
-            captures.Concat(rest);
-            checks.Concat(captures);
+            captures.AddRange(rest);
+            checks.AddRange(captures);
             moves = checks;
+        }
+        public List<Move> GetList(){
+            return moves;
         }
     }
 
