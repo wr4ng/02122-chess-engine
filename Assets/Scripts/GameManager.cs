@@ -90,7 +90,6 @@ public class GameManager : MonoBehaviour
 	// Try to perform a move from start to end, returning whether the move was performed or not
 	public bool TryMove((int file, int rank) start, (int file, int rank) end)
 	{
-		UnityEngine.Debug.Log($"{board.moveGenerator.GenerateMoves().Count}");
 		var selectedMoves = board.moveGenerator.GenerateMoves().Where(move => move.from == start && move.to == end).ToList();
 		// TODO Handle promotion, since start and end are the same
 		if (selectedMoves.Count == 0)
