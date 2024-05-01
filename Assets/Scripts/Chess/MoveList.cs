@@ -71,9 +71,9 @@ namespace Chess
     public class EasierMoveList
     {
         public List<Move> checks = new List<Move>();
-        public List<Move> captures = new List<Move>();
-        public List<Move> rest = new List<Move>();
-        public List<Move> moves = new List<Move>();
+        public List<Move> captures = new List<Move>(64);
+        public List<Move> rest = new List<Move>(64);
+        public List<Move> moves;
 
         public void InsertCheck(Move move)
         {
@@ -89,9 +89,10 @@ namespace Chess
         }
         public void ConnectList()
         {
-            captures.AddRange(rest);
-            checks.AddRange(captures);
-            moves = checks;
+            moves = new List<Move>(checks.Count + captures.Count + rest.Count);
+            moves.AddRange(checks);
+            moves.AddRange(captures);
+            moves.AddRange(rest);
         }
         public List<Move> GetList(){
             return moves;
