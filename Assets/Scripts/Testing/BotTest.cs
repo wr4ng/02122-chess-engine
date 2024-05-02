@@ -10,7 +10,7 @@ namespace Chess.Testing
 
 		public void TestWhiteBoi()
 		{
-			for (int depth = 1; depth <= 6; depth++)
+			for (int depth = 1; depth <= 7; depth++)
 			{
 				Board board = Board.FromFEN(fen);
 				UnityEngine.Debug.Log($"Testing board position: {fen}");

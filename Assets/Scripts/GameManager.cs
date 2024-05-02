@@ -100,7 +100,7 @@ public class GameManager : MonoBehaviour
 		}
 		else
 		{
-			// Use first move with matching start and end
+			// Use first move with matching start and end 
 			// TODO Handle promotion
 			board.MakeMove(selectedMoves[0]);
 			BoardUI.Instance.UpdateBoard(board);
