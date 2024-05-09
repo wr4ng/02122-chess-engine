@@ -54,6 +54,18 @@ public class ZobristTests
 	}
 
 	[TestMethod]
+	public void ZobristClearEnPassant()
+	{
+		Board board = Board.FromFEN("rnbqkbnr/p3pppp/8/1pP5/8/8/PP1PPPPP/RNBQKBNR w KQkq b6 0 1");
+		Move move = new Move((3, 0), (1, 2)); // Qb2
+
+		board.MakeMove(move);
+		ulong updatedHash = board.hash;
+
+		Assert.AreEqual(Zobrist.GenerateHash(board), updatedHash);
+	}
+
+	[TestMethod]
 	public void ZobristCastling()
 	{
 		Board board = Board.FromFEN("rn1qk2r/pp2ppbp/2p1bnp1/3p4/P2P3N/6P1/1PPNPPBP/R1BQK2R w KQkq - 1 8");
