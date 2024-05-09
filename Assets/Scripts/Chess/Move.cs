@@ -8,27 +8,14 @@ namespace Chess
 		public bool isEnPassantCapture;
 		public bool isCastle;
 
-		//TODO Make 1 constructor with optional arguments for capturedPiece, promotionType, EP and castle
-		// Standard Move constructor
-		public Move((int file, int rank) from, (int file, int rank) to, int capturedPiece = Piece.None, bool isEnPassantCapture = false, bool isCastle = false)
-		{
-			this.from = from;
-			this.to = to;
-			this.capturedPiece = capturedPiece;
-			promotionType = Piece.None;
-			this.isEnPassantCapture = isEnPassantCapture;
-			this.isCastle = isCastle;
-		}
-
-		// Used for promotion moves
-		public Move((int file, int rank) from, (int file, int rank) to, int capturedPiece, int promotionType)
+		public Move((int file, int rank) from, (int file, int rank) to, int capturedPiece = Piece.None, bool isEnPassantCapture = false, bool isCastle = false, int promotionType = Piece.None)
 		{
 			this.from = from;
 			this.to = to;
 			this.capturedPiece = capturedPiece;
 			this.promotionType = promotionType;
-			isEnPassantCapture = false;
-			isCastle = false;
+			this.isEnPassantCapture = isEnPassantCapture;
+			this.isCastle = isCastle;
 		}
 
 		public override readonly string ToString() => $"Move: {from} -> {to}. Capture: {Piece.ToString(capturedPiece)}. Promotion: {Piece.ToString(promotionType)}. En Passant Capture: {isEnPassantCapture}. Castle: {isCastle}";

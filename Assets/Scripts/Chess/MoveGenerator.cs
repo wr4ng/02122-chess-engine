@@ -318,13 +318,13 @@ namespace Chess
 
 		public void GetPromotionMoves((int, int) from, (int, int) to, int capturedPiece, EasierMoveList movesList, bool includeAllPromotions = true)
 		{
-			movesList.InsertCapture(new Move(from, to, capturedPiece, Piece.Queen));
-			movesList.InsertCapture(new Move(from, to, capturedPiece, Piece.Knight));
+			movesList.InsertCapture(new Move(from, to, capturedPiece: capturedPiece, promotionType: Piece.Queen));
+			movesList.InsertCapture(new Move(from, to, capturedPiece: capturedPiece, promotionType: Piece.Knight));
 			// Bishop and Rook promotions are never better than Queen promotion. Parameter used to exclude them from bot search
 			if (includeAllPromotions)
 			{
-				movesList.InsertCapture(new Move(from, to, capturedPiece, Piece.Bishop));
-				movesList.InsertCapture(new Move(from, to, capturedPiece, Piece.Rook));
+				movesList.InsertCapture(new Move(from, to, capturedPiece: capturedPiece, promotionType: Piece.Bishop));
+				movesList.InsertCapture(new Move(from, to, capturedPiece: capturedPiece, promotionType: Piece.Rook));
 			}
 		}
 

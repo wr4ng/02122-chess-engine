@@ -81,7 +81,7 @@ public class ZobristTests
 	public void ZobristPromotion()
 	{
 		Board board = Board.FromFEN("8/8/2P5/K7/5p1k/8/3pP3/8 b - - 0 1");
-		Move move = new Move((3, 1), (3, 0), Piece.None, Piece.Knight); //d1N
+		Move move = new Move((3, 1), (3, 0), promotionType: Piece.Knight); //d1N
 
 		board.MakeMove(move);
 		ulong updatedHash = board.hash;
