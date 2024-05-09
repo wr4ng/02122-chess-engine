@@ -81,7 +81,7 @@ namespace Chess
 		public void CheckKingPosition()
 		{
 			// Check attack data around king
-			(int kingFile, int kingRank) = board.kingSquares[Board.ColorIndex(board.colorToMove)];
+			(int kingFile, int kingRank) = board.kingSquares[Piece.ColorIndex(board.colorToMove)];
 
 			// Which spaces we for sure know are attacked around the king after checking in each direction (to avoid re-calculating the squares in move generation)
 			attackedAroundKing = new bool[8] { false, false, false, false, false, false, false, false };
@@ -175,7 +175,7 @@ namespace Chess
 			// Check for pawns
 			for (int i = 0; i < pawnDirections.GetLength(1); i++)
 			{
-				var (dx, dy) = pawnDirections[Board.ColorIndex(board.colorToMove), i];
+				var (dx, dy) = pawnDirections[Piece.ColorIndex(board.colorToMove), i];
 				(int file, int rank) = (kingFile + dx, kingRank + dy);
 				// If outside board, continue
 				if (!(0 <= file && file < 8 && 0 <= rank && rank < 8)) continue;
@@ -197,7 +197,7 @@ namespace Chess
 
 		public void GetKingMoves(EasierMoveList movesList)
 		{
-			(int kingFile, int kingRank) = board.kingSquares[Board.ColorIndex(board.colorToMove)];
+			(int kingFile, int kingRank) = board.kingSquares[Piece.ColorIndex(board.colorToMove)];
 
 			for (int i = 0; i < kingDirections.Length; i++)
 			{
@@ -231,11 +231,11 @@ namespace Chess
 			(int dx, int dy) dirToKing = (0, 0);
 			if (isPinned)
 			{
-				dirToKing = GetDirection(square, board.kingSquares[Board.ColorIndex(board.colorToMove)]);
+				dirToKing = GetDirection(square, board.kingSquares[Piece.ColorIndex(board.colorToMove)]);
 			}
 			// Forward moves
 			// If pinned, can only possily move forward if king is on the same file
-			bool canMoveForward = !isPinned || (square.file == board.kingSquares[Board.ColorIndex(board.colorToMove)].file);
+			bool canMoveForward = !isPinned || (square.file == board.kingSquares[Piece.ColorIndex(board.colorToMove)].file);
 			if (canMoveForward)
 			{
 				int forward = board.colorToMove == Piece.White ? 1 : -1;
@@ -272,7 +272,7 @@ namespace Chess
 			// Capture moves
 			for (int i = 0; i < pawnDirections.GetLength(1); i++)
 			{
-				var (dx, dy) = pawnDirections[Board.ColorIndex(board.colorToMove), i];
+				var (dx, dy) = pawnDirections[Piece.ColorIndex(board.colorToMove), i];
 				(int file, int rank) = (square.file + dx, square.rank + dy);
 				// If outside board, continue
 				if (!Util.InsideBoard(file, rank)) continue;
@@ -292,7 +292,7 @@ namespace Chess
 					//TODO Could possibly do it by checking if king is on same rank, and checking for sliding piece ignoring this pawn and the pawn to be captured
 					Move ep = new Move(square, (file, rank), piece, isEnPassantCapture: true);
 					board.MakeMove(ep);
-					if (!IsAttacked(board.kingSquares[Board.ColorIndex(board.oppositeColor)], board.colorToMove))
+					if (!IsAttacked(board.kingSquares[Piece.ColorIndex(board.oppositeColor)], board.colorToMove))
 					{
 						movesList.InsertCapture(ep);
 					}
@@ -365,7 +365,7 @@ namespace Chess
 				// If the piece is pinned, it can only move towards or away from it's king
 				if (isPinned)
 				{
-					var dirToKing = GetDirection(square, board.kingSquares[Board.ColorIndex(board.colorToMove)]);
+					var dirToKing = GetDirection(square, board.kingSquares[Piece.ColorIndex(board.colorToMove)]);
 					bool movingTowardsKing = dirToKing == (dx, dy) || dirToKing == (-dx, -dy);
 					if (!movingTowardsKing) continue;
 				}
@@ -403,7 +403,7 @@ namespace Chess
 
 		public void GetCastleMoves(EasierMoveList movesList)
 		{
-			(int file, int rank) kingSquare = board.kingSquares[Board.ColorIndex(board.colorToMove)];
+			(int file, int rank) kingSquare = board.kingSquares[Piece.ColorIndex(board.colorToMove)];
 
 			if (board.colorToMove == Piece.White)
 			{
@@ -475,7 +475,7 @@ namespace Chess
 			// Check for pawns
 			for (int i = 0; i < pawnDirections.GetLength(1); i++)
 			{
-				var (dx, dy) = pawnDirections[Board.ColorIndex(Piece.OppositeColor(attackingColor)), i];
+				var (dx, dy) = pawnDirections[Piece.ColorIndex(Piece.OppositeColor(attackingColor)), i];
 				(int file, int rank) = (square.file + dx, square.rank + dy);
 				// If outside board, continue
 				if (!(0 <= file && file < 8 && 0 <= rank && rank < 8)) continue;

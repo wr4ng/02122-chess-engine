@@ -100,7 +100,7 @@ public class GameManager : MonoBehaviour
 		}
 		else
 		{
-			// Use first move with matching start and end 
+			// Use first move with matching start and end
 			// TODO Handle promotion
 			board.MakeMove(selectedMoves[0]);
 			BoardUI.Instance.UpdateBoard(board);
@@ -108,7 +108,7 @@ public class GameManager : MonoBehaviour
 			if (board.moveGenerator.GenerateMoves().Count == 0)
 			{
 				// Check if king is in check
-				bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Board.ColorIndex(board.colorToMove)], board.oppositeColor);
+				bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Piece.ColorIndex(board.colorToMove)], board.oppositeColor);
 				if (kingAttacked)
 				{
 					// Checkmate

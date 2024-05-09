@@ -22,13 +22,13 @@ namespace Chess
 		public CastlingRights castlingRights;
 		public Stack<CastlingRights> previousCastlingRights;
 
+		// Zobrist
+		public ulong hash;
+		public Stack<ulong> previousHashes;
+
 		// TODO Draw
 		public int halfMoveClock;
 		public int fullMoveNumber;
-
-		public Zobrist zobrist;
-
-		public static int ColorIndex(int color) => (color == Piece.White) ? 0 : 1;
 
 		public Board()
 		{
@@ -44,9 +44,11 @@ namespace Chess
 			castlingRights = CastlingRights.None;
 			previousCastlingRights = new();
 
+			hash = 0;
+			previousHashes = new();
+
 			halfMoveClock = 0;
 			fullMoveNumber = 0;
-			zobrist = new (this);
 		}
 
 		public static Board FromFEN(string fen)
@@ -103,7 +105,7 @@ namespace Chess
 					// Save king positions
 					if (type == Piece.King)
 					{
-						board.kingSquares[ColorIndex(color)] = (file, rank);
+						board.kingSquares[Piece.ColorIndex(color)] = (file, rank);
 						// Increment number of kings
 						if (color == Piece.White)
 							numWhiteKings++;
@@ -134,6 +136,10 @@ namespace Chess
 			board.enPassantSquare = FEN.ParseEnPassant(fenParts[3]);
 			board.halfMoveClock = FEN.ParseHalfmoveClock(fenParts[4]);
 			board.fullMoveNumber = FEN.ParseFullmoveNumber(fenParts[5]);
+
+			// Calculate zobrist hash
+			board.hash = Zobrist.GenerateHash(board);
+
 			return board;
 		}
 
@@ -176,36 +182,64 @@ namespace Chess
 
 		public void MakeMove(Move move)
 		{
+			// Push previous hash to stack
+			previousHashes.Push(hash);
+			//TODO Update hash
+
 			int piece = squares[move.from.file, move.from.rank];
-			// Move piece
+
+			// Remove piece from starting square
 			squares[move.from.file, move.from.rank] = Piece.None;
-			squares[move.to.file, move.to.rank] = piece;
+			hash ^= Zobrist.pieces[Piece.ColorIndex(piece), Piece.TypeIndex(piece), move.from.file, move.from.rank];
 
 			// Handle promotion
 			if (move.promotionType != Piece.None)
 			{
+				// Add promoted piece to move.to
 				squares[move.to.file, move.to.rank] = colorToMove | move.promotionType;
+				hash ^= Zobrist.pieces[Piece.ColorIndex(colorToMove), Piece.TypeIndex(move.promotionType), move.to.file, move.to.rank];
 			}
+			else
+			{
+				// Add moved piece to move.to
+				squares[move.to.file, move.to.rank] = piece;
+				hash ^= Zobrist.pieces[Piece.ColorIndex(piece), Piece.TypeIndex(piece), move.to.file, move.to.rank];
+			}
+
+			// Handle non-ep capture (Zobrist)
+			if (move.capturedPiece != Piece.None && !move.isEnPassantCapture)
+			{
+				// Remove captured piece from zobrist
+				hash ^= Zobrist.pieces[Piece.ColorIndex(oppositeColor), Piece.TypeIndex(move.capturedPiece), move.to.file, move.to.rank];
+			}
+
 			// En Passant
 			// Add previous EP square to stack
 			previousEnPassantSquares.Push(enPassantSquare);
-			// If current move is double pawn move, set en Passant square (is piece is pawn is moves 2 ranks)
+			// If we previously had EP square, remove it from hash
+			if (enPassantSquare != (-1, -1))
+			{
+				hash ^= Zobrist.enpassant[enPassantSquare.file];
+			}
+			// If current move is double pawn move, set en Passant square (if piece is pawn and moves 2 ranks)
 			bool doublePawnMove = (Piece.Type(piece) == Piece.Pawn) && (System.Math.Abs(move.from.rank - move.to.rank) == 2);
 			if (doublePawnMove)
 			{
 				enPassantSquare = (move.from.file, move.from.rank + (colorToMove == Piece.White ? 1 : -1));
+				hash ^= Zobrist.enpassant[move.from.file];
 			}
 			else
 			{
 				enPassantSquare = (-1, -1);
 			}
+
 			// Check for en Passant capture
 			if (move.isEnPassantCapture)
 			{
 				// Remove pawn 1 below move.to
 				int forward = colorToMove == Piece.White ? 1 : -1;
 				squares[move.to.file, move.to.rank - forward] = Piece.None;
-
+				hash ^= Zobrist.pieces[Piece.ColorIndex(oppositeColor), Piece.TypeIndex(Piece.Pawn), move.to.file, move.to.rank - forward];
 			}
 			// If castle, also move rook
 			if (move.isCastle)
@@ -220,45 +254,54 @@ namespace Chess
 					// Move rook
 					squares[7, kingRank] = Piece.None;
 					squares[5, kingRank] = colorToMove | Piece.Rook;
+					hash ^= Zobrist.pieces[Piece.ColorIndex(colorToMove), Piece.TypeIndex(Piece.Rook), 7, kingRank];
+					hash ^= Zobrist.pieces[Piece.ColorIndex(colorToMove), Piece.TypeIndex(Piece.Rook), 5, kingRank];
 				}
 				else
 				{
 					// Move rook
 					squares[0, kingRank] = Piece.None;
 					squares[3, kingRank] = colorToMove | Piece.Rook;
+					hash ^= Zobrist.pieces[Piece.ColorIndex(colorToMove), Piece.TypeIndex(Piece.Rook), 0, kingRank];
+					hash ^= Zobrist.pieces[Piece.ColorIndex(colorToMove), Piece.TypeIndex(Piece.Rook), 3, kingRank];
 				}
 			}
 			// Add previous castling rights to stack
 			previousCastlingRights.Push(castlingRights);
 			// Calculate new castling rights
-			// If the king moves, remove all castling rights for it
-			if (Piece.Type(piece) == Piece.King)
-			{
-				if (colorToMove == Piece.White)
-					castlingRights = castlingRights.ClearRights(CastlingRights.AllWhite);
-				else
-					castlingRights = castlingRights.ClearRights(CastlingRights.AllBlack);
-			}
-			// If any piece moves to or from one of the corners, remove the corresponding castling right (ie. rook being captured or moved)
+			// If any piece moves to or from one of the corners, or the king moves, remove the corresponding castling right (ie. rook being captured or moved)
 			// White Kingside
-			if (move.from == (7, 0) || move.to == (7, 0))
+			if (castlingRights.HasFlag(CastlingRights.WhiteKingside) && ((colorToMove == Piece.White && Piece.Type(piece) == Piece.King) || move.from == (7, 0) || move.to == (7, 0)))
+			{
 				castlingRights = castlingRights.ClearRights(CastlingRights.WhiteKingside);
+				hash ^= Zobrist.castle[0];
+			}
 			// White Queenside
-			if (move.from == (0, 0) || move.to == (0, 0))
+			if (castlingRights.HasFlag(CastlingRights.WhiteQueenside) && ((colorToMove == Piece.White && Piece.Type(piece) == Piece.King) || move.from == (0, 0) || move.to == (0, 0)))
+			{
 				castlingRights = castlingRights.ClearRights(CastlingRights.WhiteQueenside);
+				hash ^= Zobrist.castle[1];
+			}
 			// Black Kingside
-			if (move.from == (7, 7) || move.to == (7, 7))
+			if (castlingRights.HasFlag(CastlingRights.BlackKingside) && ((colorToMove == Piece.Black && Piece.Type(piece) == Piece.King) || move.from == (7, 7) || move.to == (7, 7)))
+			{
 				castlingRights = castlingRights.ClearRights(CastlingRights.BlackKingside);
+				hash ^= Zobrist.castle[2];
+			}
 			// Black Queenside
-			if (move.from == (0, 7) || move.to == (0, 7))
+			if (castlingRights.HasFlag(CastlingRights.BlackQueenside) && ((colorToMove == Piece.Black && Piece.Type(piece) == Piece.King) || move.from == (0, 7) || move.to == (0, 7)))
+			{
 				castlingRights = castlingRights.ClearRights(CastlingRights.BlackQueenside);
+				hash ^= Zobrist.castle[3];
+			}
 			// Update king position
 			if (Piece.Type(piece) == Piece.King)
 			{
-				kingSquares[ColorIndex(colorToMove)] = move.to;
+				kingSquares[Piece.ColorIndex(colorToMove)] = move.to;
 			}
 			// Swap player
 			colorToMove = oppositeColor;
+			hash ^= Zobrist.side;
 			// Add move to stack of played moves
 			playedMoves.Push(move);
 		}
@@ -270,7 +313,7 @@ namespace Chess
 			bool matchesTopMove = hasMoves && move.Equals(topMove);
 			if (!matchesTopMove)
 			{
-				throw new System.ArgumentException($"Trying to unmake move which isn't the top move!\nPlayoed: {move}\nTop: {topMove}");
+				throw new System.ArgumentException($"Trying to unmake move which isn't the top move!\nPlayed: {move}\nTop: {topMove}");
 			}
 			// If it does match, remove it from the stack
 			playedMoves.Pop();
@@ -297,7 +340,7 @@ namespace Chess
 			// Update king square
 			if (Piece.Type(piece) == Piece.King)
 			{
-				kingSquares[ColorIndex(oppositeColor)] = move.from;
+				kingSquares[Piece.ColorIndex(oppositeColor)] = move.from;
 			}
 			//If castle, move rook back
 			if (move.isCastle)
@@ -325,6 +368,9 @@ namespace Chess
 
 			// Swap player
 			colorToMove = oppositeColor;
+
+			// Set previous hash
+			hash = previousHashes.Pop();
 		}
 
 		public void UndoPreviousMove()

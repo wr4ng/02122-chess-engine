@@ -31,7 +31,7 @@ namespace Bot
             if (moves.Count == 0)
             {
                 // Check if king is in check
-                bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Board.ColorIndex(board.colorToMove)], board.oppositeColor);
+                bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Piece.ColorIndex(board.colorToMove)], board.oppositeColor);
                 if (kingAttacked)
                 {
                     // No moves + king attacked = checkmate
@@ -101,7 +101,7 @@ namespace Bot
             if (moves.Count == 0)
             {
                 // Check if king is in check
-                bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Board.ColorIndex(board.colorToMove)], board.oppositeColor);
+                bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Piece.ColorIndex(board.colorToMove)], board.oppositeColor);
                 if (kingAttacked)
                 {
                     // No moves + king attacked = checkmate

@@ -16,11 +16,11 @@ namespace Chess
 
 		// Get least significant three bits
 		public static int Type(int piece) => piece & 0b00111;
-		public static int Type0To5(int piece) => (piece & 0b00111)-1;
+		public static int TypeIndex(int piece) => (piece & 0b00111) - 1;
 
 		// Get most significant two bits
 		public static int Color(int piece) => piece & 0b11000;
-		public static int ColorTo1Dig(int piece) => (piece & 0b11000)>>3;
+		public static int ColorIndex(int piece) => (Color(piece) == White) ? 0 : 1;
 
 		// XY--- & 0b11000 = XY000. Check if that is equal to color
 		public static bool IsColor(int piece, int color) => Color(piece) == color;

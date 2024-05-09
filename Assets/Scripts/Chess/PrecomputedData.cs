@@ -17,7 +17,7 @@ namespace Chess
 		{
 			ComputeSquaresToEdge();
 			ComputeKnightMoves();
-			Zobrist.ZobristValues();
+			Zobrist.Initialize();
 			//TODO Precompute pawn and king moves?
 		}
 
