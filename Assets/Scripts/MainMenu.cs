@@ -1,3 +1,4 @@
+using System;
 using Bot;
 using Chess;
 using TMPro;
@@ -21,8 +22,30 @@ public class MainMenu : MonoBehaviour
 	[SerializeField] private GameObject optionsMenu;
 	[SerializeField] private GameObject testingMenu;
 
+	[SerializeField] private TMP_Text whiteBoiText;
+
 	[SerializeField, Tooltip("Input field to pass on FEN or PGN notation")]
 	private TMP_InputField fenInputField;
+
+	private int botDepth = 5;
+
+	private void Update()
+	{
+		if (playMenu.activeInHierarchy)
+		{
+			if (Input.GetKeyDown(KeyCode.LeftArrow))
+			{
+				botDepth--;
+			}
+			else if (Input.GetKeyDown(KeyCode.RightArrow))
+			{
+				botDepth++;
+			}
+			// TODO Define some max depth
+			botDepth = Math.Clamp(botDepth, 1, 10);
+			whiteBoiText.text = $"WhiteBoi({botDepth})";
+		}
+	}
 
 	public void PlayGame()
 	{
@@ -52,6 +75,7 @@ public class MainMenu : MonoBehaviour
 	{
 		GameManager.againstBot = true;
 		GameManager.botType = (BotType)botType;
+		GameManager.botDepth = botDepth;
 
 		PlayGame();
 	}

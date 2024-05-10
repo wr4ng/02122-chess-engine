@@ -18,12 +18,12 @@ namespace Bot
 
 	public static class BotTypesExtensions
 	{
-		public static Bot CreateBot(this BotType botType)
+		public static Bot CreateBot(this BotType botType, int depth)
 		{
 			Bot bot = botType switch
 			{
 				BotType.RandomBot => new RandomBot(),
-				BotType.WhiteBoi => new WhiteBoi(depth: 6),
+				BotType.WhiteBoi => new WhiteBoi(depth),
 				_ => null
 			};
 			if (bot == null)

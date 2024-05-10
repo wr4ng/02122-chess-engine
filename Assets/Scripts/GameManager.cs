@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
 	public static string IMPORT_FEN = string.Empty;
 	public static bool againstBot = false;
 	public static BotType botType = BotType.RandomBot;
+	public static int botDepth = 5;
 
 	private Board board;
 	public Bot.Bot bot;
@@ -66,7 +67,7 @@ public class GameManager : MonoBehaviour
 		// Initialize Bot if against Bot
 		if (againstBot)
 		{
-			bot = botType.CreateBot();
+			bot = botType.CreateBot(botDepth);
 			Debug.Log($"Playing against: {botType}");
 		}
 	}
@@ -87,6 +88,7 @@ public class GameManager : MonoBehaviour
 			botIsDone = false;
 			board.MakeMove(botMove);
 			BoardUI.Instance.UpdateBoard(board);
+			//TODO Check if game has ended
 		}
 
 		UpdateSelectedPromotion();
