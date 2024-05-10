@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using Chess;
 using Bot;
 using UnityEngine;
@@ -25,6 +26,8 @@ public class GameManager : MonoBehaviour
 
 	private bool hasSelection;
 	private (int file, int rank) selectedSquare = (-1, -1);
+
+	public int selectedPromotionType = Piece.Queen;
 
 	private void Awake()
 	{
@@ -85,13 +88,28 @@ public class GameManager : MonoBehaviour
 			board.MakeMove(botMove);
 			BoardUI.Instance.UpdateBoard(board);
 		}
+
+		UpdateSelectedPromotion();
+	}
+
+	private void UpdateSelectedPromotion()
+	{
+		if (Input.GetKeyDown(KeyCode.Q))
+			selectedPromotionType = Piece.Queen;
+		else if (Input.GetKeyDown(KeyCode.R))
+			selectedPromotionType = Piece.Rook;
+		else if (Input.GetKeyDown(KeyCode.N))
+			selectedPromotionType = Piece.Knight;
+		else if (Input.GetKeyDown(KeyCode.B))
+			selectedPromotionType = Piece.Bishop;
+		//TODO Show UI
 	}
 
 	// Try to perform a move from start to end, returning whether the move was performed or not
 	public bool TryMove((int file, int rank) start, (int file, int rank) end)
 	{
-		var selectedMoves = board.moveGenerator.GenerateMoves().Where(move => move.from == start && move.to == end).ToList();
-		// TODO Handle promotion, since start and end are the same
+		List<Move> selectedMoves = board.moveGenerator.GenerateMoves().Where(move => move.from == start && move.to == end).ToList();
+
 		if (selectedMoves.Count == 0)
 		{
 			// TODO Show that move isn't legal to player
@@ -100,10 +118,25 @@ public class GameManager : MonoBehaviour
 		}
 		else
 		{
-			// Use first move with matching start and end
-			// TODO Handle promotion
-			board.MakeMove(selectedMoves[0]);
+
+			if (selectedMoves.Count == 1)
+			{
+				board.MakeMove(selectedMoves[0]);
+			}
+			else // selectedMoves.Count > 1. Handle promotion
+			{
+				try
+				{
+					Move promotionMove = selectedMoves.Find(move => move.promotionType == selectedPromotionType);
+					board.MakeMove(promotionMove);
+				}
+				catch (InvalidOperationException)
+				{
+					Debug.LogError($"No promotion move with selected promotion type: {selectedPromotionType}");
+				}
+			}
 			BoardUI.Instance.UpdateBoard(board);
+
 			// Check if game has ended
 			if (board.moveGenerator.GenerateMoves().Count == 0)
 			{
