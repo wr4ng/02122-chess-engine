@@ -228,6 +228,7 @@ namespace Chess
 		{
 
 			bool isPinned = pinned.Contains(square);
+			// Get direction to king if pinned. (0,0) if not pinned (which doesn't)
 			(int dx, int dy) dirToKing = (0, 0);
 			if (isPinned)
 			{
@@ -526,7 +527,6 @@ namespace Chess
 			return false;
 		}
 
-		//TODO Maybe return (-1,-1) on error?
 		// Calculate the direction between two squares. Returns (0,0) if they are not on a diagonal or orthogonal line
 		public static (int dx, int dy) GetDirection((int file, int rank) start, (int file, int rank) end)
 		{
@@ -544,7 +544,7 @@ namespace Chess
 			if (dFile < 0 & dRank > 0) return (-1, 1);
 			if (dFile > 0 & dRank < 0) return (1, -1);
 			if (dFile < 0 & dRank < 0) return (-1, -1);
-			// Shouldn't happen!
+
 			return (0, 0);
 		}
 	}
