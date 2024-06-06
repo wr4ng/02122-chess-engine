@@ -157,14 +157,6 @@ public class GameManager : MonoBehaviour
 				}
 			}
 			BoardUI.Instance.UpdateBoard(board);
-
-			// Check if game has ended
-			bool done = CheckGameDone();
-			if (!done && againstBot) //TODO Dont start bot in TryMove
-			{
-				botThread = new Thread(CalculateNextMove);
-				botThread.Start();
-			}
 			return true;
 		}
 	}
@@ -179,10 +171,7 @@ public class GameManager : MonoBehaviour
 			if (selectedSquare == clickedSquare)
 			{
 				// If true, reset the selection
-				hasSelection = false;
-				selectedSquare = (-1, -1);
-				BoardUI.Instance.ClearHighlight();
-				BoardUI.Instance.ClearPossibleMoves();
+				ClearSelection();
 			}
 			else
 			{
@@ -192,10 +181,16 @@ public class GameManager : MonoBehaviour
 				if (success)
 				{
 					// If the move was performed, reset selection
-					hasSelection = false;
-					selectedSquare = (-1, -1);
-					BoardUI.Instance.ClearHighlight();
-					BoardUI.Instance.ClearPossibleMoves();
+					ClearSelection();
+
+					// Check if game has ended
+					bool done = CheckGameDone();
+					if (!done && againstBot)
+					{
+						// Begin calculating bot move if game is still in progress
+						botThread = new Thread(CalculateNextMove);
+						botThread.Start();
+					}
 				}
 			}
 		}
@@ -216,6 +211,14 @@ public class GameManager : MonoBehaviour
 				BoardUI.Instance.ShowPossibleMoves(selectionMoveEnds);
 			}
 		}
+	}
+
+	private void ClearSelection()
+	{
+		hasSelection = false;
+		selectedSquare = (-1, -1);
+		BoardUI.Instance.ClearHighlight();
+		BoardUI.Instance.ClearPossibleMoves();
 	}
 
 	private bool CheckGameDone()
