@@ -16,6 +16,11 @@ public class InGameUI : MonoBehaviour
 	[SerializeField]
 	private Image selectedPromotionImage;
 
+	[SerializeField]
+	private GameObject endGameObject;
+	[SerializeField]
+	private TMP_Text endGameText;
+
 	//TODO Make scriptable object or similar holding the current theme
 	[Header("Sprites")]
 	[SerializeField] private Sprite knighSprite;
@@ -70,5 +75,11 @@ public class InGameUI : MonoBehaviour
 	public void QuitToMenu()
 	{
 		SceneManager.LoadScene((int)SceneIndex.Menu);
+	}
+
+	public void EndGame(string endMessage)
+	{
+		endGameText.text = endMessage;
+		endGameObject.SetActive(true);
 	}
 }

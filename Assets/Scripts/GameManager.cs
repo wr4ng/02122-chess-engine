@@ -88,7 +88,8 @@ public class GameManager : MonoBehaviour
 			botIsDone = false;
 			board.MakeMove(botMove);
 			BoardUI.Instance.UpdateBoard(board);
-			//TODO Check if game has ended
+			// Check game status
+			CheckGameDone();
 		}
 
 		UpdateSelectedPromotion();
@@ -151,23 +152,8 @@ public class GameManager : MonoBehaviour
 			BoardUI.Instance.UpdateBoard(board);
 
 			// Check if game has ended
-			if (board.moveGenerator.GenerateMoves().Count == 0)
-			{
-				// Check if king is in check
-				bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Piece.ColorIndex(board.colorToMove)], board.oppositeColor);
-				if (kingAttacked)
-				{
-					// Checkmate
-					Debug.Log($"{(board.oppositeColor == Piece.White ? "White" : "Black")} wins!");
-				}
-				else
-				{
-					// Stalemate
-					Debug.Log("Stalemate!");
-				}
-				//TODO Show UI of result
-			}
-			else if (againstBot)
+			bool done = CheckGameDone();
+			if (!done && againstBot) //TODO Dont start bot in TryMove
 			{
 				botThread = new Thread(CalculateNextMove);
 				botThread.Start();
@@ -223,6 +209,20 @@ public class GameManager : MonoBehaviour
 				BoardUI.Instance.ShowPossibleMoves(selectionMoveEnds);
 			}
 		}
+	}
+
+	private bool CheckGameDone()
+	{
+		if (board.moveGenerator.GenerateMoves().Count > 0)
+			return false;
+		// Otherwise, check if checkmate or stalemate
+		bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Piece.ColorIndex(board.colorToMove)], board.oppositeColor);
+		if (kingAttacked)
+			InGameUI.Instance.EndGame($"{(board.oppositeColor == Piece.White ? "White" : "Black")} wins!");
+		else
+			InGameUI.Instance.EndGame("Stalemate!");
+
+		return true;
 	}
 
 	private void CalculateNextMove()
