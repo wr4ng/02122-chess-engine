@@ -74,6 +74,7 @@ public class InGameUI : MonoBehaviour
 
 	public void QuitToMenu()
 	{
+		GameManager.IMPORT_FEN = ""; // Reset game FEN
 		SceneManager.LoadScene((int)SceneIndex.Menu);
 	}
 

@@ -52,7 +52,6 @@ public class MainMenu : MonoBehaviour
 		if (fenInputField.text != "")
 		{
 			// Validate FEN
-			//TODO This is not so clean...
 			try
 			{
 				Board.FromFEN(fenInputField.text.Trim());
@@ -60,7 +59,7 @@ public class MainMenu : MonoBehaviour
 				GameManager.IMPORT_FEN = fenInputField.text;
 				SceneManager.LoadScene((int)SceneIndex.Game);
 			}
-			catch (System.Exception e)
+			catch (Exception e)
 			{
 				fenInputField.text = $"Invalid fen: {e.Message}";
 			}
