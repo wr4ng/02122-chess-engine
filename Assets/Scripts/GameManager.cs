@@ -85,6 +85,7 @@ public class GameManager : MonoBehaviour
 				botIsDone = false;
 				//TODO Bot uses same board as GameManager, therefore aborting early leads to invalid boardstate
 			}
+			ClearSelection();
 			board.UndoPreviousMove();
 			BoardUI.Instance.UpdateBoard(board);
 		}
