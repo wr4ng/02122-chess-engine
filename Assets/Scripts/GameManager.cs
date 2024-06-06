@@ -77,9 +77,16 @@ public class GameManager : MonoBehaviour
 		// Undo moves on LeftArrow
 		if (Input.GetKeyDown(KeyCode.LeftArrow))
 		{
+			// Abort Bot thread if currently calculating
+			if (botIsCalculating)
+			{
+				botThread.Abort();
+				botIsCalculating = false;
+				botIsDone = false;
+				//TODO Bot uses same board as GameManager, therefore aborting early leads to invalid boardstate
+			}
 			board.UndoPreviousMove();
 			BoardUI.Instance.UpdateBoard(board);
-			// TODO Abort if bot is currently calculating
 		}
 		// Check if bot is done
 		if (botIsCalculating && botIsDone)
