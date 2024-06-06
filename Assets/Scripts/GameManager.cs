@@ -125,8 +125,7 @@ public class GameManager : MonoBehaviour
 
 		if (selectedMoves.Count == 0)
 		{
-			// TODO Show that move isn't legal to player
-			Debug.Log($"No move starting at {FEN.CoordinateToFEN(start)} and ending at {FEN.CoordinateToFEN(end)}");
+			// No moves matching start -> end. Keep highlight but don't perform any moves
 			return false;
 		}
 		else
@@ -145,6 +144,7 @@ public class GameManager : MonoBehaviour
 				}
 				catch (InvalidOperationException)
 				{
+					// Shouldn't happen! If it does, selectedPromotionType is probably invalid
 					Debug.LogError($"No promotion move with selected promotion type: {selectedPromotionType}");
 				}
 			}
