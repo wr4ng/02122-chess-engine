@@ -21,6 +21,10 @@ namespace Chess.Testing
 			{
 				perft.DivideTest();
 			}
+			if (GUILayout.Button("Run overallTest"))
+			{
+				perft.overallTest();
+			}
 		}
 
 		void OnEnable()
