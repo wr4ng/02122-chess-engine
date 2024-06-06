@@ -97,14 +97,25 @@ public class GameManager : MonoBehaviour
 	private void UpdateSelectedPromotion()
 	{
 		if (Input.GetKeyDown(KeyCode.Q))
+		{
 			selectedPromotionType = Piece.Queen;
+			InGameUI.Instance.SetPromotionSprite(Piece.Queen);
+		}
 		else if (Input.GetKeyDown(KeyCode.R))
+		{
 			selectedPromotionType = Piece.Rook;
+			InGameUI.Instance.SetPromotionSprite(Piece.Rook);
+		}
 		else if (Input.GetKeyDown(KeyCode.N))
+		{
 			selectedPromotionType = Piece.Knight;
+			InGameUI.Instance.SetPromotionSprite(Piece.Knight);
+		}
 		else if (Input.GetKeyDown(KeyCode.B))
+		{
 			selectedPromotionType = Piece.Bishop;
-		//TODO Show UI
+			InGameUI.Instance.SetPromotionSprite(Piece.Bishop);
+		}
 	}
 
 	// Try to perform a move from start to end, returning whether the move was performed or not

@@ -6,6 +6,9 @@ using Chess;
 
 public class InGameUI : MonoBehaviour
 {
+	// Singleton instance
+	public static InGameUI Instance { get; private set; }
+
 	[Header("UI References")]
 	[SerializeField]
 	private TMP_Text botNameText;
@@ -20,14 +23,30 @@ public class InGameUI : MonoBehaviour
 	[SerializeField] private Sprite rookSprite;
 	[SerializeField] private Sprite queenSprite;
 
+	private void Awake()
+	{
+		// Singleton setup
+		if (Instance != null)
+		{
+			Destroy(this);
+		}
+		else
+		{
+			Instance = this;
+		}
+	}
+
 	private void Update()
 	{
 		if (GameManager.againstBot)
 		{
 			botNameText.text = $"{GameManager.Instance.bot.Name()}{(GameManager.Instance.botIsCalculating ? " is thinking..." : "")}";
 		}
-		//TODO A little stupid to do this every frame...
-		switch (GameManager.Instance.selectedPromotionType)
+	}
+
+	public void SetPromotionSprite(int promotionType)
+	{
+		switch (promotionType)
 		{
 			case Piece.Knight:
 				selectedPromotionImage.sprite = knighSprite;
@@ -42,7 +61,9 @@ public class InGameUI : MonoBehaviour
 				selectedPromotionImage.sprite = queenSprite;
 				break;
 			default:
+				Debug.LogError($"Trying to set invalid promotion type: {promotionType}");
 				break;
+
 		}
 	}
 
