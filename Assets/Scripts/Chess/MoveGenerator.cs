@@ -6,8 +6,6 @@ namespace Chess
 	{
 		Board board;
 
-		//TODO Add parameters for onlyQuitMoves (ignore non-captures) and simple promotions (ignore bishop and rook promotions)
-
 		public List<(int file, int rank)> pinned;
 		public List<(int file, int rank)> checkers;
 		public bool[] attackedAroundKing;
