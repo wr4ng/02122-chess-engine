@@ -31,12 +31,14 @@ public class Tile : MonoBehaviour
 
 	private void OnMouseEnter()
 	{
+		if (GameManager.Instance.gameEnded) return;
 		// Highlight tile
 		tileSpriteRenderer.color = highlightColor;
 	}
 
 	private void OnMouseExit()
 	{
+		if (GameManager.Instance.gameEnded) return;
 		// Reset tile highlight
 		if (!isHighlighted)
 		{
@@ -46,6 +48,7 @@ public class Tile : MonoBehaviour
 
 	public void SetHighlight(bool highlight)
 	{
+		if (GameManager.Instance.gameEnded) return;
 		if (highlight)
 		{
 			tileSpriteRenderer.color = highlightColor;
