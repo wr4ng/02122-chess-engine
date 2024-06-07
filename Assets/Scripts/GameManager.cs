@@ -30,6 +30,8 @@ public class GameManager : MonoBehaviour
 
 	public int selectedPromotionType = Piece.Queen;
 
+	public bool gameEnded = false;
+
 	private void Awake()
 	{
 		// Singleton setup
@@ -74,6 +76,7 @@ public class GameManager : MonoBehaviour
 
 	private void Update()
 	{
+		if (gameEnded) return;
 		// Undo moves on LeftArrow
 		if (Input.GetKeyDown(KeyCode.LeftArrow))
 		{
@@ -227,6 +230,7 @@ public class GameManager : MonoBehaviour
 		if (board.moveGenerator.GenerateMoves().Count > 0)
 			return false;
 		// Otherwise, check if checkmate or stalemate
+		gameEnded = true;
 		bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Piece.ColorIndex(board.colorToMove)], board.oppositeColor);
 		if (kingAttacked)
 			InGameUI.Instance.EndGame($"{(board.oppositeColor == Piece.White ? "White" : "Black")} wins!");
