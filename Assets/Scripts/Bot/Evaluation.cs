@@ -39,22 +39,22 @@ namespace Bot
 			switch (Piece.Type(piece))
 			{
 				case Piece.Pawn:
-					weight = Piece.IsColor(piece, Piece.White) ? 10 : -10;
+					weight = Piece.IsColor(piece, Piece.White) ? 100 : -100;
 					break;
 				case Piece.Rook:
-					weight = Piece.IsColor(piece, Piece.White) ? 50 : -50;
+					weight = Piece.IsColor(piece, Piece.White) ? 500 : -500;
 					break;
 				case Piece.Bishop:
-					weight = Piece.IsColor(piece, Piece.White) ? 30 : -30;
+					weight = Piece.IsColor(piece, Piece.White) ? 300 : -300;
 					break;
 				case Piece.Knight:
-					weight = Piece.IsColor(piece, Piece.White) ? 30 : -30;
+					weight = Piece.IsColor(piece, Piece.White) ? 300 : -300;
 					break;
 				case Piece.Queen:
-					weight = Piece.IsColor(piece, Piece.White) ? 90 : -90;
+					weight = Piece.IsColor(piece, Piece.White) ? 900 : -900;
 					break;
 				case Piece.King:
-					weight = Piece.IsColor(piece, Piece.White) ? 1000 : -1000;
+					weight = Piece.IsColor(piece, Piece.White) ? 10000 : -10000;
 					break;
 				default:
 					weight = 0;

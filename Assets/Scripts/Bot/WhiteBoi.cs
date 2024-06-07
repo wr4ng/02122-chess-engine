@@ -22,7 +22,7 @@ namespace Bot
 
         public string Name() => $"WhiteBoi({depth} inches)";
 
-        private (Move move, float evaluation) miniMaxWhiteAB(Board board, int depth, float alpha, float beta) //wants highest score
+        private (Move move, float evaluation) miniMaxWhiteAB(Board board, int depth, float alpha, float beta, int addedDepth = 0) //wants highest score
         {
             //TODO Handle null
             if (depth == 0) return (new(), Evaluation.EvaluatePosition(board));
@@ -48,31 +48,14 @@ namespace Bot
             Move bestMove = new();
             if (moves.Count > 0) bestMove = moves[0];
             float maxEval = float.MinValue;
-            // while (movesList.prevIndex < movesList.Count)
-            // {
-            //     Move move = movesList.Get();
-            //     board.MakeMove(move);
-            //     (Move m, float score) = miniMaxBlackAB(board, depth - 1, alpha, beta);
-            //     if (score > alpha)
-            //     {
-            //         alpha = score;
-            //     }
-            //     if (score > maxEval)
-            //     {
-            //         bestMove = move;
-            //         maxEval = score;
-            //     }
-            //     if (score >= beta)
-            //     {
-            //         board.UndoPreviousMove();
-            //         break;
-            //     }
-            //     board.UndoPreviousMove();
-            // }
             foreach (Move move in moves)
             {
                 board.MakeMove(move);
-                (Move m, float score) = miniMaxBlackAB(board, depth - 1, alpha, beta);
+                if(moves.Count < 10 && addedDepth < 3){
+                    addedDepth += 1;
+                    depth++;
+                }
+                (Move m, float score) = miniMaxBlackAB(board, depth - 1, alpha, beta,addedDepth);
                 if (score > alpha)
                 {
                     alpha = score;
@@ -92,7 +75,7 @@ namespace Bot
             return (bestMove, maxEval);
         }
 
-        private (Move move, float evaluation) miniMaxBlackAB(Board board, int depth, float alpha, float beta) //wants lowest score
+        private (Move move, float evaluation) miniMaxBlackAB(Board board, int depth, float alpha, float beta, int addedDepth = 0) //wants lowest score
         {
             //TODO Handle null move
             if (depth == 0) return (new(), Evaluation.EvaluatePosition(board));
@@ -118,28 +101,14 @@ namespace Bot
             Move bestMove = new();
             if (moves.Count > 0) bestMove = moves[0];
             float minEval = float.MaxValue;
-            // while (movesList.prevIndex < movesList.Count)
-            // {
-            //     Move move = movesList.Get();
-            //     board.MakeMove(move);
-            //     (Move m, float score) = miniMaxWhiteAB(board, depth - 1, alpha, beta);
-            //     if (score < beta) beta = score;
-            //     if (score < minEval)
-            //     {
-            //         bestMove = move;
-            //         minEval = score;
-            //     }
-            //     if (score <= alpha)
-            //     {
-            //         board.UndoPreviousMove();
-            //         break;
-            //     }
-            //     board.UndoPreviousMove();
-            // }
             foreach (Move move in moves)
             {
                 board.MakeMove(move);
-                (Move m, float score) = miniMaxWhiteAB(board, depth - 1, alpha, beta);
+                if(moves.Count < 10 && addedDepth < 3){
+                    addedDepth += 1;
+                    depth++;
+                }
+                (Move m, float score) = miniMaxWhiteAB(board, depth - 1, alpha, beta, addedDepth);
                 if (score < beta) beta = score;
                 if (score < minEval)
                 {
