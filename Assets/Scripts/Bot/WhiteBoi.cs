@@ -45,7 +45,7 @@ namespace Bot
                     {
                         // No moves + king attacked = checkmate
                         //TODO Null move!
-                        return (new(), float.MinValue);
+                        return (new(), -100000 * (depth +1));
                     }
                     else
                     {
@@ -108,7 +108,7 @@ namespace Bot
                     {
                         // No moves + king attacked = checkmate
                         //TODO Null move!
-                        return (new(), float.MaxValue);
+                        return (new(), 100000 * (depth +1));
                     }
                     else
                     {
