@@ -4,19 +4,24 @@ namespace Bot
 {
 	public class Evaluation
 	{
+		public static float ChechmateScore = 100000;
 
 		public static float EvaluatePosition(Board board)
 		{
+			// Check if we have checkmate/stalemate
+			if (board.moveGenerator.GenerateMoves().Count == 0)
+			{
+				bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Piece.ColorIndex(board.colorToMove)], board.oppositeColor);
+				if (kingAttacked)
+					// No moves + king attacked = checkmate
+					return board.colorToMove == Piece.White ? -ChechmateScore : ChechmateScore;
+				else
+					// No moves + king not attacked = stalemate
+					return 0;
+			}
+			// Calculate piece score
+			//TODO In Board, keep track of the number of each piece, to avoid looping over the board
 			float score = 0;
-			//TODO Handle game over (once Draw is implemented in Board)
-			// if (board.gameOver)
-			// {
-			//     if (board.isDraw)
-			//     {
-			//         return 0;
-			//     }
-			//     return (board.GetCurrentPlayer() == Color.White) ? int.MinValue : int.MaxValue;
-			// }
 			for (int file = 0; file < 8; file++)
 			{
 				for (int rank = 0; rank < 8; rank++)
@@ -39,22 +44,22 @@ namespace Bot
 			switch (Piece.Type(piece))
 			{
 				case Piece.Pawn:
-					weight = Piece.IsColor(piece, Piece.White) ? 10 : -10;
+					weight = Piece.IsColor(piece, Piece.White) ? 100 : -100;
 					break;
 				case Piece.Rook:
-					weight = Piece.IsColor(piece, Piece.White) ? 50 : -50;
+					weight = Piece.IsColor(piece, Piece.White) ? 500 : -500;
 					break;
 				case Piece.Bishop:
-					weight = Piece.IsColor(piece, Piece.White) ? 30 : -30;
+					weight = Piece.IsColor(piece, Piece.White) ? 300 : -300;
 					break;
 				case Piece.Knight:
-					weight = Piece.IsColor(piece, Piece.White) ? 30 : -30;
+					weight = Piece.IsColor(piece, Piece.White) ? 300 : -300;
 					break;
 				case Piece.Queen:
-					weight = Piece.IsColor(piece, Piece.White) ? 90 : -90;
+					weight = Piece.IsColor(piece, Piece.White) ? 900 : -900;
 					break;
 				case Piece.King:
-					weight = Piece.IsColor(piece, Piece.White) ? 1000 : -1000;
+					weight = Piece.IsColor(piece, Piece.White) ? 10000 : -10000;
 					break;
 				default:
 					weight = 0;
