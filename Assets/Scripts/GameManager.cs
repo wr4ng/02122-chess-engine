@@ -227,6 +227,20 @@ public class GameManager : MonoBehaviour
 
 	private bool CheckGameDone()
 	{
+		// Check for draw by repetition / 50-move-rule
+		if (board.drawState == Board.DrawState.Repetition)
+		{
+			InGameUI.Instance.EndGame("Draw by repetition!");
+			gameEnded = true;
+			return true;
+		}
+		if (board.drawState == Board.DrawState.FiftyMoveRule)
+		{
+			InGameUI.Instance.EndGame("Draw by 50 move rule!");
+			gameEnded = true;
+			return true;
+		}
+		// Check if there are available moves left
 		if (board.moveGenerator.GenerateMoves().Count > 0)
 			return false;
 		// Otherwise, check if checkmate or stalemate

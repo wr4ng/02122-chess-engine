@@ -24,6 +24,10 @@ namespace Bot
 
 		private (Move move, float evaluation) miniMaxWhiteAB(Board board, int depth, float alpha, float beta) //wants highest score
 		{
+			if (board.drawState != Board.DrawState.None)
+			{
+				return (new(), 0);
+			}
 			// If we're at final depth, return the evaluated score
 			if (depth == 0)
 			{
@@ -71,6 +75,10 @@ namespace Bot
 
 		private (Move move, float evaluation) miniMaxBlackAB(Board board, int depth, float alpha, float beta) //wants lowest score
 		{
+			if (board.drawState != Board.DrawState.None)
+			{
+				return (new(), 0);
+			}
 			// If we're at final depth, return the evaluated score
 			if (depth == 0)
 			{

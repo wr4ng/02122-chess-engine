@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Chess
@@ -26,9 +27,19 @@ namespace Chess
 		public ulong hash;
 		public Stack<ulong> previousHashes;
 
-		// TODO Draw
+		// Draw
 		public int halfMoveClock;
+		public Stack<int> previousHalfMoveClock;
 		public int fullMoveNumber;
+		public Dictionary<ulong, int> repetitionMap;
+		public DrawState drawState;
+
+		public enum DrawState
+		{
+			None,
+			FiftyMoveRule,
+			Repetition
+		}
 
 		public Board()
 		{
@@ -49,6 +60,9 @@ namespace Chess
 
 			halfMoveClock = 0;
 			fullMoveNumber = 0;
+			previousHalfMoveClock = new();
+			repetitionMap = new();
+			drawState = DrawState.None;
 		}
 
 		public static Board FromFEN(string fen)
@@ -139,6 +153,7 @@ namespace Chess
 
 			// Calculate zobrist hash
 			board.hash = Zobrist.GenerateHash(board);
+			board.repetitionMap[board.hash] = 1;
 
 			return board;
 		}
@@ -184,9 +199,23 @@ namespace Chess
 		{
 			// Push previous hash to stack
 			previousHashes.Push(hash);
-			//TODO Update hash
 
 			int piece = squares[move.from.file, move.from.rank];
+
+			// Update halfMoveClock
+			previousHalfMoveClock.Push(halfMoveClock);
+			if (Piece.Type(piece) == Piece.Pawn || move.capturedPiece != Piece.None)
+			{
+				halfMoveClock = 0;
+			}
+			else
+			{
+				halfMoveClock++;
+				if (halfMoveClock >= 100)
+				{
+					drawState = DrawState.FiftyMoveRule;
+				}
+			}
 
 			// Remove piece from starting square
 			squares[move.from.file, move.from.rank] = Piece.None;
@@ -302,8 +331,24 @@ namespace Chess
 			// Swap player
 			colorToMove = oppositeColor;
 			hash ^= Zobrist.side;
+			// Add hash to repetition map
+			if (repetitionMap.ContainsKey(hash))
+			{
+				repetitionMap[hash] += 1;
+				if (repetitionMap[hash] >= 3)
+				{
+					drawState = DrawState.Repetition;
+					UnityEngine.Debug.Log("REPETITION!");
+				}
+			}
+			else
+			{
+				repetitionMap[hash] = 1;
+			}
+
 			// Add move to stack of played moves
 			playedMoves.Push(move);
+			fullMoveNumber++;
 		}
 
 		public void UnmakeMove(Move move)
@@ -369,8 +414,15 @@ namespace Chess
 			// Swap player
 			colorToMove = oppositeColor;
 
+			// Remove one from hash in repetition map
+			repetitionMap[hash] = Math.Max(0, repetitionMap[hash] - 1);
+
 			// Set previous hash
 			hash = previousHashes.Pop();
+
+			drawState = DrawState.None;
+
+			fullMoveNumber--;
 		}
 
 		public void UndoPreviousMove()
