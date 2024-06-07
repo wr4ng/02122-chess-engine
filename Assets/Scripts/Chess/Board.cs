@@ -338,7 +338,6 @@ namespace Chess
 				if (repetitionMap[hash] >= 3)
 				{
 					drawState = DrawState.Repetition;
-					UnityEngine.Debug.Log("REPETITION!");
 				}
 			}
 			else
