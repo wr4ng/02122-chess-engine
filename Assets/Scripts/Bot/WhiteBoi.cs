@@ -38,21 +38,14 @@ namespace Bot
                 // Handle check/stalemate
                 if (moves.Count == 0 )
                 {
-                    // TODO Handle checkmate/stalemate in evaluation
                     // Check if king is in check
                     bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Piece.ColorIndex(board.colorToMove)], board.oppositeColor);
                     if (kingAttacked)
-                    {
-                        // No moves + king attacked = checkmate
-                        //TODO Null move!
-                        return (new(), -100000 * (depth +1));
-                    }
+                        // No moves + king attacked = checkmate. Use depth to make earlier checksmates worse (and better for opponent)
+                        return (new(), -Evaluation.ChechmateScore * (depth +1));
                     else
-                    {
                         // No moves + king not attacked = stalemate
-                        //TODO Null move!
                         return (new(), 0);
-                    }
                 }
                 // TODO add variable for maxDepth and minimum moves.
                 if(moves.Count < 10 && addedDepth < 3){
@@ -105,17 +98,11 @@ namespace Bot
                     // Check if king is in check
                     bool kingAttacked = board.moveGenerator.IsAttacked(board.kingSquares[Piece.ColorIndex(board.colorToMove)], board.oppositeColor);
                     if (kingAttacked)
-                    {
-                        // No moves + king attacked = checkmate
-                        //TODO Null move!
-                        return (new(), 100000 * (depth +1));
-                    }
+                        // No moves + king attacked = checkmate. Use depth to make earlier checksmates worse (and better for opponent)
+                        return (new(), Evaluation.ChechmateScore * (depth +1));
                     else
-                    {
                         // No moves + king not attacked = stalemate
-                        //TODO Null move!
                         return (new(), 0);
-                    }
                 }
                 if(moves.Count < 10 && addedDepth < 3){
                     addedDepth += 1;
