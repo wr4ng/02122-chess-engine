@@ -110,11 +110,14 @@ public class BoardUI : MonoBehaviour
 
 	public void ClearHighlight()
 	{
-		tiles[highlightedSquare.file, highlightedSquare.rank].SetHighlight(false);
+		if (highlightedSquare != (-1, -1))
+		{
+			tiles[highlightedSquare.file, highlightedSquare.rank].SetHighlight(false);
+		}
 		highlightedSquare = (-1, -1);
 	}
 
-	public void ShowPossibleMoves(List<(int file , int rank)> possibleMoves)
+	public void ShowPossibleMoves(List<(int file, int rank)> possibleMoves)
 	{
 		foreach ((int file, int rank) in possibleMoves)
 		{
