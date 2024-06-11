@@ -2,12 +2,14 @@ using Chess;
 
 namespace Bot
 {
-	public class Evaluation
+	public static class Evaluation
 	{
 		public static float ChechmateScore = 100000;
+		public static int calls = 0;
 
 		public static float EvaluatePosition(Board board)
 		{
+			calls++;
 			// Check if we have checkmate/stalemate
 			if (board.moveGenerator.GenerateMoves().Count == 0)
 			{

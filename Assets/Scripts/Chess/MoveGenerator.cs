@@ -558,5 +558,328 @@ namespace Chess
 
 			return (0, 0);
 		}
+		public List<Move> GenerateMovesNoPrio(bool onlyCaptures = false)
+		{
+			// Check the king positions for checks and pins
+			CheckKingPosition();
+			justaList movesList = new justaList();
+			GetKingMovesNoPrio(movesList, onlyCaptures);
+			// If the number of checks is > 1, then only the king can move
+			if (checkers.Count > 1) { movesList.ConnectList(); return movesList.GetList(); }
+
+			// Else, loop through all friendly pieces to generate their moves
+			//TODO Use piecelists?
+			for (int file = 0; file < 8; file++)
+			{
+				for (int rank = 0; rank < 8; rank++)
+				{
+					int piece = board.squares[file, rank];
+					// If piece isn't friendly (excluding king as moves for king have already been generated) continue
+					if ((Piece.Color(piece) != board.colorToMove) || (Piece.Type(piece) == Piece.King)) continue;
+					// Check type of piece and generate appropriate moves
+					int pieceType = Piece.Type(piece);
+
+					switch (pieceType)
+					{
+						case Piece.Pawn:
+							GetPawnMovesNoPrio((file, rank), movesList, onlyCaptures);
+							break;
+						case Piece.Knight:
+							GetKnightMovesNoPrio((file, rank), movesList, onlyCaptures);
+							break;
+						case Piece.Bishop:
+							GetSlidingMovesNoPrio((file, rank), pieceType, movesList, onlyCaptures);
+							break;
+						case Piece.Rook:
+							GetSlidingMovesNoPrio((file, rank), pieceType, movesList, onlyCaptures);
+							break;
+						case Piece.Queen:
+							GetSlidingMovesNoPrio((file, rank), pieceType, movesList, onlyCaptures);
+							break;
+						default:
+							break;
+					}
+				}
+			}
+			movesList.ConnectList();
+			return movesList.GetList();
+		}
+				public void GetKingMovesNoPrio(justaList movesList, bool onlyCaptures)
+		{
+			(int kingFile, int kingRank) = board.kingSquares[Piece.ColorIndex(board.colorToMove)];
+
+			for (int i = 0; i < kingDirections.Length; i++)
+			{
+				// Ignore squares we have already determined are attacked (because king is in check)
+				if (!attackedAroundKing[i])
+				{
+					(int file, int rank) = (kingFile + kingDirections[i].dx, kingRank + kingDirections[i].dy);
+					if (!(0 <= file && file < 8 && 0 <= rank && rank < 8)) continue;                            // If outside board, continue
+					if (Piece.Color(board.squares[file, rank]) == board.colorToMove) continue;                  // If there is a friendly piece, continue
+					if (!IsAttacked((file, rank), board.oppositeColor))                                         // Check is this square is attacked by enemy piece
+					{
+						bool isCapture = board.squares[file, rank] != Piece.None;
+						Move move = new Move((kingFile, kingRank), (file, rank), board.squares[file, rank]);
+						if (isCapture)
+						{
+							movesList.InsertCapture(move);
+						}
+						else if (!onlyCaptures)
+						{
+							movesList.Insert(move);
+						}
+					}
+				}
+			}
+			// Add castle moves if king is not in check
+			if (checkers.Count == 0 && !onlyCaptures)
+			{
+				GetCastleMovesNoPrio(movesList);
+			}
+		}
+
+		//TODO Split into two method (GetPawnForwardMoves and GetPawnAttackMoves)
+		public void GetPawnMovesNoPrio((int file, int rank) square, justaList movesList, bool onlyCaptures)
+		{
+
+			bool isPinned = pinned.Contains(square);
+			// Get direction to king if pinned. (0,0) if not pinned (which doesn't)
+			(int dx, int dy) dirToKing = (0, 0);
+			if (isPinned)
+			{
+				dirToKing = GetDirection(square, board.kingSquares[Piece.ColorIndex(board.colorToMove)]);
+			}
+			// Forward moves
+			// If pinned, can only possily move forward if king is on the same file
+			bool canMoveForward = !isPinned || (square.file == board.kingSquares[Piece.ColorIndex(board.colorToMove)].file);
+			if (canMoveForward && !onlyCaptures)
+			{
+				int forward = board.colorToMove == Piece.White ? 1 : -1;
+				//TODO Calculate (file, rank) so we dont have to keep calculating it...
+				// Cannot move forward if any piece is in front of the pawn
+				// Don't need to check if outside board, since can't have pawn on back rank
+				bool isBlocked = board.squares[square.file, square.rank + forward] != Piece.None;
+				if (!isBlocked)
+				{
+					// Check block bitboard for forward move
+					if (BitBoard.HasOne(blockBitboard, square.file, square.rank + forward))
+					{
+						if (square.rank + forward == 0 || square.rank + forward == 7)
+						{
+							GetPromotionMovesNoPrio(square, (square.file, square.rank + forward), board.squares[square.file, square.rank + forward], movesList, true);
+						}
+						else
+						{
+							movesList.Insert(new Move(square, (square.file, square.rank + forward), board.squares[square.file, square.rank + forward]));
+						}
+					}
+					// Double forward move
+					bool atStartPosition = (board.colorToMove == Piece.White && square.rank == 1) || (board.colorToMove == Piece.Black && square.rank == 6);
+					if (atStartPosition)
+					{
+						bool doubleBlocked = board.squares[square.file, square.rank + 2 * forward] != Piece.None;
+						if (!doubleBlocked && BitBoard.HasOne(blockBitboard, square.file, square.rank + 2 * forward))
+						{
+							movesList.Insert(new Move(square, (square.file, square.rank + 2 * forward), board.squares[square.file, square.rank + 2 * forward]));
+						}
+					}
+				}
+			}
+			// Capture moves
+			for (int i = 0; i < pawnDirections.GetLength(1); i++)
+			{
+				var (dx, dy) = pawnDirections[Piece.ColorIndex(board.colorToMove), i];
+				(int file, int rank) = (square.file + dx, square.rank + dy);
+				// If outside board, continue
+				if (!Util.InsideBoard(file, rank)) continue;
+				// If pinned, direction must match direction to king
+				if (isPinned && !((dirToKing.dx == dx && dirToKing.dy == dy) || (dirToKing.dx == -dx && dirToKing.dy == -dy))) continue;
+				// Check blockBitboard and captureBitboard (en Passant capture can block)
+				//TODO Make the en passant part more clear. En passant square is not on captureboard since only pawn can capture it. Maybe OR it together with block and capture bitboard?
+				if (!BitBoard.HasOne(blockBitboard | captureBitboard, file, rank) && (file, rank) != board.enPassantSquare) continue;
+
+				// Else check the piece at the square
+				int piece = board.squares[file, rank];
+
+				// Check for en Passant
+				if ((file, rank) == board.enPassantSquare)
+				{
+					// Check for en Passant discovered check (by playing move and checking wether the king is attacked)
+					//TODO Could possibly do it by checking if king is on same rank, and checking for sliding piece ignoring this pawn and the pawn to be captured
+					Move ep = new Move(square, (file, rank), piece, isEnPassantCapture: true);
+					board.MakeMove(ep);
+					if (!IsAttacked(board.kingSquares[Piece.ColorIndex(board.oppositeColor)], board.colorToMove))
+					{
+						movesList.InsertCapture(ep);
+					}
+					board.UndoPreviousMove();
+				}
+				else if (Piece.IsColor(piece, board.colorToMove) || piece == Piece.None)
+				{
+					// If friendly or empty (non-EP) continue
+					continue;
+				}
+				// Then it must be enemy and a valid capture
+				// Check if pawn is moving to back rank, then add promotion moves
+				else if (rank == 0 || rank == 7)
+				{
+					GetPromotionMovesNoPrio(square, (file, rank), board.squares[file, rank], movesList);
+				}
+				else
+				{
+					movesList.InsertCapture(new Move(square, (file, rank), board.squares[file, rank]));
+				}
+			}
+		}
+
+		public void GetPromotionMovesNoPrio((int, int) from, (int, int) to, int capturedPiece, justaList movesList, bool includeAllPromotions = true)
+		{
+			movesList.InsertCapture(new Move(from, to, capturedPiece: capturedPiece, promotionType: Piece.Queen));
+			movesList.InsertCapture(new Move(from, to, capturedPiece: capturedPiece, promotionType: Piece.Knight));
+			// Bishop and Rook promotions are never better than Queen promotion. Parameter used to exclude them from bot search
+			if (includeAllPromotions)
+			{
+				movesList.InsertCapture(new Move(from, to, capturedPiece: capturedPiece, promotionType: Piece.Bishop));
+				movesList.InsertCapture(new Move(from, to, capturedPiece: capturedPiece, promotionType: Piece.Rook));
+			}
+		}
+
+		public void GetKnightMovesNoPrio((int file, int rank) square, justaList movesList, bool onlyCaptures)
+		{
+			// If this knight is pinned, then it cannot move
+			if (pinned.Contains(square)) return;
+			// Else add precomputed moves
+			foreach ((int file, int rank) in PrecomputedData.knightMoves[square.file, square.rank])
+			{
+				// Check that (file, rank) isn't a friendly piece
+				if (Piece.Color(board.squares[file, rank]) != board.colorToMove)
+				{
+					// Check block and capture bitboards (all one if checkers.Count == 0)
+					if (BitBoard.HasOne(captureBitboard, file, rank) || BitBoard.HasOne(blockBitboard, file, rank))
+					{
+						bool isCapture = board.squares[file, rank] != Piece.None;
+						Move move = new Move(square, (file, rank), board.squares[file, rank]);
+						if (isCapture)
+						{
+							movesList.InsertCapture(move);
+						}
+						else if (!onlyCaptures)
+						{
+							movesList.InsertCapture(move);
+						}
+					}
+				}
+			}
+		}
+
+		public void GetSlidingMovesNoPrio((int file, int rank) square, int pieceType, justaList movesList, bool onlyCaptures)
+		{
+			// Diagonals start at 0 and alternates
+			// Orthogonals start at 1 and alternates
+			int startIndex = (pieceType == Piece.Rook) ? 1 : 0;
+			int inc = (pieceType == Piece.Queen) ? 1 : 2;
+
+			bool isPinned = pinned.Contains(square);
+
+			for (int i = startIndex; i < kingDirections.Length; i += inc)
+			{
+				(int dx, int dy) = kingDirections[i];
+
+				// If the piece is pinned, it can only move towards or away from it's king
+				if (isPinned)
+				{
+					var dirToKing = GetDirection(square, board.kingSquares[Piece.ColorIndex(board.colorToMove)]);
+					bool movingTowardsKing = dirToKing == (dx, dy) || dirToKing == (-dx, -dy);
+					if (!movingTowardsKing) continue;
+				}
+
+				int toEdge = PrecomputedData.squaresToEdge[square.file][square.rank][i];
+
+				for (int j = 1; j <= toEdge; j++)
+				{
+					(int file, int rank) = (square.file + j * dx, square.rank + j * dy);
+					int piece = board.squares[file, rank];
+					// If square is empty, add move to it and continue
+					if (piece == Piece.None)
+					{
+						// Only add it if inside blockBitboard
+						if (!onlyCaptures && BitBoard.HasOne(blockBitboard, file, rank))
+						{
+							movesList.Insert(new Move(square, (file, rank), board.squares[file, rank]));
+						}
+						continue;
+					}
+					// If piece is friendly, stop looking in this direction
+					if (Piece.IsColor(piece, board.colorToMove)) break;
+
+					// Else piece was opponent. Can therefore be captured
+					// Only add it if matches captureBitboard
+					if (BitBoard.HasOne(captureBitboard, file, rank))
+					{
+						movesList.InsertCapture(new Move(square, (file, rank), board.squares[file, rank]));
+					}
+					// Stop looking in this direction
+					break;
+				}
+			}
+		}
+		public void GetCastleMovesNoPrio(justaList movesList)
+		{
+			(int file, int rank) kingSquare = board.kingSquares[Piece.ColorIndex(board.colorToMove)];
+
+			if (board.colorToMove == Piece.White)
+			{
+				// Kingside
+				if (board.castlingRights.HasFlag(CastlingRights.WhiteKingside))
+				{
+					// Check if f1 and g1 are empty and not attacked
+					bool canCastle = (board.squares[5, 0] == Piece.None) && !IsAttacked((5, 0), board.oppositeColor) &&
+									 (board.squares[6, 0] == Piece.None) && !IsAttacked((6, 0), board.oppositeColor);
+					if (canCastle)
+					{
+						movesList.Insert(new Move(kingSquare, (6, 0), Piece.None, isCastle: true));
+					}
+				}
+				// Queenside
+				if (board.castlingRights.HasFlag(CastlingRights.WhiteQueenside))
+				{
+					// Check if d1 and c1 are empty and not attacked, and that b1 is empty
+					bool canCastle = (board.squares[3, 0] == Piece.None) && !IsAttacked((3, 0), board.oppositeColor) &&
+									 (board.squares[2, 0] == Piece.None) && !IsAttacked((2, 0), board.oppositeColor) &&
+									 (board.squares[1, 0] == Piece.None);
+					if (canCastle)
+					{
+						movesList.Insert(new Move(kingSquare, (2, 0), Piece.None, isCastle: true));
+					}
+				}
+			}
+			// Black castle moves
+			else
+			{
+				// Kingside
+				if (board.castlingRights.HasFlag(CastlingRights.BlackKingside))
+				{
+					// Check if f1 and g1 are empty and not attacked
+					bool canCastle = (board.squares[5, 7] == Piece.None) && !IsAttacked((5, 7), board.oppositeColor) &&
+									 (board.squares[6, 7] == Piece.None) && !IsAttacked((6, 7), board.oppositeColor);
+					if (canCastle)
+					{
+						movesList.Insert(new Move(kingSquare, (6, 7), Piece.None, isCastle: true));
+					}
+				}
+				// Queenside
+				if (board.castlingRights.HasFlag(CastlingRights.BlackQueenside))
+				{
+					// Check if d1 and c1 are empty and not attacked, and that b1 is empty
+					bool canCastle = (board.squares[3, 7] == Piece.None) && !IsAttacked((3, 7), board.oppositeColor) &&
+									 (board.squares[2, 7] == Piece.None) && !IsAttacked((2, 7), board.oppositeColor) &&
+									 (board.squares[1, 7] == Piece.None);
+					if (canCastle)
+					{
+						movesList.Insert(new Move(kingSquare, (2, 7), Piece.None, isCastle: true));
+					}
+				}
+			}
+		}
 	}
 }

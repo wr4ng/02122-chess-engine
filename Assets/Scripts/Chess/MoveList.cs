@@ -137,4 +137,22 @@ namespace Chess
             return new();
         }
     }
+    public class justaList{
+        List<Move> moves = new();
+        public void InsertCapture(Move move)
+        {
+            moves.Add(move);
+        }
+        public void Insert(Move move)
+        {
+            moves.Add(move);
+        }
+        public void ConnectList()
+        {
+            return;
+        }
+        public List<Move> GetList(){
+            return moves;
+        }
+    }
 }
