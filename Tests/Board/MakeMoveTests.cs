@@ -78,7 +78,6 @@ public class MakeMoveTests
 	}
 	//TODO UnmakeMoveEnPassant...
 
-	//TODO Tests that castlingrights correctly updates
 	[TestMethod]
 	public void MakeMoveCastling()
 	{

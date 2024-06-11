@@ -20,7 +20,6 @@ namespace Bot
 					return 0;
 			}
 			// Calculate piece score
-			//TODO In Board, keep track of the number of each piece, to avoid looping over the board
 			float score = 0;
 			for (int file = 0; file < 8; file++)
 			{

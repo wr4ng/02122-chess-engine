@@ -240,7 +240,6 @@ namespace Chess
 			if (canMoveForward && !onlyCaptures)
 			{
 				int forward = board.colorToMove == Piece.White ? 1 : -1;
-				//TODO Calculate (file, rank) so we dont have to keep calculating it...
 				// Cannot move forward if any piece is in front of the pawn
 				// Don't need to check if outside board, since can't have pawn on back rank
 				bool isBlocked = board.squares[square.file, square.rank + forward] != Piece.None;
