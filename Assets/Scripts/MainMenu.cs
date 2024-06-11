@@ -41,8 +41,7 @@ public class MainMenu : MonoBehaviour
 			{
 				botDepth++;
 			}
-			// TODO Define some max depth
-			botDepth = Math.Clamp(botDepth, 1, 10);
+			botDepth = Math.Clamp(botDepth, 1, WhiteBoi.MAX_DEPTH);
 			whiteBoiText.text = $"WhiteBoi({botDepth})";
 		}
 	}

@@ -5,9 +5,10 @@ namespace Bot
 {
 	public class WhiteBoi : Bot
 	{
+		public static int MAX_DEPTH = 8;
+
 		int depth;
-		//implement mini max / negamax
-		//Senere med pruning
+
 		public WhiteBoi(int depth)
 		{
 			this.depth = depth;
