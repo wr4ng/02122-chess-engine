@@ -55,34 +55,10 @@ namespace Bot
 
 		public static float PiecePosition(int piece, int index)
 		{
-			float weight;
-			//TODO Use the type (int) of piece as index into PositionWeights
-			switch (Piece.Type(piece))
-			{
-				case Piece.Pawn:
-					weight = Piece.IsColor(piece, Piece.White) ? PositionWeights.pawnWeight[63 - index] : -PositionWeights.pawnWeight[index];
-					break;
-				case Piece.Rook:
-					weight = Piece.IsColor(piece, Piece.White) ? PositionWeights.rookWeight[63 - index] : -PositionWeights.rookWeight[index];
-					break;
-				case Piece.Bishop:
-					weight = Piece.IsColor(piece, Piece.White) ? PositionWeights.bishopWeight[63 - index] : -PositionWeights.bishopWeight[index];
-					break;
-				case Piece.Knight:
-					weight = Piece.IsColor(piece, Piece.White) ? PositionWeights.knightWeight[63 - index] : -PositionWeights.knightWeight[index];
-					break;
-				case Piece.Queen:
-					weight = Piece.IsColor(piece, Piece.White) ? PositionWeights.queenWeight[63 - index] : -PositionWeights.queenWeight[index];
-					break;
-				case Piece.King:
-					weight = Piece.IsColor(piece, Piece.White) ? PositionWeights.kingWeight[63 - index] : -PositionWeights.kingWeight[index];
-					break;
-				default:
-					throw new System.Exception($"Invalid piece type: {piece}");
-			}
-			return weight;
+			bool isWhite = Piece.IsColor(piece, Piece.White);
+			int correctedIndex = isWhite ? 63 - index : index;
+			float weight = PositionWeights.pieceWeights[Piece.TypeIndex(piece)][correctedIndex];
+			return isWhite ? weight : -weight;
 		}
-
-		//Other evaluation functions
 	}
 }
