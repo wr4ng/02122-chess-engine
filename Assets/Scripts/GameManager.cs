@@ -53,10 +53,9 @@ public class GameManager : MonoBehaviour
 			{
 				board = Board.FromFEN(IMPORT_FEN);
 			}
-			catch (Exception exception)
+			catch
 			{
-				// TODO Handle error
-				Debug.Log(exception);
+				// Default to using standard starting position if IMPORT_FEN yielded an error
 				board = Board.FromFEN(FEN.STARTING_POSITION_FEN);
 			}
 		}
