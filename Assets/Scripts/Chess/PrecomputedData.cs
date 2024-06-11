@@ -11,11 +11,17 @@ namespace Chess
 		// [file, rank][moveNo]
 		public static (int file, int rank)[,][] knightMoves;
 
+		private static bool isComputed = false;
+
 		public static void Compute()
 		{
-			ComputeSquaresToEdge();
-			ComputeKnightMoves();
-			Zobrist.Initialize();
+			if (!isComputed)
+			{
+				ComputeSquaresToEdge();
+				ComputeKnightMoves();
+				Zobrist.Initialize();
+				isComputed = true;
+			}
 		}
 
 		static void ComputeSquaresToEdge()
