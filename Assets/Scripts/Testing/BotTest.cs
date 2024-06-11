@@ -19,7 +19,7 @@ namespace Chess.Testing
 				WhiteBoi bot = new WhiteBoi(depth);
 				// Start the stopwatch
 				Stopwatch stopwatch = Stopwatch.StartNew();
-				bot.GetBestMove(board.ToFEN());
+				bot.GetBestMove(board);
 				// Stop the stopwatch and print the elapsed time
 				stopwatch.Stop();
 				UnityEngine.Debug.Log($"Depth {depth}: Elapsed time: {stopwatch.ElapsedMilliseconds} ms");

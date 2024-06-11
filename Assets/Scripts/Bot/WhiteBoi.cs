@@ -15,18 +15,20 @@ namespace Bot
 		}
 
 		// Implement Bot interface method
-		public Move GetBestMove(string fen)
+		public Move GetBestMove(Board board)
 		{
-			Board board;
+			Board newboard;
 			try
 			{
-				board = Board.FromFEN(fen);
+				newboard = Board.FromFEN(board.ToFEN());
 			}
 			catch
 			{
 				return new();
 			}
-			return ((board.colorToMove == Piece.White) ? miniMaxWhiteAB(board, depth, float.NegativeInfinity, float.PositiveInfinity) : miniMaxBlackAB(board, depth, float.NegativeInfinity, float.PositiveInfinity)).move;
+			newboard.repetitionMap = board.repetitionMap;
+
+			return ((board.colorToMove == Piece.White) ? miniMaxWhiteAB(newboard, depth, float.NegativeInfinity, float.PositiveInfinity) : miniMaxBlackAB(newboard, depth, float.NegativeInfinity, float.PositiveInfinity)).move;
 		}
 
 		public string Name() => $"WhiteBoi({depth} inches)";

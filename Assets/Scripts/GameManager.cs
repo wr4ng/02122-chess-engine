@@ -254,7 +254,7 @@ public class GameManager : MonoBehaviour
 	private void CalculateNextMove()
 	{
 		botIsCalculating = true;
-		botMove = bot.GetBestMove(board.ToFEN());
+		botMove = bot.GetBestMove(board);
 		botIsDone = true;
 	}
 
