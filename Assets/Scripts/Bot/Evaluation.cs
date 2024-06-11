@@ -38,33 +38,19 @@ namespace Bot
 
 		public static float PieceWeight(int piece)
 		{
-			//TODO Use switch-expression
-			float weight;
-			switch (Piece.Type(piece))
+			float weight = Piece.Type(piece) switch
 			{
-				case Piece.Pawn:
-					weight = Piece.IsColor(piece, Piece.White) ? 100 : -100;
-					break;
-				case Piece.Rook:
-					weight = Piece.IsColor(piece, Piece.White) ? 500 : -500;
-					break;
-				case Piece.Bishop:
-					weight = Piece.IsColor(piece, Piece.White) ? 300 : -300;
-					break;
-				case Piece.Knight:
-					weight = Piece.IsColor(piece, Piece.White) ? 300 : -300;
-					break;
-				case Piece.Queen:
-					weight = Piece.IsColor(piece, Piece.White) ? 900 : -900;
-					break;
-				case Piece.King:
-					weight = Piece.IsColor(piece, Piece.White) ? 10000 : -10000;
-					break;
-				default:
-					weight = 0;
-					break;
-			}
-			return weight;
+				Piece.Pawn   => 100,
+				Piece.Knight => 300,
+				Piece.Bishop => 300,
+				Piece.Rook   => 500,
+				Piece.Queen  => 900,
+				Piece.King   => 10000, //NOTE: Not useful since king is never captured
+				_            => 0
+			};
+
+			bool isWhite = Piece.IsColor(piece, Piece.White);
+			return isWhite ? weight : -weight;
 		}
 
 		public static float PiecePosition(int piece, int index)
