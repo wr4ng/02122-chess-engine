@@ -15,9 +15,17 @@ namespace Bot
 		}
 
 		// Implement Bot interface method
-		public Move GetBestMove(Board board)
+		public Move GetBestMove(string fen)
 		{
-			// return ((board.GetCurrentPlayer() == Color.White) ? miniMaxWhite(board, depth) : miniMaxBlack(board, depth)).move;
+			Board board;
+			try
+			{
+				board = Board.FromFEN(fen);
+			}
+			catch
+			{
+				return new();
+			}
 			return ((board.colorToMove == Piece.White) ? miniMaxWhiteAB(board, depth, float.NegativeInfinity, float.PositiveInfinity) : miniMaxBlackAB(board, depth, float.NegativeInfinity, float.PositiveInfinity)).move;
 		}
 

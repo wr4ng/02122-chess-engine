@@ -7,11 +7,19 @@ namespace Bot
 	{
 		Random rng = new Random();
 
-		public Move GetBestMove(Board board)
+		public Move GetBestMove(string fen)
 		{
-			var possibleMoves = board.moveGenerator.GenerateMoves();
-			int randomIndex = rng.Next(possibleMoves.Count);
-			return possibleMoves[randomIndex];
+			try
+			{
+				Board board = Board.FromFEN(fen);
+				var possibleMoves = board.moveGenerator.GenerateMoves();
+				int randomIndex = rng.Next(possibleMoves.Count);
+				return possibleMoves[randomIndex];
+			}
+			catch
+			{
+				return new();
+			}
 		}
 
 		public string Name() => "RandomBot";

@@ -85,7 +85,6 @@ public class GameManager : MonoBehaviour
 				botThread.Abort();
 				botIsCalculating = false;
 				botIsDone = false;
-				//TODO Bot uses same board as GameManager, therefore aborting early leads to invalid boardstate
 			}
 			ClearSelection();
 			board.UndoPreviousMove();
@@ -256,7 +255,7 @@ public class GameManager : MonoBehaviour
 	private void CalculateNextMove()
 	{
 		botIsCalculating = true;
-		botMove = bot.GetBestMove(board);
+		botMove = bot.GetBestMove(board.ToFEN());
 		botIsDone = true;
 	}
 
