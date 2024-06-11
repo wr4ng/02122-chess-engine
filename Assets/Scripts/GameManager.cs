@@ -69,7 +69,6 @@ public class GameManager : MonoBehaviour
 		if (againstBot)
 		{
 			bot = botType.CreateBot(botDepth);
-			Debug.Log($"Playing against: {botType}");
 		}
 	}
 
