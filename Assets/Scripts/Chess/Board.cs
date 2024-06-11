@@ -131,7 +131,6 @@ namespace Chess
 					file++;
 				}
 			}
-			//TODO Possibly verify number of ranks == 8
 			// Verify number of kings
 			if (numWhiteKings != 1 || numBlackKings != 1)
 			{
@@ -277,7 +276,6 @@ namespace Chess
 				bool isKingside = move.to.file == 6;
 				// Get rank of king
 				int kingRank = colorToMove == Piece.White ? 0 : 7;
-				// TODO This could be done simpler
 				if (isKingside)
 				{
 					// Move rook
@@ -393,7 +391,6 @@ namespace Chess
 				bool isKingside = move.to.file == 6;
 				// Get rank of king
 				int kingRank = oppositeColor == Piece.White ? 0 : 7;
-				// TODO This could be done simpler
 				if (isKingside)
 				{
 					// Move rook back

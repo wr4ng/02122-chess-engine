@@ -11,14 +11,11 @@ namespace Chess
 		// [file, rank][moveNo]
 		public static (int file, int rank)[,][] knightMoves;
 
-		//TODO Precompute knight, pawn and king attack bitboards for more efficient check checking
-
 		public static void Compute()
 		{
 			ComputeSquaresToEdge();
 			ComputeKnightMoves();
 			Zobrist.Initialize();
-			//TODO Precompute pawn and king moves?
 		}
 
 		static void ComputeSquaresToEdge()

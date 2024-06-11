@@ -38,7 +38,6 @@ namespace Chess
 			if (checkers.Count > 1) { movesList.ConnectList(); return movesList.GetList(); }
 
 			// Else, loop through all friendly pieces to generate their moves
-			//TODO Use piecelists?
 			for (int file = 0; file < 8; file++)
 			{
 				for (int rank = 0; rank < 8; rank++)
@@ -75,7 +74,6 @@ namespace Chess
 			return movesList.GetList();
 		}
 
-		// TODO Keep track of blocking bitboard (where pieces can move to block a checker) and capture bitboard (checker location)
 		public void CheckKingPosition()
 		{
 			// Check attack data around king
@@ -227,10 +225,8 @@ namespace Chess
 			}
 		}
 
-		//TODO Split into two method (GetPawnForwardMoves and GetPawnAttackMoves)
 		public void GetPawnMoves((int file, int rank) square, EasierMoveList movesList, bool onlyCaptures)
 		{
-
 			bool isPinned = pinned.Contains(square);
 			// Get direction to king if pinned. (0,0) if not pinned (which doesn't)
 			(int dx, int dy) dirToKing = (0, 0);
@@ -281,10 +277,13 @@ namespace Chess
 				(int file, int rank) = (square.file + dx, square.rank + dy);
 				// If outside board, continue
 				if (!Util.InsideBoard(file, rank)) continue;
+
 				// If pinned, direction must match direction to king
-				if (isPinned && !((dirToKing.dx == dx && dirToKing.dy == dy) || (dirToKing.dx == -dx && dirToKing.dy == -dy))) continue;
+				bool isMovingOnKingDiagonal = (dirToKing.dx == dx && dirToKing.dy == dy) || (dirToKing.dx == -dx && dirToKing.dy == -dy);
+				if (isPinned && !isMovingOnKingDiagonal) continue;
+
 				// Check blockBitboard and captureBitboard (en Passant capture can block)
-				//TODO Make the en passant part more clear. En passant square is not on captureboard since only pawn can capture it. Maybe OR it together with block and capture bitboard?
+				// En passant square is not on captureboard since only pawn can capture it. (Could also OR it together with block and capture bitboard)
 				if (!BitBoard.HasOne(blockBitboard | captureBitboard, file, rank) && (file, rank) != board.enPassantSquare) continue;
 
 				// Else check the piece at the square
@@ -294,7 +293,6 @@ namespace Chess
 				if ((file, rank) == board.enPassantSquare)
 				{
 					// Check for en Passant discovered check (by playing move and checking wether the king is attacked)
-					//TODO Could possibly do it by checking if king is on same rank, and checking for sliding piece ignoring this pawn and the pawn to be captured
 					Move ep = new Move(square, (file, rank), piece, isEnPassantCapture: true);
 					board.MakeMove(ep);
 					if (!IsAttacked(board.kingSquares[Piece.ColorIndex(board.oppositeColor)], board.colorToMove))

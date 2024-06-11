@@ -13,7 +13,6 @@ namespace Chess
 		// then file and rank
 		public static ulong[,,,] pieces = new ulong[2, 6, 8, 8];
 
-		//TODO Separate number for no en Passant?
 		// en Passantfor each file (0-7)
 		public static ulong[] enpassant = new ulong[8];
 

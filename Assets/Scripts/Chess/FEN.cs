@@ -5,9 +5,9 @@ namespace Chess
 {
 	public class FEN
 	{
-		public const string STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; //TODO ret sikker på at det sidste skal være 0
+		public const string STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-		public static string CoordinateToFEN(int file, int rank) //TODO thats no FEN is it er det ikke bare til string?
+		public static string CoordinateToFEN(int file, int rank)
 		{
 			if (!Util.InsideBoard(file, rank))
 			{
@@ -25,7 +25,6 @@ namespace Chess
 		{
 			CastlingRights castlingRights = CastlingRights.None;
 			// Validate input
-			// TODO Validate order of castling rights?
 			bool validLength = 0 <= fen.Length && fen.Length <= 4;
 			bool uniqueCharacters = fen == new String(fen.Distinct().ToArray());
 			if (!validLength || !uniqueCharacters)

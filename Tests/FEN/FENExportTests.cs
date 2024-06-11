@@ -30,7 +30,6 @@ public class ToFENTests
 		Assert.AreEqual("b", FEN.ColorToFEN(board.colorToMove));
 	}
 
-	//TODO This is more CastlingRights related testing. Maybe move to other test class?
 	[TestMethod]
 	public void FENExportCastlingRights()
 	{

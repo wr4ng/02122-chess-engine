@@ -21,7 +21,6 @@ public class InGameUI : MonoBehaviour
 	[SerializeField]
 	private TMP_Text endGameText;
 
-	//TODO Make scriptable object or similar holding the current theme
 	[Header("Sprites")]
 	[SerializeField] private Sprite knighSprite;
 	[SerializeField] private Sprite bishopSprite;
