@@ -5,6 +5,11 @@ namespace Bot
 {
 	public class RandomBot : Bot
 	{
+		Board boardOri;
+		public RandomBot(Board boardOri)
+		{
+			this.boardOri = boardOri;
+		}
 		Random rng = new Random();
 
 		public Move GetBestMove(Board board)

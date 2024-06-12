@@ -1,13 +1,15 @@
+using System;
 using System.Collections.Generic;
 namespace Bot
 {
     public class Openings
     {
-        private List<List<string>> openings = new List<List<string>>();
-        private int openingIndex = 0;
+        public List<List<string>> openings = new List<List<string>>();
+        public int openingIndex;
 
         public Openings()
         {
+            openingIndex = 0;
             openings = new List<List<string>>
             {
                 new List<string> {"e4", "e5", "d4", "exd4", "c3"},
@@ -35,7 +37,6 @@ namespace Bot
                 new List<string> {"e4", "c5", "Nc3"},
                 new List<string> {"d4", "d5", "e4"},
                 new List<string> {"d4", "Nf6", "Bg5"},
-                new List<string> {"Nf3", "d5", "c4"},
                 new List<string> {"e4", "c5", "d4"},
                 new List<string> {"e4", "c5", "Nc3"},
                 new List<string> {"Nf3", "d5", "c4"},
@@ -127,25 +128,33 @@ namespace Bot
                 new List<string> {"d4", "f5", "c4", "Nf6", "g3", "e6", "Bg2", "Be7", "Nf3", "O-O", "O-O", "d5"},
                 new List<string> {"d4", "Nf6", "c4", "g6", "Nc3", "Bg7", "e4", "d6", "Nf3", "O-O", "Be2", "e5", "O-O", "Nc6", "d5", "Ne7", "b4"}
             };
-            openingIndex = 0;
         }
 
-        private (string, bool) CheckOpening(List<string> moves)
+        public (string, bool) CheckOpening(List<string> moves)
         {
-            for(int i = openingIndex; i < openings.Count; i++)
+            List<string> nextMoves = new List<string>();
+            for(int i = 0; i < openings.Count; i++)
             {
                 for(int j = 0; j < moves.Count; j++)
                 {
-                    if(openings[i].Count <= moves.Count && openings[i][j] != moves[j])
+                    if(openings[i].Count <= moves.Count || openings[i][j] != moves[j])
                     {
                         break;
                     }
                     if(j == moves.Count - 1 && openings[i].Count > moves.Count)
                     {
                         openingIndex = i;
-                        return (openings[i][j+1], true);
+                        nextMoves.Add(openings[i][j+1]);
+                        break;
+                        // return (openings[i][j+1], true);
                     }
                 }
+            }
+            if(nextMoves.Count > 0)
+            {
+                Random random = new Random();
+                int index = random.Next(0,nextMoves.Count-1);
+                return (nextMoves[index], true);
             }
             return ("", false);
         }

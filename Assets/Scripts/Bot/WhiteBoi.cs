@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Chess;
 
 namespace Bot
@@ -8,10 +9,16 @@ namespace Bot
 		public static int MAX_DEPTH = 8;
 
 		int depth;
+		Board boardOri;
+		Openings openings;
+		bool isInStartGame;
 
-		public WhiteBoi(int depth)
+		public WhiteBoi(int depth, Board boardOri)
 		{
 			this.depth = depth;
+			this.boardOri = boardOri;
+			isInStartGame = true;
+			openings = new Openings();
 		}
 
 		// Implement Bot interface method
@@ -27,6 +34,26 @@ namespace Bot
 				return new();
 			}
 			newboard.repetitionMap = board.repetitionMap;
+
+			if (isInStartGame)
+			{
+				List<string> pgnlist = boardOri.pgnMoves.ToList();
+				pgnlist.Reverse();
+				string pgnMove;
+				bool stillOp;
+				(pgnMove,stillOp) = openings.CheckOpening(pgnlist);
+				if (stillOp || pgnMove != "")
+				{
+					return PGN.FromAlgebraicNotationToMove(pgnMove, board);
+				}
+				else
+				{
+					isInStartGame = false;
+				}
+
+				isInStartGame = false;
+
+			}
 
 			return ((board.colorToMove == Piece.White) ? miniMaxWhiteAB(newboard, depth, float.NegativeInfinity, float.PositiveInfinity) : miniMaxBlackAB(newboard, depth, float.NegativeInfinity, float.PositiveInfinity)).move;
 		}

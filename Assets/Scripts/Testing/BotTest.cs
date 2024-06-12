@@ -16,7 +16,7 @@ namespace Chess.Testing
 				UnityEngine.Debug.Log($"Testing board position: {fen}");
 
 				// Create a new instance of the bot
-				WhiteBoi bot = new WhiteBoi(depth);
+				WhiteBoi bot = new WhiteBoi(depth, board);
 				// Start the stopwatch
 				Stopwatch stopwatch = Stopwatch.StartNew();
 				bot.GetBestMove(board);

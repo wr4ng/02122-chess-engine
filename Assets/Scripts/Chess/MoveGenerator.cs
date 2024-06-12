@@ -10,6 +10,9 @@ namespace Chess
 		public List<(int file, int rank)> checkers;
 		public bool[] attackedAroundKing;
 
+		// Bool
+		public bool isInCheck;
+
 		// Bitboards
 		public ulong captureBitboard; // If king is in check, contains the locations of the checkers
 		public ulong blockBitboard; // If king is in check, contains the squares where
@@ -89,6 +92,9 @@ namespace Chess
 			// Initialize bitboard
 			captureBitboard = 0;
 			blockBitboard = 0;
+
+			// Initialize isInCheck
+			isInCheck = true;
 
 			for (int dirIndex = 0; dirIndex < kingDirections.Length; dirIndex++)
 			{
@@ -188,6 +194,7 @@ namespace Chess
 			{
 				captureBitboard = BitBoard.AllOnes;
 				blockBitboard = BitBoard.AllOnes;
+				isInCheck = false;
 			}
 		}
 

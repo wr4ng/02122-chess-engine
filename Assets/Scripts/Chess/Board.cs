@@ -14,6 +14,8 @@ namespace Chess
 		public MoveGenerator moveGenerator;
 
 		public Stack<Move> playedMoves;
+		// Move history as algebraic notation
+		public Stack<string> pgnMoves;
 
 		// En passant
 		public (int file, int rank) enPassantSquare;
@@ -48,6 +50,7 @@ namespace Chess
 			kingSquares = new (int file, int rank)[2];
 			moveGenerator = new MoveGenerator(this);
 			playedMoves = new();
+			pgnMoves = new();
 
 			enPassantSquare = (-1, -1);
 			previousEnPassantSquares = new();
@@ -449,6 +452,17 @@ namespace Chess
 				UndoPreviousMove();
 			}
 			return positions;
+		}
+
+		public void AddAlgNotation(Move move)
+		{
+			string algNotation = PGN.MoveToAlgebraicNotation(this,move);
+			pgnMoves.Push(algNotation);
+		}
+		
+		public void PopAlgNotation()
+		{
+			pgnMoves.Pop();
 		}
 	}
 }

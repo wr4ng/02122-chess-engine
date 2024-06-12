@@ -68,7 +68,7 @@ public class GameManager : MonoBehaviour
 		// Initialize Bot if against Bot
 		if (againstBot)
 		{
-			bot = botType.CreateBot(botDepth);
+			bot = botType.CreateBot(botDepth,board);
 		}
 	}
 
@@ -89,12 +89,19 @@ public class GameManager : MonoBehaviour
 			board.UndoPreviousMove();
 			BoardUI.Instance.UpdateBoard(board);
 		}
+		// Print the pgn of the game on space
+		if (Input.GetKeyDown(KeyCode.Space))
+		{
+			UnityEngine.Debug.Log("PGN of the game:");
+			UnityEngine.Debug.Log(PGN.PrettyPgn(board.pgnMoves));
+		}
 		// Check if bot is done
 		if (botIsCalculating && botIsDone)
 		{
 			botIsCalculating = false;
 			botIsDone = false;
 			board.MakeMove(botMove);
+			board.AddAlgNotation(botMove);
 			BoardUI.Instance.UpdateBoard(board);
 			// Check game status
 			CheckGameDone();
@@ -143,6 +150,7 @@ public class GameManager : MonoBehaviour
 			if (selectedMoves.Count == 1)
 			{
 				board.MakeMove(selectedMoves[0]);
+				board.AddAlgNotation(selectedMoves[0]);
 			}
 			else // selectedMoves.Count > 1. Handle promotion
 			{
@@ -150,6 +158,7 @@ public class GameManager : MonoBehaviour
 				{
 					Move promotionMove = selectedMoves.Find(move => move.promotionType == selectedPromotionType);
 					board.MakeMove(promotionMove);
+					board.AddAlgNotation(promotionMove);
 				}
 				catch (InvalidOperationException)
 				{
