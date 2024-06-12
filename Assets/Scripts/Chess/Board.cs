@@ -160,6 +160,22 @@ namespace Chess
 			return board;
 		}
 
+		public static Board FromPGN(string pgnContent)
+		{
+			Board board;
+			board = FromFEN(FEN.STARTING_POSITION_FEN);
+			List<string> moves = PGN.GetMoves(pgnContent);
+			
+			for (int i = 0; i < moves.Count; i++)
+			{
+				Move move = PGN.FromAlgebraicNotationToMove(moves[i], board);
+				board.MakeMove(move);
+				board.AddAlgNotation(move);
+			}
+			UnityEngine.Debug.Log(PGN.PrettyPgn(board.pgnMoves));
+			return board;
+		}
+
 		public string ToFEN()
 		{
 			string board = FEN.BoardToFEN(this);

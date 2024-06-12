@@ -24,8 +24,10 @@ public class MainMenu : MonoBehaviour
 
 	[SerializeField] private TMP_Text whiteBoiText;
 
-	[SerializeField, Tooltip("Input field to pass on FEN or PGN notation")]
+	[SerializeField, Tooltip("Input field to pass on FEN")]
 	private TMP_InputField fenInputField;
+	[SerializeField, Tooltip("Input field to pass on PGN")]
+	private TMP_InputField pgnInputField;
 
 	private int botDepth = 5;
 
@@ -61,6 +63,20 @@ public class MainMenu : MonoBehaviour
 			catch (Exception e)
 			{
 				fenInputField.text = $"Invalid fen: {e.Message}";
+			}
+		} if (pgnInputField.text != "")
+		{
+			// Validate PGN
+			try
+			{
+				Board.FromPGN(pgnInputField.text);
+				// Set PGN for GameManager and load game scene
+				GameManager.IMPORT_PGN = pgnInputField.text;
+				SceneManager.LoadScene((int)SceneIndex.Game);
+			}
+			catch (Exception e)
+			{
+				pgnInputField.text = $"Invalid pgn: {e.Message}";
 			}
 		}
 		else

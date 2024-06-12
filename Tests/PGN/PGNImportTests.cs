@@ -211,9 +211,7 @@ public class PGNImportTests
     {
         // remove the last part of the FEN string
         // find the person that is on move and remove everything after that it can either be w or b
-
         List<string> parts = new List<string>(fen.Split(' '));
-
         return parts.First();
     }
 }

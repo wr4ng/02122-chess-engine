@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
 
 	// Static parameters set from Menu
 	public static string IMPORT_FEN = string.Empty;
+	public static string IMPORT_PGN = string.Empty;
 	public static bool againstBot = false;
 	public static BotType botType = BotType.RandomBot;
 	public static int botDepth = 5;
@@ -56,6 +57,18 @@ public class GameManager : MonoBehaviour
 			catch
 			{
 				// Default to using standard starting position if IMPORT_FEN yielded an error
+				board = Board.FromFEN(FEN.STARTING_POSITION_FEN);
+			}
+		} else if (IMPORT_PGN != string.Empty)
+		{
+			try
+			{
+				board = Board.FromPGN(IMPORT_PGN);
+			}
+			catch (Exception e)
+			{
+				UnityEngine.Debug.Log(e.Message);
+				// Default to using standard starting position if IMPORT_PGN yielded an error
 				board = Board.FromFEN(FEN.STARTING_POSITION_FEN);
 			}
 		}
