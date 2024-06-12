@@ -107,8 +107,9 @@ public class GameManager : MonoBehaviour
 		// Print the pgn of the game on space
 		if (Input.GetKeyDown(KeyCode.Space))
 		{
-			UnityEngine.Debug.Log("PGN of the game:");
-			UnityEngine.Debug.Log(PGN.PrettyPgn(board.pgnMoves));
+			GUIUtility.systemCopyBuffer = PGN.PrettyPgn(board.pgnMoves);
+			// UnityEngine.Debug.Log("PGN of the game:");
+			// UnityEngine.Debug.Log(PGN.PrettyPgn(board.pgnMoves));
 		}
 		// Check if bot is done
 		if (botIsCalculating && botIsDone)
