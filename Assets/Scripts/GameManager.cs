@@ -116,6 +116,7 @@ public class GameManager : MonoBehaviour
 			board.MakeMove(botMove);
 			board.AddAlgNotation(botMove);
 			BoardUI.Instance.UpdateBoard(board);
+			InGameUI.Instance.UpdateEvalText(bot); //TODO undo eval when going backwards
 			// Check game status
 			CheckGameDone();
 		}

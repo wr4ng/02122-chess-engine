@@ -6,6 +6,8 @@ namespace Bot
 	{
 		public Move GetBestMove(Board board);
 		public string Name();
+
+		public float getEval();
 	}
 
 	// Int values are used when parsing since Unity events cannot pass Enums

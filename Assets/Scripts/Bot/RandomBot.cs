@@ -27,5 +27,10 @@ namespace Bot
 		}
 
 		public string Name() => "RandomBot";
+
+		public float getEval()
+		{
+			return 0;
+		}
 	}
 }

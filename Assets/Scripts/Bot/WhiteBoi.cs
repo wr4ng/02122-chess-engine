@@ -8,6 +8,8 @@ namespace Bot
 	{
 		public static int MAX_DEPTH = 8;
 
+		float recentEval = 0;
+
 		int depth;
 		Board boardOri;
 		Openings openings;
@@ -54,8 +56,9 @@ namespace Bot
 				isInStartGame = false;
 
 			}
-
-			return ((board.colorToMove == Piece.White) ? miniMaxWhiteAB(newboard, depth, float.NegativeInfinity, float.PositiveInfinity) : miniMaxBlackAB(newboard, depth, float.NegativeInfinity, float.PositiveInfinity)).move;
+			(Move bestMove, float eval) = (board.colorToMove == Piece.White) ? miniMaxWhiteAB(newboard, depth, float.NegativeInfinity, float.PositiveInfinity) : miniMaxBlackAB(newboard, depth, float.NegativeInfinity, float.PositiveInfinity);
+			recentEval = eval;
+			return bestMove;
 		}
 
 		public string Name() => $"WhiteBoi({depth} inches)";
@@ -156,6 +159,11 @@ namespace Bot
 				board.UndoPreviousMove();
 			}
 			return (bestMove, minEval);
+		}
+
+		public float getEval()
+		{
+			return recentEval/100;
 		}
 	}
 }
