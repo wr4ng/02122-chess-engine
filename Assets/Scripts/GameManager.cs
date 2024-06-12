@@ -100,6 +100,8 @@ public class GameManager : MonoBehaviour
 			}
 			ClearSelection();
 			board.UndoPreviousMove();
+			board.PopAlgNotation();
+			bot.UpdateOp();
 			BoardUI.Instance.UpdateBoard(board);
 		}
 		// Print the pgn of the game on space

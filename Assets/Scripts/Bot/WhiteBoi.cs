@@ -157,5 +157,8 @@ namespace Bot
 			}
 			return (bestMove, minEval);
 		}
+		public void UpdateOp(){
+			isInStartGame = true;
+		}
 	}
 }

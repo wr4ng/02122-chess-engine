@@ -27,5 +27,6 @@ namespace Bot
 		}
 
 		public string Name() => "RandomBot";
+		public void UpdateOp() { }
 	}
 }
