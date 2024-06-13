@@ -10,8 +10,6 @@ enum SceneIndex
 {
 	Menu = 0,
 	Game = 1,
-	Perft = 2,
-	BotTest = 3,
 }
 
 public class MainMenu : MonoBehaviour
@@ -19,8 +17,6 @@ public class MainMenu : MonoBehaviour
 	[Header("GameObjects")]
 	[SerializeField] private GameObject mainMenu;
 	[SerializeField] private GameObject playMenu;
-	[SerializeField] private GameObject optionsMenu;
-	[SerializeField] private GameObject testingMenu;
 
 	[SerializeField] private TMP_Text whiteBoiText;
 
@@ -113,24 +109,10 @@ public class MainMenu : MonoBehaviour
 		playMenu.SetActive(true);
 	}
 
-	public void ShowOptions()
-	{
-		mainMenu.SetActive(false);
-		optionsMenu.SetActive(true);
-	}
-
-	public void ShowTesting()
-	{
-		mainMenu.SetActive(false);
-		testingMenu.SetActive(true);
-	}
-
 	public void Back()
 	{
 		mainMenu.SetActive(true);
 		playMenu.SetActive(false);
-		optionsMenu.SetActive(false);
-		testingMenu.SetActive(false);
 	}
 
 	public void LoadScene(int sceneIndex)
