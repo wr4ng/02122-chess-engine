@@ -82,6 +82,7 @@ public class GameManager : MonoBehaviour
 		if (againstBot)
 		{
 			bot = botType.CreateBot(botDepth,board);
+			InGameUI.Instance.UpdateEvalText("...");
 		}
 	}
 
@@ -101,6 +102,7 @@ public class GameManager : MonoBehaviour
 			ClearSelection();
 			board.UndoPreviousMove();
 			BoardUI.Instance.UpdateBoard(board);
+			InGameUI.Instance.UpdateEvalText("N/A");
 		}
 		// Print the pgn of the game on space
 		if (Input.GetKeyDown(KeyCode.Space))
@@ -116,7 +118,7 @@ public class GameManager : MonoBehaviour
 			board.MakeMove(botMove);
 			board.AddAlgNotation(botMove);
 			BoardUI.Instance.UpdateBoard(board);
-			InGameUI.Instance.UpdateEvalText(bot); //TODO undo eval when going backwards
+			InGameUI.Instance.UpdateEvalText(bot.GetEval());
 			// Check game status
 			CheckGameDone();
 		}

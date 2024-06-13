@@ -23,6 +23,14 @@ namespace Bot
 			openings = new Openings();
 		}
 
+		public string GetEval()
+		{
+			if (isInStartGame)
+				return "Opening Phase";
+
+			return $"{recentEval / 100}";
+		}
+
 		// Implement Bot interface method
 		public Move GetBestMove(Board board)
 		{
@@ -43,7 +51,7 @@ namespace Bot
 				pgnlist.Reverse();
 				string pgnMove;
 				bool stillOp;
-				(pgnMove,stillOp) = openings.CheckOpening(pgnlist);
+				(pgnMove, stillOp) = openings.CheckOpening(pgnlist);
 				if (stillOp || pgnMove != "")
 				{
 					return PGN.FromAlgebraicNotationToMove(pgnMove, board);
@@ -159,11 +167,6 @@ namespace Bot
 				board.UndoPreviousMove();
 			}
 			return (bestMove, minEval);
-		}
-
-		public float getEval()
-		{
-			return recentEval/100;
 		}
 	}
 }

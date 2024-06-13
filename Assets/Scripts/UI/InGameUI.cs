@@ -28,7 +28,7 @@ public class InGameUI : MonoBehaviour
 	[SerializeField] private Sprite queenSprite;
 
 	[Header("Text Updates")]
-	[SerializeField] private TMP_Text evalText;	
+	[SerializeField] private TMP_Text evalText;
 
 
 	private void Awake()
@@ -87,8 +87,8 @@ public class InGameUI : MonoBehaviour
 		endGameObject.SetActive(true);
 	}
 
-	public void UpdateEvalText(Bot.Bot bot)
+	public void UpdateEvalText(string eval)
 	{
-		evalText.SetText("" + bot.getEval());
+		evalText.SetText($"Eval: {eval}");
 	}
 }
