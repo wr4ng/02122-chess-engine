@@ -82,7 +82,8 @@ public class GameManager : MonoBehaviour
 		// Initialize Bot if against Bot
 		if (againstBot)
 		{
-			bot = botType.CreateBot(botDepth, board);
+			bot = botType.CreateBot(botDepth,board);
+			InGameUI.Instance.UpdateEvalText("...");
 		}
 	}
 
@@ -107,6 +108,7 @@ public class GameManager : MonoBehaviour
 				bot.UpdateOp();
 			}
 			BoardUI.Instance.UpdateBoard(board);
+			InGameUI.Instance.UpdateEvalText("N/A");
 		}
 		// Print the pgn of the game on space
 		if (Input.GetKeyDown(KeyCode.Space))
@@ -123,6 +125,7 @@ public class GameManager : MonoBehaviour
 			board.MakeMove(botMove);
 			board.AddAlgNotation(botMove);
 			BoardUI.Instance.UpdateBoard(board);
+			InGameUI.Instance.UpdateEvalText(bot.GetEval());
 			// Check game status
 			CheckGameDone();
 		}

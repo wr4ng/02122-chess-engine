@@ -28,5 +28,6 @@ namespace Bot
 
 		public string Name() => "RandomBot";
 		public void UpdateOp() { }
+		public string GetEval() => "No eval";
 	}
 }

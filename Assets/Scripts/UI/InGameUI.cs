@@ -27,6 +27,10 @@ public class InGameUI : MonoBehaviour
 	[SerializeField] private Sprite rookSprite;
 	[SerializeField] private Sprite queenSprite;
 
+	[Header("Text Updates")]
+	[SerializeField] private TMP_Text evalText;
+
+
 	private void Awake()
 	{
 		// Singleton setup
@@ -81,5 +85,10 @@ public class InGameUI : MonoBehaviour
 	{
 		endGameText.text = endMessage;
 		endGameObject.SetActive(true);
+	}
+
+	public void UpdateEvalText(string eval)
+	{
+		evalText.SetText($"Eval: {eval}");
 	}
 }
