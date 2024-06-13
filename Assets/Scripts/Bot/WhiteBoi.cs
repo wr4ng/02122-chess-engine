@@ -41,7 +41,7 @@ namespace Bot
 			}
 			catch
 			{
-				return new();
+				throw new System.Exception("Error loading board in bot!");
 			}
 			newboard.repetitionMap = board.repetitionMap;
 
@@ -54,7 +54,12 @@ namespace Bot
 				(pgnMove, stillOp) = openings.CheckOpening(pgnlist);
 				if (stillOp || pgnMove != "")
 				{
-					return PGN.FromAlgebraicNotationToMove(pgnMove, board);
+					Move openingMove = PGN.FromAlgebraicNotationToMove(pgnMove, board);
+					List<Move> legalMoves = newboard.moveGenerator.GenerateMoves();
+					if (legalMoves.Contains(openingMove))
+					{
+						return openingMove;
+					}
 				}
 				else
 				{
