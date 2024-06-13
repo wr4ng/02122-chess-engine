@@ -165,14 +165,13 @@ namespace Chess
 			Board board;
 			board = FromFEN(FEN.STARTING_POSITION_FEN);
 			List<string> moves = PGN.GetMoves(pgnContent);
-			
+
 			for (int i = 0; i < moves.Count; i++)
 			{
 				Move move = PGN.FromAlgebraicNotationToMove(moves[i], board);
 				board.MakeMove(move);
 				board.AddAlgNotation(move);
 			}
-			UnityEngine.Debug.Log(PGN.PrettyPgn(board.pgnMoves));
 			return board;
 		}
 
@@ -474,13 +473,16 @@ namespace Chess
 
 		public void AddAlgNotation(Move move)
 		{
-			string algNotation = PGN.MoveToAlgebraicNotation(this,move);
+			string algNotation = PGN.MoveToAlgebraicNotation(this, move);
 			pgnMoves.Push(algNotation);
 		}
-		
+
 		public void PopAlgNotation()
 		{
-			pgnMoves.Pop();
+			if (pgnMoves.Count > 0)
+			{
+				pgnMoves.Pop();
+			}
 		}
 	}
 }

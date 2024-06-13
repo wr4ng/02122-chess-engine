@@ -59,7 +59,8 @@ public class GameManager : MonoBehaviour
 				// Default to using standard starting position if IMPORT_FEN yielded an error
 				board = Board.FromFEN(FEN.STARTING_POSITION_FEN);
 			}
-		} else if (IMPORT_PGN != string.Empty)
+		}
+		else if (IMPORT_PGN != string.Empty)
 		{
 			try
 			{
@@ -81,7 +82,7 @@ public class GameManager : MonoBehaviour
 		// Initialize Bot if against Bot
 		if (againstBot)
 		{
-			bot = botType.CreateBot(botDepth,board);
+			bot = botType.CreateBot(botDepth, board);
 		}
 	}
 
@@ -101,7 +102,10 @@ public class GameManager : MonoBehaviour
 			ClearSelection();
 			board.UndoPreviousMove();
 			board.PopAlgNotation();
-			bot.UpdateOp();
+			if (againstBot)
+			{
+				bot.UpdateOp();
+			}
 			BoardUI.Instance.UpdateBoard(board);
 		}
 		// Print the pgn of the game on space
