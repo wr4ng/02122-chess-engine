@@ -435,6 +435,8 @@ namespace Chess
 			// Set previous hash
 			hash = previousHashes.Pop();
 
+			halfMoveClock = previousHalfMoveClock.Pop();
+
 			drawState = DrawState.None;
 
 			fullMoveNumber--;
