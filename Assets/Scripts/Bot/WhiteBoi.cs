@@ -26,7 +26,7 @@ namespace Bot
 		public string GetEval()
 		{
 			if (isInStartGame)
-				return "Opening Phase";
+				return "Opening";
 
 			return $"{recentEval / 100}";
 		}
