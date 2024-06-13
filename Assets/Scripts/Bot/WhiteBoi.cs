@@ -69,7 +69,7 @@ namespace Bot
 			return bestMove;
 		}
 
-		public string Name() => $"WhiteBoi({depth} inches)";
+		public string Name() => $"WhiteBoi({depth})";
 
 		private (Move move, float evaluation) miniMaxWhiteAB(Board board, int depth, float alpha, float beta) //wants highest score
 		{
