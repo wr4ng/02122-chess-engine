@@ -1,384 +1,488 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace Chess
 {
 	public class Board
 	{
-		public const int BOARD_SIZE = 8;
-		public Draw draw;
+		public int[,] squares;
+		public int colorToMove;
+		public int oppositeColor => colorToMove == Piece.White ? Piece.Black : Piece.White;
 
-		private Piece[,] board = new Piece[BOARD_SIZE, BOARD_SIZE];
-		private Color currentPlayer;
-		private CastlingRights castlingRights;
-		private (int, int) enPassantSquare;     // (file, rank), holds possible en Passant square
-		private int halfmoveClock;              // Used to determine fifty move rule
-		private int fullmoveNumber;             // The number of full moves made in the game
+		public (int file, int rank)[] kingSquares; // 0 = White, 1 = King
 
-		public bool gameOver = false;
+		public MoveGenerator moveGenerator;
 
-		public bool isDraw = true;
+		public Stack<Move> playedMoves;
+		// Move history as algebraic notation
+		public Stack<string> pgnMoves;
 
-		private Stack<Move> playedMoves;        // List of played moves
-		private List<Move> legalMoves;          // List of the currently legal moves
+		// En passant
+		public (int file, int rank) enPassantSquare;
+		public Stack<(int file, int rank)> previousEnPassantSquares;
 
-		private Board()
+		// Castling rights
+		public CastlingRights castlingRights;
+		public Stack<CastlingRights> previousCastlingRights;
+
+		// Zobrist
+		public ulong hash;
+		public Stack<ulong> previousHashes;
+
+		// Draw
+		public int halfMoveClock;
+		public Stack<int> previousHalfMoveClock;
+		public int fullMoveNumber;
+		public Dictionary<ulong, int> repetitionMap;
+		public DrawState drawState;
+
+		public enum DrawState
 		{
-			legalMoves = new List<Move>();
+			None,
+			FiftyMoveRule,
+			Repetition
 		}
 
-		public static Board ImportFromFEN(string fen)
+		public Board()
 		{
-			// Initialize board
-			Board board = new Board();
-			board.playedMoves = new Stack<Move>();
+			squares = new int[8, 8];
+			colorToMove = Piece.White;
+			kingSquares = new (int file, int rank)[2];
+			moveGenerator = new MoveGenerator(this);
+			playedMoves = new();
+			pgnMoves = new();
 
-			// Validate FEN parts
+			enPassantSquare = (-1, -1);
+			previousEnPassantSquares = new();
+
+			castlingRights = CastlingRights.None;
+			previousCastlingRights = new();
+
+			hash = 0;
+			previousHashes = new();
+
+			halfMoveClock = 0;
+			fullMoveNumber = 0;
+			previousHalfMoveClock = new();
+			repetitionMap = new();
+			drawState = DrawState.None;
+		}
+
+		public static Board FromFEN(string fen)
+		{
+			Board board = new();
+
 			string[] fenParts = fen.Split(' ');
 			if (fenParts.Length != 6)
 			{
-				throw new ArgumentException($"Invalid FEN string (wrong number of parts): {fen}");
+				throw new System.ArgumentException("Invalid number of FEN parts!");
 			}
-			// Parse each fen part
-			board.board = FEN.ParseBoard(fenParts[0]);
-			board.currentPlayer = FEN.ParsePlayer(fenParts[1]);
+
+			// Parse board
+			string fenBoard = fenParts[0];
+			int file = 0, rank = 7;
+			int numWhiteKings = 0, numBlackKings = 0;
+
+			foreach (char c in fenBoard)
+			{
+				if (char.IsDigit(c))
+				{
+					file += (int)char.GetNumericValue(c);
+					if (file > 8)
+					{
+						throw new System.ArgumentException("Invalid file length!");
+					}
+				}
+				else if (c == '/')
+				{
+					if (file != 8)
+					{
+						throw new System.ArgumentException("Invalid file length!");
+					}
+					file = 0;
+					rank--;
+					if (rank < 0)
+					{
+						throw new System.ArgumentException($"Too many ranks!");
+					}
+				}
+				else
+				{
+					int color = char.IsUpper(c) ? Piece.White : Piece.Black;
+					int type = char.ToLower(c) switch
+					{
+						'p' => Piece.Pawn,
+						'b' => Piece.Bishop,
+						'n' => Piece.Knight,
+						'r' => Piece.Rook,
+						'q' => Piece.Queen,
+						'k' => Piece.King,
+						_ => throw new System.ArgumentException($"Invalid char found when parsing board: {c}")
+					};
+					// Save king positions
+					if (type == Piece.King)
+					{
+						board.kingSquares[Piece.ColorIndex(color)] = (file, rank);
+						// Increment number of kings
+						if (color == Piece.White)
+							numWhiteKings++;
+						else
+							numBlackKings++;
+					}
+
+					board.squares[file, rank] = color | type;
+					file++;
+				}
+			}
+			// Verify number of kings
+			if (numWhiteKings != 1 || numBlackKings != 1)
+			{
+				throw new System.ArgumentException("Invalid number of kings!");
+			}
+			// Parse current player
+			board.colorToMove = fenParts[1] switch
+			{
+				"w" => Piece.White,
+				"b" => Piece.Black,
+				_ => throw new System.ArgumentException($"Invalid current player: {fenParts[1]}")
+			};
+			// Parse castling rights
 			board.castlingRights = FEN.ParseCastlingRights(fenParts[2]);
+			// Parse en Passant square
 			board.enPassantSquare = FEN.ParseEnPassant(fenParts[3]);
-			board.halfmoveClock = FEN.ParseHalfmoveClock(fenParts[4]);
-			board.fullmoveNumber = FEN.ParseFullmoveNumber(fenParts[5]);
+			board.halfMoveClock = FEN.ParseHalfmoveClock(fenParts[4]);
+			board.fullMoveNumber = FEN.ParseFullmoveNumber(fenParts[5]);
 
-			board.draw = new Draw(board.GetHalfmoveClock(), fen);
+			// Calculate zobrist hash
+			board.hash = Zobrist.GenerateHash(board);
+			board.repetitionMap[board.hash] = 1;
 
-			// Calculate legal moves
-			board.GenerateLegalMoves();
-
-			// Return resulting board
 			return board;
 		}
 
-		public static bool TryParseFEN(string fen, out Board board)
+		public static Board FromPGN(string pgnContent)
 		{
-			try
+			Board board;
+			board = FromFEN(FEN.STARTING_POSITION_FEN);
+			List<string> moves = PGN.GetMoves(pgnContent);
+
+			for (int i = 0; i < moves.Count; i++)
 			{
-				board = Board.ImportFromFEN(fen);
-				return true;
+				Move move = PGN.FromAlgebraicNotationToMove(moves[i], board);
+				board.MakeMove(move);
+				board.AddAlgNotation(move);
 			}
-			catch (Exception)
-			{
-				board = null;
-				return false;
-			}
-		}
-
-		public static Board DefaultBoard()
-		{
-			return ImportFromFEN(FEN.STARTING_POSITION_FEN);
-		}
-
-		public string ExportToFEN()
-		{
-			string fen = "";
-			//add the board state "https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation"
-			fen += FEN.BoardToFEN(this.board);
-			fen += FEN.CurrentPlayerToFEN(this.currentPlayer);
-			fen += FEN.CastlingRightsToFEN(this.castlingRights);
-			fen += FEN.EnPassantToFEN(this.enPassantSquare);
-			fen += FEN.HalfmoveClockToFEN(draw.getHalfMoveClock());
-			fen += FEN.FullmoveNumberToFEN(this.fullmoveNumber);
-			return fen;
-		}
-
-		public Piece GetPiece(int file, int rank)
-		{
-			return board[file, rank];
-		}
-
-		public Piece GetPiece((int, int) coords)
-		{
-			return board[coords.Item1, coords.Item2];
-		}
-
-		public void SetPiece((int, int) coords, Piece piece)
-		{
-			board[coords.Item1, coords.Item2] = piece;
-		}
-
-		public void SwapPlayer()
-		{
-			currentPlayer = currentPlayer.Opposite();
-		}
-
-		public Color GetCurrentPlayer()
-		{
-			return currentPlayer;
-		}
-
-		public CastlingRights GetCastlingRights()
-		{
-			return castlingRights;
-		}
-
-		public void SetCastlingRights(CastlingRights castlingRight)
-		{
-			castlingRights = castlingRight;
-		}
-
-		public string GetEnPassantSquare()
-		{
-			return enPassantSquare == (-1, -1) ? "-" : FEN.CoordinateToFEN(enPassantSquare);
-		}
-
-		public (int, int) GetEnPassantCoords()
-		{
-			return enPassantSquare;
-		}
-
-		public Piece[,] GetBoard()
-		{
 			return board;
 		}
 
-		public int GetHalfmoveClock()
+		public string ToFEN()
 		{
-			return halfmoveClock;
-		}
-
-		public int GetFullmoveNumber()
-		{
-			return fullmoveNumber;
-		}
-
-		public List<Move> GetLegalMoves()
-		{
-			return legalMoves;
+			string board = FEN.BoardToFEN(this);
+			string player = FEN.ColorToFEN(colorToMove);
+			string castling = castlingRights.ToFEN();
+			string ep = FEN.EnPassantToFEN(enPassantSquare);
+			string halfmove = halfMoveClock.ToString();
+			string fullmove = fullMoveNumber.ToString();
+			return $"{board} {player} {castling} {ep} {halfmove} {fullmove}";
 		}
 
 		public override string ToString()
 		{
-			String result = "";
-			for (int rank = BOARD_SIZE - 1; 0 <= rank; rank--)
+			string board = "";
+			for (int rank = 7; rank >= 0; rank--)
 			{
-				for (int file = 0; file < BOARD_SIZE; file++)
+				for (int file = 0; file < 8; file++)
 				{
-					if (board[file, rank] == null)
+					char type = Piece.Type(squares[file, rank]) switch
 					{
-						result += "-";
-					}
-					else
-					{
-						result += board[file, rank].ToFENchar();
-					}
+						Piece.None => '-',
+						Piece.Pawn => 'p',
+						Piece.Bishop => 'b',
+						Piece.Knight => 'n',
+						Piece.Rook => 'r',
+						Piece.Queen => 'q',
+						Piece.King => 'k',
+						_ => '?' // Shoudn't be reached. Then squares[file, rank] has invalid type value (3 least significant bits)
+					};
+					char piece = Piece.IsColor(squares[file, rank], Piece.White) ? char.ToUpper(type) : type;
+					board += piece;
 				}
-				result += "\n";
+				board += "\n";
 			}
-			return result.Trim();
+			return board.Trim();
 		}
 
-		// TODO Update castling rights when making a move
-		private void MakeMove(Move move, bool calculateNextLegalMoves = false)
+		public void MakeMove(Move move)
 		{
-			// If move is a capture, remove captured piece
-			if (move.IsCapture())
+			// Push previous hash to stack
+			previousHashes.Push(hash);
+
+			int piece = squares[move.from.file, move.from.rank];
+
+			// Update halfMoveClock
+			previousHalfMoveClock.Push(halfMoveClock);
+			if (Piece.Type(piece) == Piece.Pawn || move.capturedPiece != Piece.None)
 			{
-				SetPiece(move.GetCaptureSquare(), null);
-			}
-			// If move is a castle, move rook
-			else if (move.IsCastle())
-			{
-				SetPiece(move.GetRookEnd(), GetPiece(move.GetRookStart()));
-				SetPiece(move.GetRookStart(), null);
-			}
-			// Move main piece
-			if (move.IsPromotion())
-			{
-				SetPiece(move.GetEndSquare(), new Piece(move.PromotionPieceType(), currentPlayer));
+				halfMoveClock = 0;
 			}
 			else
 			{
-				SetPiece(move.GetEndSquare(), GetPiece(move.GetStartSquare()));
+				halfMoveClock++;
+				if (halfMoveClock >= 100)
+				{
+					drawState = DrawState.FiftyMoveRule;
+				}
 			}
-			SetPiece(move.GetStartSquare(), null);
-			// Handle new en passant square
-			move.SetPrevEnPassantSquare(enPassantSquare);
-			if (move.IsDoublePawnMove())
+
+			// Remove piece from starting square
+			squares[move.from.file, move.from.rank] = Piece.None;
+			hash ^= Zobrist.pieces[Piece.ColorIndex(piece), Piece.TypeIndex(piece), move.from.file, move.from.rank];
+
+			// Handle promotion
+			if (move.promotionType != Piece.None)
 			{
-				enPassantSquare = move.GetEnPassantSquare();
+				// Add promoted piece to move.to
+				squares[move.to.file, move.to.rank] = colorToMove | move.promotionType;
+				hash ^= Zobrist.pieces[Piece.ColorIndex(colorToMove), Piece.TypeIndex(move.promotionType), move.to.file, move.to.rank];
+			}
+			else
+			{
+				// Add moved piece to move.to
+				squares[move.to.file, move.to.rank] = piece;
+				hash ^= Zobrist.pieces[Piece.ColorIndex(piece), Piece.TypeIndex(piece), move.to.file, move.to.rank];
+			}
+
+			// Handle non-ep capture (Zobrist)
+			if (move.capturedPiece != Piece.None && !move.isEnPassantCapture)
+			{
+				// Remove captured piece from zobrist
+				hash ^= Zobrist.pieces[Piece.ColorIndex(oppositeColor), Piece.TypeIndex(move.capturedPiece), move.to.file, move.to.rank];
+			}
+
+			// En Passant
+			// Add previous EP square to stack
+			previousEnPassantSquares.Push(enPassantSquare);
+			// If we previously had EP square, remove it from hash
+			if (enPassantSquare != (-1, -1))
+			{
+				hash ^= Zobrist.enpassant[enPassantSquare.file];
+			}
+			// If current move is double pawn move, set en Passant square (if piece is pawn and moves 2 ranks)
+			bool doublePawnMove = (Piece.Type(piece) == Piece.Pawn) && (System.Math.Abs(move.from.rank - move.to.rank) == 2);
+			if (doublePawnMove)
+			{
+				enPassantSquare = (move.from.file, move.from.rank + (colorToMove == Piece.White ? 1 : -1));
+				hash ^= Zobrist.enpassant[move.from.file];
 			}
 			else
 			{
 				enPassantSquare = (-1, -1);
 			}
 
-			// Update halfmove clock in draw object
-			draw.fiftyMoveRule(move.GetPieceType(), move.IsCapture());
-
-			// Update position count in draw object
-			draw.updatePositionCount(ExportToFEN());
-			if (draw.getIsDraw())
+			// Check for en Passant capture
+			if (move.isEnPassantCapture)
 			{
-				// TODO Handle draw
+				// Remove pawn 1 below move.to
+				int forward = colorToMove == Piece.White ? 1 : -1;
+				squares[move.to.file, move.to.rank - forward] = Piece.None;
+				hash ^= Zobrist.pieces[Piece.ColorIndex(oppositeColor), Piece.TypeIndex(Piece.Pawn), move.to.file, move.to.rank - forward];
 			}
-			move.SetPrevCastlingRights(castlingRights);
-			castlingRights = UpdateAllCastlingRights(castlingRights, move);
-			SwapPlayer();
-			playedMoves.Push(move);
-
-			// After making a move, possibly calculate the new legal moves
-			if (calculateNextLegalMoves)
+			// If castle, also move rook
+			if (move.isCastle)
 			{
-				GenerateLegalMoves();
+				// Calculate castle direction based on move.to.file. Queenside = c-file = 2. Kingside = g-file = 6
+				bool isKingside = move.to.file == 6;
+				// Get rank of king
+				int kingRank = colorToMove == Piece.White ? 0 : 7;
+				if (isKingside)
+				{
+					// Move rook
+					squares[7, kingRank] = Piece.None;
+					squares[5, kingRank] = colorToMove | Piece.Rook;
+					hash ^= Zobrist.pieces[Piece.ColorIndex(colorToMove), Piece.TypeIndex(Piece.Rook), 7, kingRank];
+					hash ^= Zobrist.pieces[Piece.ColorIndex(colorToMove), Piece.TypeIndex(Piece.Rook), 5, kingRank];
+				}
+				else
+				{
+					// Move rook
+					squares[0, kingRank] = Piece.None;
+					squares[3, kingRank] = colorToMove | Piece.Rook;
+					hash ^= Zobrist.pieces[Piece.ColorIndex(colorToMove), Piece.TypeIndex(Piece.Rook), 0, kingRank];
+					hash ^= Zobrist.pieces[Piece.ColorIndex(colorToMove), Piece.TypeIndex(Piece.Rook), 3, kingRank];
+				}
 			}
-		}
-
-		// TODO Update castling rights when unmaking a move
-		private void UnmakeMove(Move move, bool calculateNextLegalMoves = false)
-		{
-			// Undo changes in draw object
-			draw.undoDrawCount(ExportToFEN());
-
-			// Can only unmake moves that have previously been made
-			if (!playedMoves.TryPeek(out Move topMove) || topMove != move)
+			// Add previous castling rights to stack
+			previousCastlingRights.Push(castlingRights);
+			// Calculate new castling rights
+			// If any piece moves to or from one of the corners, or the king moves, remove the corresponding castling right (ie. rook being captured or moved)
+			// White Kingside
+			if (castlingRights.HasFlag(CastlingRights.WhiteKingside) && ((colorToMove == Piece.White && Piece.Type(piece) == Piece.King) || move.from == (7, 0) || move.to == (7, 0)))
 			{
-				throw new ArgumentException("Trying to unmake move which isn't the top move!");
+				castlingRights = castlingRights.ClearRights(CastlingRights.WhiteKingside);
+				hash ^= Zobrist.castle[0];
 			}
-			// Move main piece back
-			if (move.IsPromotion())
+			// White Queenside
+			if (castlingRights.HasFlag(CastlingRights.WhiteQueenside) && ((colorToMove == Piece.White && Piece.Type(piece) == Piece.King) || move.from == (0, 0) || move.to == (0, 0)))
 			{
-				SetPiece(move.GetStartSquare(), new Piece(PieceType.Pawn, currentPlayer.Opposite()));
+				castlingRights = castlingRights.ClearRights(CastlingRights.WhiteQueenside);
+				hash ^= Zobrist.castle[1];
+			}
+			// Black Kingside
+			if (castlingRights.HasFlag(CastlingRights.BlackKingside) && ((colorToMove == Piece.Black && Piece.Type(piece) == Piece.King) || move.from == (7, 7) || move.to == (7, 7)))
+			{
+				castlingRights = castlingRights.ClearRights(CastlingRights.BlackKingside);
+				hash ^= Zobrist.castle[2];
+			}
+			// Black Queenside
+			if (castlingRights.HasFlag(CastlingRights.BlackQueenside) && ((colorToMove == Piece.Black && Piece.Type(piece) == Piece.King) || move.from == (0, 7) || move.to == (0, 7)))
+			{
+				castlingRights = castlingRights.ClearRights(CastlingRights.BlackQueenside);
+				hash ^= Zobrist.castle[3];
+			}
+			// Update king position
+			if (Piece.Type(piece) == Piece.King)
+			{
+				kingSquares[Piece.ColorIndex(colorToMove)] = move.to;
+			}
+			// Swap player
+			colorToMove = oppositeColor;
+			hash ^= Zobrist.side;
+			// Add hash to repetition map
+			if (repetitionMap.ContainsKey(hash))
+			{
+				repetitionMap[hash] += 1;
+				if (repetitionMap[hash] >= 3)
+				{
+					drawState = DrawState.Repetition;
+				}
 			}
 			else
 			{
-				SetPiece(move.GetStartSquare(), GetPiece(move.GetEndSquare()));
+				repetitionMap[hash] = 1;
 			}
-			SetPiece(move.GetEndSquare(), null);
-			// If castle, move rook back
-			if (move.IsCastle())
-			{
-				SetPiece(move.GetRookStart(), GetPiece(move.GetRookEnd()));
-				SetPiece(move.GetRookEnd(), null);
-			}
-			// If capture, re-add captured piece
-			if (move.IsCapture())
-			{
-				SetPiece(move.GetCaptureSquare(), move.GetCapturedPiece());
-			}
-			enPassantSquare = move.GetPrevEnPassantSquare();
 
-			castlingRights = move.GetPrevCastlingRights();
-			SwapPlayer();
+			// Add move to stack of played moves
+			playedMoves.Push(move);
+			fullMoveNumber++;
+		}
+
+		public void UnmakeMove(Move move)
+		{
+			// Check if we're trying to unmake a move that hasn't been played yet
+			bool hasMoves = playedMoves.TryPeek(out Move topMove);
+			bool matchesTopMove = hasMoves && move.Equals(topMove);
+			if (!matchesTopMove)
+			{
+				throw new System.ArgumentException($"Trying to unmake move which isn't the top move!\nPlayed: {move}\nTop: {topMove}");
+			}
+			// If it does match, remove it from the stack
 			playedMoves.Pop();
 
-			// After making a move, possibly calculate the new legal moves
-			if (calculateNextLegalMoves)
-			{
-				GenerateLegalMoves();
-				gameOver = false;
-				isDraw = true;
-			}
-		}
+			// Get moving piece
+			bool isPromotion = move.promotionType != Piece.None;
+			int piece = isPromotion ? (oppositeColor | Piece.Pawn) : squares[move.to.file, move.to.rank];
 
-		public void PlayMove(Move move)
-		{
-			if (legalMoves.Contains(move))
+			// Move back
+			squares[move.from.file, move.from.rank] = piece;
+
+			// Add captured piece back in (can be Piece.None)
+			squares[move.to.file, move.to.rank] = move.capturedPiece;
+
+			// Set previous en Passant square
+			enPassantSquare = previousEnPassantSquares.Pop();
+			// Check if en Passant capture
+			if (move.isEnPassantCapture)
 			{
-				MakeMove(move, true);
+				// Add pawn back for the current player
+				int forward = colorToMove == Piece.White ? 1 : -1;
+				squares[move.to.file, move.to.rank + forward] = colorToMove | Piece.Pawn;
 			}
-			else
+			// Update king square
+			if (Piece.Type(piece) == Piece.King)
 			{
-				throw new ArgumentException("Move not legal!");
+				kingSquares[Piece.ColorIndex(oppositeColor)] = move.from;
 			}
+			//If castle, move rook back
+			if (move.isCastle)
+			{
+				// Calculate castle direction based on move.to.file. Queenside = c-file = 2. Kingside = g-file = 6
+				bool isKingside = move.to.file == 6;
+				// Get rank of king
+				int kingRank = oppositeColor == Piece.White ? 0 : 7;
+				if (isKingside)
+				{
+					// Move rook back
+					squares[7, kingRank] = oppositeColor | Piece.Rook;
+					squares[5, kingRank] = Piece.None;
+				}
+				else
+				{
+					// Move rook back
+					squares[0, kingRank] = oppositeColor | Piece.Rook;
+					squares[3, kingRank] = Piece.None;
+				}
+			}
+			// Set previous castling rights
+			castlingRights = previousCastlingRights.Pop();
+
+			// Swap player
+			colorToMove = oppositeColor;
+
+			// Remove one from hash in repetition map
+			repetitionMap[hash] = Math.Max(0, repetitionMap[hash] - 1);
+
+			// Set previous hash
+			hash = previousHashes.Pop();
+
+			halfMoveClock = previousHalfMoveClock.Pop();
+
+			drawState = DrawState.None;
+
+			fullMoveNumber--;
 		}
 
 		public void UndoPreviousMove()
 		{
-			if (playedMoves.TryPeek(out Move previousMove))
+			bool hasMove = playedMoves.TryPeek(out Move move);
+			if (hasMove)
 			{
-				UnmakeMove(previousMove, true);
-			}
-		}
-		public CastlingRights UpdateAllCastlingRights(CastlingRights castlingRights, Move move)
-		{
-			castlingRights = UpdateCastlingRights(castlingRights, CastlingRights.WhiteKingside, move, (7, 0), (4, 0));
-			castlingRights = UpdateCastlingRights(castlingRights, CastlingRights.BlackKingside, move, (7, 7), (4, 7));
-			castlingRights = UpdateCastlingRights(castlingRights, CastlingRights.WhiteQueenside, move, (0, 0), (4, 0));
-			castlingRights = UpdateCastlingRights(castlingRights, CastlingRights.BlackQueenside, move, (0, 7), (4, 7));
-			return castlingRights;
-		}
-
-		public CastlingRights UpdateCastlingRights(CastlingRights castlingRights, CastlingRights rightToCheck, Move move, (int, int) rookPos, (int, int) kingPos)
-		{
-			(int, int) moveStart = move.GetStartSquare();
-			(int, int) moveEnd = move.GetCaptureSquare();
-			if ((castlingRights & rightToCheck) == rightToCheck && (moveStart == rookPos || moveStart == kingPos || (move.IsCapture() && moveEnd == rookPos)))
-			{
-				return castlingRights & (CastlingRights.All ^ rightToCheck);
-			}
-			return castlingRights;
-		}
-
-		private void GenerateLegalMoves()
-		{
-			var pseudoLegalMoves = MoveGenerator.GeneratePseudoLegalMoves(this);
-			legalMoves = pseudoLegalMoves.Where(move => IsLegal(move)).ToList();
-			if (legalMoves.Count() == 0)
-			{
-				gameOver = true;
-				isDraw = !Attack.IsAttacked(GetKingPosition(currentPlayer), this, currentPlayer.Opposite());
+				UnmakeMove(move);
 			}
 		}
 
-		private bool IsLegal(Move move)
-		{
-			// Make the move
-			MakeMove(move);
-
-			(int file, int rank) kingPosition = GetKingPosition(currentPlayer.Opposite());
-			// If the king is in check after the move, the move wasn't legal
-			bool isLegal = !Attack.IsAttacked(kingPosition, this, currentPlayer);
-
-			// Unmake the move
-			UnmakeMove(move);
-			return isLegal;
-		}
-
-		public (int, int) GetKingPosition(Color color)
-		{
-			for (int file = 0; file < BOARD_SIZE; file++)
-			{
-				for (int rank = 0; rank < BOARD_SIZE; rank++)
-				{
-					if (board[file, rank] != null && board[file, rank].GetColor() == color && board[file, rank].GetPieceType() == PieceType.King)
-					{
-						return (file, rank);
-					}
-				}
-			}
-			return (-1, -1);
-		}
-
-		// TODO Move this to Perft.cs?
 		public int GetNumberOfPositions(int depth)
 		{
-			if (depth == 0)
+			if (depth <= 0)
 			{
 				return 1;
 			}
-
+			var moves = moveGenerator.GenerateMoves();
 			if (depth == 1)
 			{
-				return legalMoves.Count;
+				return moves.Count;
 			}
-
 			int positions = 0;
-
-			foreach (Move move in legalMoves)
+			foreach (Move m in moves)
 			{
-				MakeMove(move, depth > 1);
-				positions += GetNumberOfPositions(depth-1);
+				MakeMove(m);
+				positions += GetNumberOfPositions(depth - 1);
 				UndoPreviousMove();
 			}
 			return positions;
+		}
+
+		public void AddAlgNotation(Move move)
+		{
+			string algNotation = PGN.MoveToAlgebraicNotation(this, move);
+			pgnMoves.Push(algNotation);
+		}
+
+		public void PopAlgNotation()
+		{
+			if (pgnMoves.Count > 0)
+			{
+				pgnMoves.Pop();
+			}
 		}
 	}
 }

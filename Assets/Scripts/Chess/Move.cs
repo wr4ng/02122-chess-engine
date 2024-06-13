@@ -1,149 +1,23 @@
-using System;
-
 namespace Chess
 {
-	public class Move : IEquatable<Move>
+	public struct Move
 	{
-		// Base move informaton (from -> to)
-		(int file, int rank) startSquare = (-1, -1);
-		(int file, int rank) endSquare = (-1, -1);
-		PieceType pieceType;
+		public (int file, int rank) from, to;
+		public int capturedPiece; // = Piece.None if move isn't capture
+		public int promotionType; // The type to promote to
+		public bool isEnPassantCapture;
+		public bool isCastle;
 
-		// Capture moves
-		bool isCapture = false;
-		(int file, int rank) captureSquare = (-1, -1);
-		Piece capturedPiece;
-
-		// En Passant moves
-		bool isEnPassant = false;
-		bool isDoublePawnMove = false;
-		(int file, int rank) enPassantSquare = (-1, -1);
-		(int file, int rank) prevEnPassantSquare = (-1, -1);
-
-		// Castling moves
-		bool isCastle = false;
-		(int file, int rank) rookStart = (-1, -1);
-		(int file, int rank) rookEnd = (-1, -1);
-		CastlingRights prevCastlingRights;
-
-		// TODO Handle updating castling rights when castling
-
-		// Promotion moves
-		bool isPromotion;
-		PieceType promotionPiecetype;
-
-		public (int file, int rank) GetStartSquare() => startSquare;
-		public (int file, int rank) GetEndSquare() => endSquare;
-		public PieceType GetPieceType() => pieceType;
-
-		public bool IsCapture() => isCapture;
-		public (int file, int rank) GetCaptureSquare() => captureSquare;
-		public Piece GetCapturedPiece() => capturedPiece;
-
-		public bool IsEnPassant() => isEnPassant;
-		public bool IsDoublePawnMove() => isDoublePawnMove;
-		public (int file, int rank) GetEnPassantSquare() => enPassantSquare;
-		public (int file, int rank) GetPrevEnPassantSquare() => prevEnPassantSquare;
-		public void SetPrevEnPassantSquare((int file, int rank) prevSquare) => prevEnPassantSquare = prevSquare;
-
-		public CastlingRights GetPrevCastlingRights() => prevCastlingRights;
-		public void SetPrevCastlingRights(CastlingRights prevRights) => prevCastlingRights = prevRights;
-
-		public bool IsCastle() => isCastle;
-		public (int file, int rank) GetRookStart() => rookStart;
-		public (int file, int rank) GetRookEnd() => rookEnd;
-
-		public bool IsPromotion() => isPromotion;
-		public PieceType PromotionPieceType() => promotionPiecetype;
-
-		private Move((int file, int rank) start, (int file, int rank) end, PieceType type)
+		public Move((int file, int rank) from, (int file, int rank) to, int capturedPiece = Piece.None, bool isEnPassantCapture = false, bool isCastle = false, int promotionType = Piece.None)
 		{
-			startSquare = start;
-			endSquare = end;
-			pieceType = type;
+			this.from = from;
+			this.to = to;
+			this.capturedPiece = capturedPiece;
+			this.promotionType = promotionType;
+			this.isEnPassantCapture = isEnPassantCapture;
+			this.isCastle = isCastle;
 		}
 
-		public static Move SimpleMove((int file, int rank) start, (int file, int rank) end, PieceType pieceType)
-		{
-			return new Move(start, end, pieceType);
-		}
-
-		public static Move CaptureMove((int file, int rank) start, (int file, int rank) end, PieceType pieceType, Piece capturedPiece)
-		{
-			// CaptureMove is a SimpleMove with capture information
-			Move move = SimpleMove(start, end, pieceType);
-			move.isCapture = true;
-			move.capturedPiece = capturedPiece;
-			move.captureSquare = end;
-			return move;
-		}
-		public static Move DoublePawnMove((int file, int rank) start, (int file, int rank) end, (int file, int rank) enPassantSquare)
-		{
-			Move move = SimpleMove(start, end, PieceType.Pawn);
-			move.isDoublePawnMove = true;
-			move.enPassantSquare = enPassantSquare;
-			return move;
-		}
-
-		public static Move EnPassantMove((int file, int rank) start, (int file, int rank) end, Piece capturedPiece, (int file, int rank) captureSquare)
-		{
-			// EnPassantMove is CaptureMove with different endSquare and captureSquare
-			Move move = CaptureMove(start, end, PieceType.Pawn, capturedPiece);
-			move.captureSquare = captureSquare;
-			move.isEnPassant = true;
-			return move;
-		}
-
-		public static Move CastleMove((int file, int rank) start, (int file, int rank) end, (int file, int rank) rookStart, (int file, int rank) rookEnd)
-		{
-			// CastleMove is a simple king move with additional rook move
-			Move move = SimpleMove(start, end, PieceType.King);
-			move.rookStart = rookStart;
-			move.rookEnd = rookEnd;
-			move.isCastle = true;
-			return move;
-		}
-
-		public static Move PromotionMove((int, int) start, (int, int) end, PieceType promotionPieceType, bool isCapture = false, Piece capturedPiece = null)
-		{
-			Move move = new Move(start, end, PieceType.Pawn);
-			move.isPromotion = true;
-			move.promotionPiecetype = promotionPieceType;
-			move.isCapture = isCapture;
-			move.capturedPiece = capturedPiece;
-			if (isCapture)
-			{
-				move.captureSquare = end;
-			}
-			return move;
-		}
-
-		// TODO Possibly Move should be a record type, to avoid having to overwrite '==' and '!=' for List.Contains()
-		public bool Equals(Move other)
-		{
-			if (other is null)
-				return false;
-
-			// Optimization for a common success case.
-			if (ReferenceEquals(this, other))
-				return true;
-
-			// Equal if all fields are the same
-			return (startSquare == other.startSquare) &&
-				   (endSquare == other.endSquare) &&
-				   (pieceType == other.pieceType) &&
-				   (isCapture == other.isCapture) &&
-				   (captureSquare == other.captureSquare) &&
-				   (capturedPiece is null ? other.capturedPiece is null : capturedPiece.Equals(other.capturedPiece)) && // TODO This could be simplified if Piece was a record type or just a number
-				   (isEnPassant == other.isEnPassant) &&
-				   (isDoublePawnMove == other.isDoublePawnMove) &&
-				   (enPassantSquare == other.enPassantSquare) &&
-				   (prevEnPassantSquare == other.prevEnPassantSquare) &&
-				   (isCastle == other.isCastle) &&
-				   (rookStart == other.rookStart) &&
-				   (rookEnd == other.rookEnd) &&
-				   (isPromotion == other.isPromotion) &&
-				   (promotionPiecetype == other.promotionPiecetype);
-		}
+		public override readonly string ToString() => $"Move: {from} -> {to}. Capture: {Piece.ToString(capturedPiece)}. Promotion: {Piece.ToString(promotionType)}. En Passant Capture: {isEnPassantCapture}. Castle: {isCastle}";
 	}
 }

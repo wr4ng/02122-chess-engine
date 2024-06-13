@@ -1,79 +1,46 @@
-using System;
-using System.ComponentModel;
-
 namespace Chess
 {
-	public class Piece : IEquatable<Piece>
+
+	public static class Piece
 	{
-		private PieceType type;
-		private Color color;
+		public const int None = 0;
+		public const int Pawn = 1;
+		public const int Bishop = 2;
+		public const int Knight = 3;
+		public const int Rook = 4;
+		public const int Queen = 5;
+		public const int King = 6;
 
-		public Piece(PieceType type, Color color)
-		{
-			this.type = type;
-			this.color = color;
-		}
+		public const int White = 8;
+		public const int Black = 16;
 
-		public PieceType GetPieceType()
-		{
-			return type;
-		}
+		// Get least significant three bits
+		public static int Type(int piece) => piece & 0b00111;
+		public static int TypeIndex(int piece) => (piece & 0b00111) - 1;
 
-		public Color GetColor()
-		{
-			return color;
-		}
+		// Get most significant two bits
+		public static int Color(int piece) => piece & 0b11000;
+		public static int ColorIndex(int piece) => (Color(piece) == White) ? 0 : 1;
 
-		public override string ToString()
-		{
-			return color.ToString() + " " + type.ToString();
-		}
+		// XY--- & 0b11000 = XY000. Check if that is equal to color
+		public static bool IsColor(int piece, int color) => Color(piece) == color;
 
-		public char ToFENchar()
+		public static int OppositeColor(int color) => color == White ? Black : White;
+
+		public static string ToString(int piece)
 		{
-			char FENchar = type switch
+			if (piece == None) return "None";
+			string type = Type(piece) switch
 			{
-				PieceType.Pawn => 'p',
-				PieceType.Rook => 'r',
-				PieceType.Knight => 'n',
-				PieceType.Bishop => 'b',
-				PieceType.Queen => 'q',
-				PieceType.King => 'k',
-				_ => throw new InvalidEnumArgumentException()
+				Pawn => "p",
+				Bishop => "b",
+				Knight => "n",
+				Rook => "r",
+				Queen => "q",
+				King => "k",
+				_ => throw new System.ArgumentException($"Invalid piece type: {piece}")
 			};
-			return color == Color.White ? char.ToUpper(FENchar) : FENchar;
-		}
-
-		// IEquatable implementation. Used when comparing capturedPiece in Move
-		public bool Equals(Piece other)
-		{
-			if (other is null)
-				return false;
-			return type == other.GetPieceType() && color == other.GetColor();
-		}
-	}
-
-	public enum PieceType
-	{
-		Pawn = 0b000001,
-		Rook = 0b000010,
-		Knight = 0b000100,
-		Bishop = 0b001000,
-		Queen = 0b010000,
-		King = 0b100000
-	}
-
-	public enum Color
-	{
-		White,
-		Black
-	}
-
-	public static class ColorExtensions
-	{
-		public static Color Opposite(this Color color)
-		{
-			return color == Color.White ? Color.Black : Color.White;
+			return Color(piece) == White ? type.ToUpper() : type;
 		}
 	}
 }
