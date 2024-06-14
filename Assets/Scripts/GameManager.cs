@@ -82,14 +82,22 @@ public class GameManager : MonoBehaviour
 		// Initialize Bot if against Bot
 		if (againstBot)
 		{
-			bot = botType.CreateBot(botDepth,board);
+			bot = botType.CreateBot(botDepth, board);
 			InGameUI.Instance.UpdateEvalText("...");
 		}
 	}
 
 	private void Update()
 	{
+		// Save PGN to system clipboard on Space
+		if (Input.GetKeyDown(KeyCode.Space))
+		{
+			GUIUtility.systemCopyBuffer = PGN.PrettyPgn(board.pgnMoves);
+		}
+
+		// Return if the game is ended
 		if (gameEnded) return;
+
 		// Undo moves on LeftArrow
 		if (Input.GetKeyDown(KeyCode.LeftArrow))
 		{
@@ -110,13 +118,7 @@ public class GameManager : MonoBehaviour
 			BoardUI.Instance.UpdateBoard(board);
 			InGameUI.Instance.UpdateEvalText("N/A");
 		}
-		// Print the pgn of the game on space
-		if (Input.GetKeyDown(KeyCode.Space))
-		{
-			GUIUtility.systemCopyBuffer = PGN.PrettyPgn(board.pgnMoves);
-			// UnityEngine.Debug.Log("PGN of the game:");
-			// UnityEngine.Debug.Log(PGN.PrettyPgn(board.pgnMoves));
-		}
+
 		// Check if bot is done
 		if (botIsCalculating && botIsDone)
 		{
