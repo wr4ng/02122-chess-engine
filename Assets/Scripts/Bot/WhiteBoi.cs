@@ -12,7 +12,6 @@ namespace Bot
 
 		int depth;
 		Board boardOri;
-		Openings openings;
 		bool isInStartGame;
 
 		public WhiteBoi(int depth, Board boardOri)
@@ -20,7 +19,6 @@ namespace Bot
 			this.depth = depth;
 			this.boardOri = boardOri;
 			isInStartGame = true;
-			openings = new Openings();
 		}
 
 		public string GetEval()
@@ -51,7 +49,7 @@ namespace Bot
 				pgnlist.Reverse();
 				string pgnMove;
 				bool stillOp;
-				(pgnMove, stillOp) = openings.CheckOpening(pgnlist);
+				(pgnMove, stillOp) = Openings.CheckOpening(pgnlist);
 				if (stillOp || pgnMove != "")
 				{
 					Move openingMove = PGN.FromAlgebraicNotationToMove(pgnMove, board);
