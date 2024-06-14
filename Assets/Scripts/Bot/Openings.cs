@@ -171,7 +171,6 @@ namespace Bot
 				new string[] {"c4", "b5"},
 				new string[] {"c4", "d5", "cxd5", "e6"},
 				new string[] {"c4", "c6", "Nf3", "d5", "g3", "Nf6", "Bg2", "g6"},
-				new string[] {"c4", "c6", "Nf3", "d5", "b3", "Nf6", "~", "g6"},
 				new string[] {"c4", "c6", "Nf3", "d5", "b3", "Nf6", "Bb2", "Bf5"},
 				new string[] {"c4", "c6", "Nf3", "d5", "b3", "Nf6", "Bb2", "Bg4"},
 				new string[] {"c4", "c6", "Nf3", "d5", "b3", "Nf6", "g3", "Bf5", "Bg2", "e6", "Bb2", "Nbd7"},
@@ -1237,7 +1236,6 @@ namespace Bot
                 // All D and E openings
                 new string[] {"d4", "d5", "Bg5"},
 				new string[] {"d4", "d5", "Qd3"},
-				new string[] {"d4", "d5", "e3", "~", "Bd3"},
 				new string[] {"d4", "d5", "e3", "c6", "Bd3"},
 				new string[] {"d4", "d5", "e3", "e6", "Bd3", "c5"},
 				new string[] {"d4", "d5", "e3", "Nf6", "Bd3"},
