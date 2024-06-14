@@ -171,7 +171,8 @@ namespace Bot
 			}
 			return (bestMove, minEval);
 		}
-		public void UpdateOp(){
+		public void UpdateOp()
+		{
 			isInStartGame = true;
 		}
 	}

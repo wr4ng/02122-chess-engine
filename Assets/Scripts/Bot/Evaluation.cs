@@ -40,13 +40,13 @@ namespace Bot
 		{
 			float weight = Piece.Type(piece) switch
 			{
-				Piece.Pawn   => 100,
+				Piece.Pawn => 100,
 				Piece.Knight => 300,
 				Piece.Bishop => 300,
-				Piece.Rook   => 500,
-				Piece.Queen  => 900,
-				Piece.King   => 10000, //NOTE: Not useful since king is never captured
-				_            => 0
+				Piece.Rook => 500,
+				Piece.Queen => 900,
+				Piece.King => 10000, //NOTE: Not useful since king is never captured
+				_ => 0
 			};
 
 			bool isWhite = Piece.IsColor(piece, Piece.White);

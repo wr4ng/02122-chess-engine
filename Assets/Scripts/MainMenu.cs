@@ -60,7 +60,8 @@ public class MainMenu : MonoBehaviour
 			{
 				fenInputField.text = $"Invalid fen: {e.Message}";
 			}
-		} if (pgnInputField.text != "")
+		}
+		if (pgnInputField.text != "")
 		{
 			// Validate PGN
 			try

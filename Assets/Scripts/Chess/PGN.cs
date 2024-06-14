@@ -410,8 +410,9 @@ namespace Chess
 			};
 			return FENchar;
 		}
-		
-		public static string PrettyPgn(Stack<string> pgnStack){
+
+		public static string PrettyPgn(Stack<string> pgnStack)
+		{
 			// want it to look like 1. then both white and black move and then 2. and so on
 			String prettyPgn = "";
 			int moveNumber = 1;
@@ -434,6 +435,6 @@ namespace Chess
 			}
 			return prettyPgn;
 		}
-		
+
 	}
 }
