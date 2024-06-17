@@ -41,6 +41,4 @@ public class KingTests
 		List<Move> kingMoves = TestUtil.FilterForPieceType(legalMoves, Piece.King, board);
 		Assert.AreEqual(3, kingMoves.Count);
 	}
-
-	//TODO Tests that castlingrights correctly updates
 }

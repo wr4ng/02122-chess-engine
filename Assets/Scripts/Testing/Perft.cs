@@ -70,7 +70,6 @@ namespace Chess.Testing
 			foreach (Move m in board.moveGenerator.GenerateMoves())
 			{
 				board.MakeMove(m);
-				// TODO Handle writing promotion moves (i.e. a7a8r)
 				string move = $"{FEN.CoordinateToFEN(m.from)}{FEN.CoordinateToFEN(m.to)}";
 				int positions = board.GetNumberOfPositions(depth - 1);
 				total += positions;

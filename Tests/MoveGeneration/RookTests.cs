@@ -40,6 +40,4 @@ public class RookTests
 		List<Move> rookMoves = TestUtil.FilterForPieceType(legalMoves, Piece.Rook, board);
 		Assert.AreEqual(8, rookMoves.Count);
 	}
-
-	//TODO Tests that castlingrights correctly updates
 }

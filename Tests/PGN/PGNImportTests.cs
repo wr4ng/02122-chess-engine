@@ -167,23 +167,12 @@ public class PGNImportTests
 		Board board = Board.FromFEN(FEN.STARTING_POSITION_FEN);
 		for (int i = 0; i < moves.Count; i++)
 		{
-			List<Move> legalMoves = board.moveGenerator.GenerateMoves();
 			Move move = PGN.FromAlgebraicNotationToMove(moves[i], board);
 			Assert.IsNotNull(move);
 			board.MakeMove(move);
 			string algebraic = PGN.MoveToAlgebraicNotation(board, move);
-			// // remove + and # from the string moves[i] as part of the test
-			// moves[i] = moves[i].Replace("+", "").Replace("#", "");
 			Assert.AreEqual(moves[i], algebraic);
-			//Assert.AreEqual(moves[i], board.GetLatestAlgebraicNotation());
 		}
-		// List<string> movesFromBoard = board.GetAlgebraicNotation();
-
-		// for (int i = 0; i < moves.Count; i++)
-		// {
-		//     Assert.AreEqual(moves[i], movesFromBoard[i]);
-		// }
-		// TODO: it should be with the last part of the FEN string but ours do not match the expected FEN string
 		string boardFen = FEN.BoardToFEN(board);
 		Assert.AreEqual(fen, boardFen);
 	}

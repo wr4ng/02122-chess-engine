@@ -20,7 +20,6 @@ namespace Chess
 		// Constant arrays of directiojns used for looping
 		public readonly static (int dx, int dy)[] kingDirections = new (int dx, int dy)[8] { (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0) };
 		public readonly static (int dx, int dy)[] knightDirections = new (int dx, int dy)[8] { (-1, -2), (1, -2), (-2, -1), (2, -1), (-2, 1), (2, 1), (-1, 2), (1, 2) };
-		//TODO Maybe make it (int, int)[][] instead of [,]
 		public readonly static (int dx, int dy)[,] pawnDirections = new (int dx, int dy)[2, 2] { { (-1, 1), (1, 1) }, { (-1, -1), (1, -1) } };
 
 		public MoveGenerator(Board board)
@@ -476,7 +475,6 @@ namespace Chess
 			}
 		}
 
-		//TODO Use bitboards to check for pawns, knights and kings. Use directions for queen/bishop/rook (i don't like Magic Numbers TM)
 		public bool IsAttacked((int file, int rank) square, int attackingColor)
 		{
 			// Check for knights. Loop through precomputed knight moves
