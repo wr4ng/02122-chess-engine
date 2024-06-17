@@ -76,7 +76,6 @@ public class MakeMoveTests
 		board.MakeMove(enPassantMoves[0]);
 		Assert.AreEqual("k-------\n--------\n--------\n--------\n--------\n----p---\n--------\nK-------", board.ToString());
 	}
-	//TODO UnmakeMoveEnPassant...
 
 	[TestMethod]
 	public void MakeMoveCastling()
@@ -120,6 +119,4 @@ public class MakeMoveTests
 		board.UndoPreviousMove();
 		Assert.AreEqual("8/k4P2/8/8/8/8/8/7K w - - 0 1", board.ToFEN());
 	}
-
-	// TODO Capture promotion tests
 }
