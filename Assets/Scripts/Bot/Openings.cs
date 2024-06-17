@@ -398,7 +398,6 @@ namespace Bot
 				new string[] {"d3", "e5", "Nd2"},
 				new string[] {"d3", "d5", "Nc3", "Nc6", "g3"},
 				new string[] {"f3", "e5", "Kf2"},
-				new string[] {"g3", "h5"},
 				new string[] {"g3", "e5", "Nf3"},
 				new string[] {"g4", "d5", "Bg2", "c6", "g5"},
 				new string[] {"g4", "d5", "Bg2", "e5", "c4"},

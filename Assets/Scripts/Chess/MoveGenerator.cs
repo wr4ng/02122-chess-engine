@@ -35,7 +35,7 @@ namespace Chess
 		{
 			// Check the king positions for checks and pins
 			CheckKingPosition();
-			EasierMoveList movesList = new EasierMoveList();
+			MoveList movesList = new MoveList();
 			GetKingMoves(movesList, onlyCaptures);
 			// If the number of checks is > 1, then only the king can move
 			if (checkers.Count > 1) { movesList.ConnectList(); return movesList.GetList(); }
@@ -198,7 +198,7 @@ namespace Chess
 			}
 		}
 
-		public void GetKingMoves(EasierMoveList movesList, bool onlyCaptures)
+		public void GetKingMoves(MoveList movesList, bool onlyCaptures)
 		{
 			(int kingFile, int kingRank) = board.kingSquares[Piece.ColorIndex(board.colorToMove)];
 
@@ -232,7 +232,7 @@ namespace Chess
 			}
 		}
 
-		public void GetPawnMoves((int file, int rank) square, EasierMoveList movesList, bool onlyCaptures)
+		public void GetPawnMoves((int file, int rank) square, MoveList movesList, bool onlyCaptures)
 		{
 			bool isPinned = pinned.Contains(square);
 			// Get direction to king if pinned. (0,0) if not pinned (which doesn't)
@@ -325,7 +325,7 @@ namespace Chess
 			}
 		}
 
-		public void GetPromotionMoves((int, int) from, (int, int) to, int capturedPiece, EasierMoveList movesList, bool includeAllPromotions = true)
+		public void GetPromotionMoves((int, int) from, (int, int) to, int capturedPiece, MoveList movesList, bool includeAllPromotions = true)
 		{
 			movesList.InsertCapture(new Move(from, to, capturedPiece: capturedPiece, promotionType: Piece.Queen));
 			movesList.InsertCapture(new Move(from, to, capturedPiece: capturedPiece, promotionType: Piece.Knight));
@@ -337,7 +337,7 @@ namespace Chess
 			}
 		}
 
-		public void GetKnightMoves((int file, int rank) square, EasierMoveList movesList, bool onlyCaptures)
+		public void GetKnightMoves((int file, int rank) square, MoveList movesList, bool onlyCaptures)
 		{
 			// If this knight is pinned, then it cannot move
 			if (pinned.Contains(square)) return;
@@ -365,7 +365,7 @@ namespace Chess
 			}
 		}
 
-		public void GetSlidingMoves((int file, int rank) square, int pieceType, EasierMoveList movesList, bool onlyCaptures)
+		public void GetSlidingMoves((int file, int rank) square, int pieceType, MoveList movesList, bool onlyCaptures)
 		{
 			// Diagonals start at 0 and alternates
 			// Orthogonals start at 1 and alternates
@@ -417,7 +417,7 @@ namespace Chess
 			}
 		}
 
-		public void GetCastleMoves(EasierMoveList movesList)
+		public void GetCastleMoves(MoveList movesList)
 		{
 			(int file, int rank) kingSquare = board.kingSquares[Piece.ColorIndex(board.colorToMove)];
 
