@@ -10,6 +10,9 @@
 - Christoffer Dam-Hansen - s224789
 - Rasmus Sarbæk Salling - s224788
 
+# Running the application
+Builds for Windows and Linux (both x86) can be found under [/Build](Build/). Unzip the `.zip` file and then run the executable found inside to run the application.
+
 # Formatting
 Before comitting, run:
 ```shell
